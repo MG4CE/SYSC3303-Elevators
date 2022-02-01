@@ -1,7 +1,8 @@
 package elevators;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Queue;
 
 public class Elevator implements Runnable {
@@ -10,10 +11,10 @@ public class Elevator implements Runnable {
 	private Date time; 
 	private boolean available;
 	private boolean finished;
-	private final Queue<Message> theScheduler;
+	private final Scheduler theScheduler;
 	
 	
-	public Elevator(Queue<Message> theScheduler) {
+	public Elevator(Scheduler theScheduler) {
 		this.theScheduler = theScheduler;
 	}
 	
@@ -29,18 +30,28 @@ public class Elevator implements Runnable {
 	
 	private void runElevator() {
 		if(available) {
-			Message message = theScheduler.poll();
-			if(!isNull(message)) {
-			goToFloorAndSetTime(message);
+			Command command = theScheduler.getCommand();
+			if(!isNull(command)) {
+			goToFloorAndSetTime(command);
 			}
 		}
 	}
 	
-	private void goToFloorAndSetTime(Message message) {
+	private void goToFloorAndSetTime(Command message) {
 		setFloor(message.getFloor());
-		setTime(message.getTime());
+		SimpleDateFormat formatter6=new SimpleDateFormat("hh:mm:ss.mmm"); 
+		try {
+			setTime(formatter6.parse(message.getTimestamp()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		//This is to simulate
-		Thread.sleep(100);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
