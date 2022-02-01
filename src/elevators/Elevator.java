@@ -29,7 +29,10 @@ public class Elevator implements Runnable {
 	
 	private void runElevator() {
 		if(available) {
-			goToFloorAndSetTime((Message)theScheduler.poll());
+			Message message = theScheduler.poll();
+			if(!isNull(message)) {
+			goToFloorAndSetTime(message);
+			}
 		}
 	}
 	
