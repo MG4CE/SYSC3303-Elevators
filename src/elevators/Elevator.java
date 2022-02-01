@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Queue;
 
+import static java.util.Objects.isNull;
+
 public class Elevator implements Runnable {
 	
 	private int floor;
@@ -74,9 +76,4 @@ public class Elevator implements Runnable {
 		this.available = available;
 	}
 
-	
-	
-	
-	
-	
 }
