@@ -1,10 +1,5 @@
 package elevators;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-
 import static java.util.Objects.isNull;
 
 public class Elevator implements Runnable {
@@ -72,7 +67,7 @@ public class Elevator implements Runnable {
 		}
 		System.out.printf("I am Elevator and am going to floor %d and the time is %s",
 														command.getFloor(), 
-														command.getTimeStamp());
+														command.getTimestamp());
 		
 	}
 	
