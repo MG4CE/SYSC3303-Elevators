@@ -9,37 +9,37 @@ import java.util.Queue;
  */
 public class Scheduler implements Runnable {
 	
-	private Queue<Message> commandQueue;
+	private Queue<Command> commandQueue;
 	
 	/*
 	 * Create new instance of Scheduler
 	 */
 	public Scheduler() {
-		this.commandQueue = new LinkedList<Message>();
+		this.commandQueue = new LinkedList<Command>();
 	}
 	
 	/*
 	 * Create a new instance of Scheduler
-	 * @param Queue of messages
+	 * @param Queue of Commands
 	 */
-	public Scheduler(Queue<Message> commandQueue) {
+	public Scheduler(Queue<Command> commandQueue) {
 		this.commandQueue = commandQueue;
 	}
 	
 	/*
 	 * Push a new command to the commandQueue
-	 * @param Message to be added
+	 * @param Command to be added
 	 */
-	public synchronized void addCommand(Message msg) {
-		commandQueue.add(msg);
+	public synchronized void addCommand(Command cmd) {
+		commandQueue.add(cmd);
 		notifyAll();
 	}
 	
 	/*
 	 * Get latest command from the commandQueue
-	 * @return Latest command from the message queue
+	 * @return Latest command from the Command queue
 	 */
-	public synchronized Message getCommand() {
+	public synchronized Command getCommand() {
 		
 		while(commandQueue.isEmpty()) {
 			try {
@@ -49,8 +49,8 @@ public class Scheduler implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		
-		Message msg = commandQueue.remove();
+
+		Command msg = commandQueue.remove();
 		notifyAll();
 		return msg;
 	}
