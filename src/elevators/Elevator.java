@@ -1,6 +1,8 @@
 package elevators;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Queue;
 
 public class Elevator implements Runnable {
 	
@@ -8,10 +10,10 @@ public class Elevator implements Runnable {
 	private Date time; 
 	private boolean available;
 	private boolean finished;
-	private final Scheduler theScheduler;
+	private final Queue<Message> theScheduler;
 	
 	
-	public Elevator(Scheduler theScheduler) {
+	public Elevator(Queue<Message> theScheduler) {
 		this.theScheduler = theScheduler;
 	}
 	
@@ -27,7 +29,7 @@ public class Elevator implements Runnable {
 	
 	private void runElevator() {
 		if(available) {
-			goToFloorAndSetTime(theScheduler.getMessage());
+			goToFloorAndSetTime((Message)theScheduler.poll());
 		}
 	}
 	
