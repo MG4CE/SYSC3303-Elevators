@@ -52,6 +52,7 @@ public class Elevator implements Runnable {
 			
 		Command command = theScheduler.getCommand();
 		if(!isNull(command)) {
+			//
 			goToFloor(command);
 		}
 	}
