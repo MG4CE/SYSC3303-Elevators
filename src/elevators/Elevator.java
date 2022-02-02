@@ -48,7 +48,7 @@ public class Elevator implements Runnable {
 		Command command = theScheduler.getCommand();
 		if(!isNull(command)) {
 			//
-			goToFloor(command);
+			goToFloorForPickup(command);
 		}
 	}
 	
@@ -56,19 +56,37 @@ public class Elevator implements Runnable {
 	 * Once a command is gotten, go to the next floor
 	 * @param command
 	 */
-	private void goToFloor(Command command) {
-		setFloor(command.getFloor());
+	private void goToFloorForPickup(Command command) {
 		
+		if(this.getFloor() != command.getFloor()) {
 		//This is to simulate the elevator moving
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			try {
+				setFloor(command.getFloor());
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
+		
+		goToFloorFromFloorSelected(command);
+		
 		System.out.printf("I am Elevator and am going to floor %d and the time is %s",
 														command.getFloor(), 
 														command.getTimestamp());
 		
+	}
+	
+	private void goToFloorFromFloorSelected(Command command) {
+		
+		if(this.getFloor() != command.getSelectedFloor()) {
+		//This is to simulate the elevator moving
+			try {
+				setFloor(command.getSelectedFloor());
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public int getFloor() {

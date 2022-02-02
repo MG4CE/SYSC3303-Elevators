@@ -66,7 +66,7 @@ public class Command {
 		return direction;
 	}
 	
-	public int getselectedFloor() {
+	public int getSelectedFloor() {
 		return selectedFloor;
 	}
 }
