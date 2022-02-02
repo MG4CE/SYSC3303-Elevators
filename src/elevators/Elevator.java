@@ -5,7 +5,7 @@ import static java.util.Objects.isNull;
 public class Elevator implements Runnable {
 	
 	private int floor; 
-	private boolean finished;
+	private volatile static boolean finished;
 	private final Scheduler theScheduler;
 	
 	
@@ -16,7 +16,7 @@ public class Elevator implements Runnable {
 	public Elevator(Scheduler theScheduler) {
 		this.floor = 0;
 		this.theScheduler = theScheduler;
-		this.finished = false;
+		Elevator.finished = false;
 	}
 	/**
 	 * Constructor for tests
@@ -27,14 +27,14 @@ public class Elevator implements Runnable {
 	public Elevator(int floor, Scheduler scheduler,  boolean finished) {
 		this.floor = floor;
 		this.theScheduler = scheduler;
-		this.finished = finished;
+		Elevator.finished = finished;
 	}
 	
 	
 	@Override
 	public void run() {
 		
-		while(!finished) {
+		while(!Elevator.finished) {
 			runElevator();
 		}
 		
@@ -76,6 +76,10 @@ public class Elevator implements Runnable {
 	}
 	public void setFloor(int floor) {
 		this.floor = floor;
+	}
+	
+	public static void elevatorFinished() {
+		Elevator.finished = true;
 	}
 	
 
