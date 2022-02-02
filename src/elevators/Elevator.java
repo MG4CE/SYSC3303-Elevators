@@ -5,7 +5,7 @@ import static java.util.Objects.isNull;
 public class Elevator implements Runnable {
 	
 	private int floor; 
-	private boolean finished;
+	private volatile static boolean finished;
 	private final Scheduler theScheduler;
 	
 	
@@ -16,7 +16,7 @@ public class Elevator implements Runnable {
 	public Elevator(Scheduler scheduler) {
 		this.floor = 0;
 		this.theScheduler = scheduler;
-		this.finished = false;
+		Elevator.finished = false;
 	}
 	/**
 	 * Constructor for tests
@@ -27,14 +27,14 @@ public class Elevator implements Runnable {
 	public Elevator(Scheduler scheduler, int floor, boolean finished) {
 		this.floor = floor;
 		this.theScheduler = scheduler;
-		this.finished = finished;
+		Elevator.finished = finished;
 	}
 	
 	
 	@Override
 	public void run() {
 		
-		while(!finished) {
+		while(!Elevator.finished) {
 			runElevator();
 		}
 		
@@ -48,7 +48,7 @@ public class Elevator implements Runnable {
 		Command command = theScheduler.getCommand();
 		if(!isNull(command)) {
 			//
-			goToFloor(command);
+			goToFloorForPickup(command);
 		}
 	}
 	
@@ -56,19 +56,37 @@ public class Elevator implements Runnable {
 	 * Once a command is gotten, go to the next floor
 	 * @param command
 	 */
-	private void goToFloor(Command command) {
-		setFloor(command.getFloor());
+	private void goToFloorForPickup(Command command) {
 		
+		if(this.getFloor() != command.getFloor()) {
 		//This is to simulate the elevator moving
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			try {
+				setFloor(command.getFloor());
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
+		
+		goToFloorFromFloorSelected(command);
+		
 		System.out.printf("I am Elevator and am going to floor %d and the time is %s",
 														command.getFloor(), 
 														command.getTimestamp());
 		
+	}
+	
+	private void goToFloorFromFloorSelected(Command command) {
+		
+		if(this.getFloor() != command.getSelectedFloor()) {
+		//This is to simulate the elevator moving
+			try {
+				setFloor(command.getSelectedFloor());
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public int getFloor() {
@@ -76,6 +94,10 @@ public class Elevator implements Runnable {
 	}
 	public void setFloor(int floor) {
 		this.floor = floor;
+	}
+	
+	public static void elevatorFinished() {
+		Elevator.finished = true;
 	}
 	
 
