@@ -2,6 +2,7 @@ package tests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import elevators.Elevator;
@@ -13,12 +14,18 @@ class ElevatorTest {
 	private Scheduler testScheduler = new Scheduler();
 	private boolean ISFINISHED = false;
 	private final int FLOOR = 15;
+	private final int DEFAULT_FLOOR = 0;
+	
+	@BeforeEach
+    void init() {
+		testElevator = new Elevator(testScheduler);
+    }
 	
 	@Test
 	void testCreateElevatorDefault() {
 		testElevator = new Elevator(testScheduler);
 		assertNotNull(testElevator);
-		assertEquals(testElevator.getFloor(), FLOOR);
+		assertEquals(testElevator.getFloor(), DEFAULT_FLOOR);
 	}
 	
 	@Test
@@ -30,12 +37,12 @@ class ElevatorTest {
 	
 	@Test
 	void testGetFloor() {
-		assertEquals(this.testElevator.getFloor(), FLOOR);
+		assertEquals(this.testElevator.getFloor(), DEFAULT_FLOOR);
 	}
 	
 	@Test
 	void testChangeFloor() {
-		this.testElevator.setFloor(FLOOR + 1);
+		testElevator.setFloor(FLOOR + 1);
 		assertEquals(this.testElevator.getFloor(), FLOOR + 1);
 	}	
 }
