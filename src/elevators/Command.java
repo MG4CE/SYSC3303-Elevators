@@ -21,6 +21,13 @@ public class Command {
 		this.selectedFloor = selectedFloor;
 	}
 	
+	public Command(Calendar time, int floor, Direction direction, int selectedFloor) {
+		this.time = time;
+		this.floor = floor;
+		this.direction = direction;
+		this.selectedFloor = selectedFloor;
+	}
+	
 	private Calendar stringToCalendar(String time) throws NumberFormatException, IllegalArgumentException {
 		String timeParts[] = time.split("[:.]");
 		
@@ -51,7 +58,7 @@ public class Command {
 	}
 	
 	public String getTimestamp() {
-		return String.format("%i:%i:%i.%i", 
+		return String.format("%d:%d:%d.%d", 
 				time.get(Calendar.HOUR),
 				time.get(Calendar.MINUTE),
 				time.get(Calendar.SECOND),

@@ -10,30 +10,32 @@ import elevators.Scheduler;
 class ElevatorTest {
 
 	private Elevator testElevator;
-	private Scheduler testScheduler;
-	
+	private Scheduler testScheduler = new Scheduler();
+	private boolean ISFINISHED = false;
 	private final int FLOOR = 15;
 	
 	@Test
-	void testCreateElevator() {
-		testScheduler = new Scheduler();
-		testElevator = new Elevator(testScheduler, FLOOR);
+	void testCreateElevatorDefault() {
+		testElevator = new Elevator(testScheduler);
 		assertNotNull(testElevator);
 		assertEquals(testElevator.getFloor(), FLOOR);
 	}
-
+	
 	@Test
-	void testCreateElevatorDefault() {
-		testScheduler = new Scheduler();
-		testElevator = new Elevator(testScheduler);
+	void testCreateElevator() {
+		testElevator = new Elevator(testScheduler, FLOOR, ISFINISHED);
 		assertNotNull(testElevator);
-		assertEquals(testElevator.getFloor(), 0); // default val
+		assertEquals(testElevator.getFloor(), FLOOR);
 	}
 	
 	@Test
-	void testSetFloor() {
-		this.testElevator.setFloor(FLOOR);
+	void testGetFloor() {
 		assertEquals(this.testElevator.getFloor(), FLOOR);
+	}
+	
+	@Test
+	void testChangeFloor() {
+		this.testElevator.setFloor(FLOOR + 1);
+		assertEquals(this.testElevator.getFloor(), FLOOR + 1);
 	}	
-
 }

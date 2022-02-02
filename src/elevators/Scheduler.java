@@ -54,6 +54,10 @@ public class Scheduler implements Runnable {
 		notifyAll();
 		return msg;
 	}
+	
+	public int getCommandQueueSize() {
+		return this.commandQueue.size();
+	}
 		
 	@Override
 	public void run() {
