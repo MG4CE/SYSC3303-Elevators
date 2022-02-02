@@ -58,7 +58,7 @@ public class Elevator implements Runnable {
 	 */
 	private void goToFloorForPickup(Command command) {
 		
-		System.out.printf("Floor %i for pickup",command.getFloor());
+		System.out.printf("Floor %d for pickup",command.getFloor());
 		if(this.getFloor() != command.getFloor()) {
 		//This is to simulate the elevator moving
 			try {
@@ -72,7 +72,7 @@ public class Elevator implements Runnable {
 		goToFloorFromFloorSelected(command);
 		
 
-		System.out.printf("Floor %i for dropoff %s\n",command.getSelectedFloor(),command.getTimestamp());
+		System.out.printf(" Floor %d for dropoff the time is %s\n",command.getSelectedFloor(),command.getTimestamp());
 
 		
 	}
