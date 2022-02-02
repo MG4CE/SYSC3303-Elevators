@@ -70,7 +70,7 @@ public class Elevator implements Runnable {
 		
 		goToFloorFromFloorSelected(command);
 		
-		System.out.printf("I am Elevator and am going to floor %d and the time is %s",
+		System.out.printf("I am Elevator and am going to floor %d and the time is %s\n",
 														command.getFloor(), 
 														command.getTimestamp());
 		

@@ -58,7 +58,7 @@ public class Command {
 	}
 	
 	public String getTimestamp() {
-		return String.format("%i:%i:%i.%i", 
+		return String.format("%d:%d:%d.%d", 
 				time.get(Calendar.HOUR),
 				time.get(Calendar.MINUTE),
 				time.get(Calendar.SECOND),
