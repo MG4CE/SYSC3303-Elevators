@@ -39,6 +39,7 @@ class SchedulerTest {
 	@Test
 	void testRemoveCommand() {
 		Command cmd = this.testScheduler.getCommand();
+		assertNotNull(cmd);
 		assertTrue(this.testScheduler.getCommandQueueSize() == 0); // should be empty
 		assertNotNull(cmd);
 	}

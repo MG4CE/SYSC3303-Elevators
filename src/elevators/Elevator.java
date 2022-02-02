@@ -13,9 +13,9 @@ public class Elevator implements Runnable {
 	 * Basic constructor
 	 * @param theScheduler
 	 */
-	public Elevator(Scheduler theScheduler) {
+	public Elevator(Scheduler scheduler) {
 		this.floor = 0;
-		this.theScheduler = theScheduler;
+		this.theScheduler = scheduler;
 		Elevator.finished = false;
 	}
 	/**
@@ -24,7 +24,7 @@ public class Elevator implements Runnable {
 	 * @param scheduler
 	 * @param finished
 	 */
-	public Elevator(int floor, Scheduler scheduler,  boolean finished) {
+	public Elevator(Scheduler scheduler, int floor, boolean finished) {
 		this.floor = floor;
 		this.theScheduler = scheduler;
 		Elevator.finished = finished;
