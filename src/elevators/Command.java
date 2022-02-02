@@ -44,9 +44,10 @@ public class Command {
 	}
 	
 	private Direction stringToDirection(String direction) {
-		if (direction.equals("Up")) {
+		direction = direction.toLowerCase();
+		if (direction.equals("up")) {
 			return Direction.UP;
-		} else if (direction.equals("Down"))  {
+		} else if (direction.equals("down"))  {
 			return Direction.DOWN;
 		}
 		
