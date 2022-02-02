@@ -80,12 +80,12 @@ public class Elevator implements Runnable {
 		
 		if(this.getFloor() != command.getSelectedFloor()) {
 		//This is to simulate the elevator moving
-				try {
-					setFloor(command.getSelectedFloor());
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			try {
+				setFloor(command.getSelectedFloor());
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
