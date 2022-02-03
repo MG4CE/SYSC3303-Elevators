@@ -12,7 +12,6 @@ class ElevatorTest {
 
 	private Elevator testElevator;
 	private Scheduler testScheduler = new Scheduler();
-	private boolean ISFINISHED = false;
 	private final int FLOOR = 15;
 	private final int DEFAULT_FLOOR = 0;
 	
@@ -30,7 +29,7 @@ class ElevatorTest {
 	
 	@Test
 	void testCreateElevator() {
-		testElevator = new Elevator(testScheduler, FLOOR, ISFINISHED);
+		testElevator = new Elevator(testScheduler, FLOOR);
 		assertNotNull(testElevator);
 		assertEquals(testElevator.getFloor(), FLOOR);
 	}

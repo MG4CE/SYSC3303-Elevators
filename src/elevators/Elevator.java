@@ -5,7 +5,6 @@ public class Elevator implements Runnable {
 	private int floor; 
 	private final Scheduler theScheduler;
 	
-	
 	/**
 	 * Basic constructor 
 	 * @param theScheduler the scheduler shared resource
@@ -27,12 +26,15 @@ public class Elevator implements Runnable {
 	
 	@Override
 	public void run() {
-		System.out.println("Elevator has started");
 		Command command;
-		while((command = theScheduler.getCommand()) != null) {
+		while(true) {
+			command = theScheduler.getCommand();
+			if (command.getFloor() == -1) {
+				break;
+			}
 			goToFloorForPickup(command);
 		}
-		System.out.println("Elevator done");
+		System.out.println("Elevator terminated");
 		
 	}
 	

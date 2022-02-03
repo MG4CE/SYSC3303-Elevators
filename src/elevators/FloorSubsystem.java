@@ -10,15 +10,17 @@ public class FloorSubsystem implements Runnable{
 
 	private Scheduler schedulator;
 	private ArrayList<Command> commandList;
+	private String commandFile;
 
 	/**
 	 * Create new instance of Floor Subsystem
 	 *
 	 * @param scheduler
 	 */
-	public FloorSubsystem(Scheduler schedulator) {
+	public FloorSubsystem(Scheduler schedulator, String commandFile) {
 		this.schedulator = schedulator;
 		this.commandList = new ArrayList<Command>();
+		this.commandFile = commandFile;
 		commandList = readCommandsFile();
 	}
 
@@ -38,7 +40,7 @@ public class FloorSubsystem implements Runnable{
 
 		// Initiate scanner
 		try {
-			s = new Scanner(new File("src/elevators/input.txt"));
+			s = new Scanner(new File(commandFile));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -61,8 +63,10 @@ public class FloorSubsystem implements Runnable{
 
 	@Override
 	public void run(){
+		Command terminateCommand = new Command("0:0:0.0", -1, "up", -1);
+		commandList.add(terminateCommand);
 		commandList.forEach((n) -> schedulator.addCommand(n));
-		System.out.println("Floor done");
+		System.out.println("Floor subsystem terminated");
 	}
 
 }
