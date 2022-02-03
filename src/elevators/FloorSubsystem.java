@@ -62,6 +62,7 @@ public class FloorSubsystem implements Runnable{
 	@Override
 	public void run(){
 		commandList.forEach((n) -> schedulator.addCommand(n));
+		System.out.println("Floor done");
 	}
 
 }

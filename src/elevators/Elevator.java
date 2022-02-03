@@ -1,64 +1,49 @@
 package elevators;
 
-import static java.util.Objects.isNull;
-
 public class Elevator implements Runnable {
 	
 	private int floor; 
-	private volatile static boolean finished;
 	private final Scheduler theScheduler;
 	
 	
 	/**
-	 * Basic constructor
-	 * @param theScheduler
+	 * Basic constructor 
+	 * @param theScheduler the scheduler shared resource
 	 */
 	public Elevator(Scheduler scheduler) {
 		this.floor = 0;
 		this.theScheduler = scheduler;
-		Elevator.finished = false;
 	}
 	/**
 	 * Constructor for tests
 	 * @param floor
 	 * @param scheduler
-	 * @param finished
 	 */
-	public Elevator(Scheduler scheduler, int floor, boolean finished) {
+	public Elevator(Scheduler scheduler, int floor) {
 		this.floor = floor;
 		this.theScheduler = scheduler;
-		Elevator.finished = finished;
 	}
 	
 	
 	@Override
 	public void run() {
-		
-		while(!Elevator.finished) {
-			runElevator();
-		}
-		
-	}
-	
-	/**
-	 * Main function for the elevator to run with
-	 */
-	private void runElevator() {
-			
-		Command command = theScheduler.getCommand();
-		if(!isNull(command)) {
-			//
+		System.out.println("Elevator has started");
+		Command command;
+		while((command = theScheduler.getCommand()) != null) {
 			goToFloorForPickup(command);
 		}
+		System.out.println("Elevator done");
+		
 	}
 	
+	
 	/**
-	 * Once a command is gotten, go to the next floor
-	 * @param command
+	 * Once a command had been received, go to the next floor
+	 * @param command the event object
 	 */
 	private void goToFloorForPickup(Command command) {
 		
-		System.out.printf("Floor %d for pickup",command.getFloor());
+		System.out.printf("Elevator at Floor %d going to Floor %d for pickup\n",this.getFloor(),command.getFloor());
 		if(this.getFloor() != command.getFloor()) {
 		//This is to simulate the elevator moving
 			try {
@@ -69,14 +54,15 @@ public class Elevator implements Runnable {
 			}
 		}
 		
+		System.out.printf("Elevator is at Floor %d going to Floor %d for dropoff at time - %s\n\n",this.getFloor(),command.getSelectedFloor(),command.getTimestamp());
 		goToFloorFromFloorSelected(command);
-		
-
-		System.out.printf(" Floor %d for dropoff the time is %s\n",command.getSelectedFloor(),command.getTimestamp());
-
 		
 	}
 	
+	/**
+	 * This method is to simulate going to another floor after a passengar is in the elevator
+	 * @param command the event object
+	 */
 	private void goToFloorFromFloorSelected(Command command) {
 		
 		if(this.getFloor() != command.getSelectedFloor()) {
@@ -90,16 +76,19 @@ public class Elevator implements Runnable {
 		}
 	}
 	
+	/**
+	 * Getter for floor
+	 * @return int the current floor of the elevator
+	 */
 	public int getFloor() {
 		return floor;
 	}
+	/**
+	 * Setter for floor
+	 * @param floor the floor the elevator is going to
+	 */
 	public void setFloor(int floor) {
 		this.floor = floor;
 	}
-	
-	public static void elevatorFinished() {
-		Elevator.finished = true;
-	}
-	
 
 }

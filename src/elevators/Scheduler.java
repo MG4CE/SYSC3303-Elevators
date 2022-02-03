@@ -9,7 +9,7 @@ import java.util.Queue;
  */
 public class Scheduler implements Runnable {
 	
-	private Queue<Command> commandQueue;
+	volatile private Queue<Command> commandQueue;
 	
 	/*
 	 * Create new instance of Scheduler
@@ -41,16 +41,18 @@ public class Scheduler implements Runnable {
 	 */
 	public synchronized Command getCommand() {
 		
-		while(commandQueue.isEmpty()) {
+		//This is used for later but now we are doing our own scheduling to test
+		/**while(commandQueue.isEmpty()) {
 			try {
+				System.out.println("E waiting");
 				wait();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-
-		Command msg = commandQueue.remove();
+		}*/
+		
+		Command msg = commandQueue.poll();
 		notifyAll();
 		return msg;
 	}
@@ -62,6 +64,9 @@ public class Scheduler implements Runnable {
 	@Override
 	public void run() {
 		//replace true with a done signal?
-		while(true);
+		System.out.println("Scheduler Start");
+		while(!commandQueue.isEmpty()) {
+		}
+		System.out.println("Schedular done");
 	}
 }
