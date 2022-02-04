@@ -14,8 +14,8 @@ import elevators.Scheduler;
 class FloorSubsystemTest {
 	private FloorSubsystem testFloorSubsystem;
 	private Scheduler testScheduler;
-	private String TEST_FILE = "src/elevators/input.txt";
-	private String TEST_INVALID_FILE = "src/tests/invalidCommands.txt";
+	private String TEST_FILE = "data/input.txt";
+	private String TEST_INVALID_FILE = "data/invalidCommands.txt";
 	
 	@BeforeEach
 	void init() {
