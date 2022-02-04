@@ -11,6 +11,7 @@ public class FloorSubsystem implements Runnable{
 	private Scheduler schedulator;
 	private ArrayList<Command> commandList;
 	private String commandFile;
+	private Boolean isFileOpen;
 
 	/**
 	 * Create new instance of Floor Subsystem
@@ -21,15 +22,16 @@ public class FloorSubsystem implements Runnable{
 		this.schedulator = schedulator;
 		this.commandList = new ArrayList<Command>();
 		this.commandFile = commandFile;
-		commandList = readCommandsFile();
+		this.isFileOpen = false;
 	}
 
 	/**
 	 * Read input from a file and store each line as as command
 	 * Creates a Command object from each line and adds to command array list
+	 * @param path to file to read
 	 * @return ArrayList of commands
 	 */
-	private ArrayList<Command> readCommandsFile(){
+	public ArrayList<Command> readCommandsFile(String cmdFile){
 		Scanner s = null;
 		ArrayList<Command> cmdList = new ArrayList<Command>();
 		String time = null;
@@ -40,22 +42,24 @@ public class FloorSubsystem implements Runnable{
 
 		// Initiate scanner
 		try {
-			s = new Scanner(new File(commandFile));
+			s = new Scanner(new File(cmdFile));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		
 		while (s.hasNext()){
-			
-			line = s.nextLine();
-			String lineParts[] = line.split(" ");
-			
-			time = lineParts[0];
-			floor = Integer.parseInt(lineParts[1]); 
-			direction = lineParts[2]; 
-			selectedFloor = Integer.parseInt(lineParts[3]); 
-
-			cmdList.add(new Command(time,floor,direction,selectedFloor));
+			try {
+				line = s.nextLine();
+				String lineParts[] = line.split(" ");
+				
+				time = lineParts[0];
+				floor = Integer.parseInt(lineParts[1]); 
+				direction = lineParts[2]; 
+				selectedFloor = Integer.parseInt(lineParts[3]); 
+				cmdList.add(new Command(time,floor,direction,selectedFloor));
+			} catch (Exception e) {
+				return null; // failed to parse! invalid File!
+			}
 		}
 		s.close();
 		return cmdList;
@@ -63,6 +67,7 @@ public class FloorSubsystem implements Runnable{
 
 	@Override
 	public void run(){
+		commandList = readCommandsFile(this.commandFile);
 		Command terminateCommand = new Command("0:0:0.0", -1, "up", -1);
 		commandList.add(terminateCommand);
 		commandList.forEach((n) -> schedulator.addCommand(n));
