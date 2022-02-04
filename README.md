@@ -14,7 +14,7 @@ git clone https://github.com/MG4CE/SYSC3303-Elevators.git
 
 The following image should show an example of the src files in the package view
 
-![](/package_image.png)
+![](images/package_image.png)
 
 ## Usage
 
@@ -36,7 +36,7 @@ The following image should show an example of the src files in the package view
 
 #### Output
 
-![](/test.png)
+![](images/test.png)
 
 ## Files & Description
 
