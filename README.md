@@ -22,7 +22,7 @@ The following image should show an example of the src files in the package view
 
 ```java
  1. Run the main method in Main.java
- 2. Right-click the Main.java file
+ 2. Right-click anywhere inside Main.java file
  3. Run As -> Java Application
  2. Profit
 ```
