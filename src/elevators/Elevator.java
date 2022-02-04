@@ -1,7 +1,17 @@
 package elevators;
 
+/**
+ * This class is to represent an Elevator which will do Three things
+ * 1. Read commands from the Scheduler Thread
+ * 2. Read and go to the floor which has called the elevator
+ * 3. Read and go to the floor that was selected in the elevator
+ * 
+ * @author Kevin Fox 101131526
+ *
+ */
 public class Elevator implements Runnable {
 	
+	//Instance Variables
 	private int floor; 
 	private final Scheduler theScheduler;
 	
@@ -25,10 +35,15 @@ public class Elevator implements Runnable {
 	
 	
 	@Override
+	/**
+	 * Overriden run command to run the ELevators main loop
+	 */
 	public void run() {
 		Command command;
 		while(true) {
 			command = theScheduler.getCommand();
+			
+			//This is the from the stop command
 			if (command.getFloor() == -1) {
 				break;
 			}
@@ -62,7 +77,7 @@ public class Elevator implements Runnable {
 	}
 	
 	/**
-	 * This method is to simulate going to another floor after a passengar is in the elevator
+	 * This method is to simulate going to another floor after a passenger is in the elevator
 	 * @param command the event object
 	 */
 	private void goToFloorFromFloorSelected(Command command) {

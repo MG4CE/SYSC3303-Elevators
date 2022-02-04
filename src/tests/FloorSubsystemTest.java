@@ -12,6 +12,7 @@ import elevators.FloorSubsystem;
 import elevators.Scheduler;
 
 class FloorSubsystemTest {
+	//Initializing test parameters 
 	private FloorSubsystem testFloorSubsystem;
 	private Scheduler testScheduler;
 	private String TEST_FILE = "data/input.txt";
