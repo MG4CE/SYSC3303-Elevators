@@ -9,6 +9,8 @@ import java.util.Queue;
  */
 public class Scheduler implements Runnable {
 	
+	//Instance variables
+	//Volatile prevents any cacheing issues with jvm optimizations
 	volatile private Queue<Command> commandQueue;
 	volatile private Boolean terminateTread;
 	
@@ -59,10 +61,19 @@ public class Scheduler implements Runnable {
 		return msg;
 	}
 	
+	/**
+	 * Getter for getting the size of the Queue
+	 * @return the size of the command queue
+	 */
 	public int getCommandQueueSize() {
 		return this.commandQueue.size();
 	}
 		
+	/**
+	 * Overriden
+	 * This is the main scheduler loop
+	 * It will run until terminated
+	 */
 	@Override
 	public void run() {
 		while(!terminateTread);
