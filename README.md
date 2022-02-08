@@ -1,4 +1,11 @@
-# Iteration 1 - SYSC 3303 - The Schedulators
+# Iteration 2 - SYSC 3303 - The Schedulators
+
+## Issues to address
+- How will we interface with the ElevatorButton's?
+- Scheduler will now need to handle a wider array of commands. Command will need to be broken down into multiple Class for each type of command.
+- How will movement be handled with the new Motor class?
+- How will ElevatorFloorSensor detect the location of the elevator in the shaft?
+- We might need a new type of class Message to notify other components  in the system of changes.
 
 ## Installation
 

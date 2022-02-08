@@ -5,8 +5,6 @@ package elevators;
  * 1. Read commands from the Scheduler Thread
  * 2. Read and go to the floor which has called the elevator
  * 3. Read and go to the floor that was selected in the elevator
- * 
- * @author Kevin Fox 101131526
  *
  */
 public class Elevator implements Runnable {

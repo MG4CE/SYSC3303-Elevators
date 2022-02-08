@@ -9,8 +9,6 @@ import java.util.Scanner;
  * This is a representation of a floor that an elevator will service
  * For this iteration, the subsystem will read an input file and create command objects from it
  * Then it will place those commands objects into the Scheduler
- * @author Rodrigo Fierro
- *
  */
 public class FloorSubsystem implements Runnable{
 
