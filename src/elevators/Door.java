@@ -11,11 +11,11 @@ public class Door {
 		return isDoorOpen;
 	}
 	
-	public void open() {
+	public void openDoor() {
 		this.isDoorOpen = true;
 	}
 	
-	public void close() {
+	public void closeDoor() {
 		this.isDoorOpen = false;
 	}
 }

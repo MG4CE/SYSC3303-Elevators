@@ -1,6 +1,6 @@
 package elevators;
 
-public enum DirectionType {
+public enum Direction {
 	UP,
 	DOWN;
 }
