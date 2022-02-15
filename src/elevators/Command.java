@@ -12,18 +12,8 @@ import java.util.Calendar;
  *
  */
 public class Command {
-	
-	//Enum for direction of the elevator calls
-	public enum Direction {
-		UP,
-		DOWN;
-	}
-	
-	//Instance variables
+		
 	private Calendar time;
-	private int floor;
-	private Direction direction;
-	private int selectedFloor;
 	
 	/**
 	 * Basic constructor
@@ -34,11 +24,8 @@ public class Command {
 	 * @throws NumberFormatException when the time is no properly formatted
 	 * @throws IllegalArgumentException When there is no input file / bad format
 	 */
-	public Command(String time, int floor, String direction, int selectedFloor) throws NumberFormatException, IllegalArgumentException {
+	public Command(String time) throws NumberFormatException, IllegalArgumentException {
 		this.time = stringToCalendar(time);
-		this.floor = floor;
-		this.direction = stringToDirection(direction);
-		this.selectedFloor = selectedFloor;
 	}
 	
 	/**
@@ -48,11 +35,8 @@ public class Command {
 	 * @param direction Direction the direction of the elevator
 	 * @param selectedFloor the floor to go to
 	 */
-	public Command(Calendar time, int floor, Direction direction, int selectedFloor) {
+	public Command(Calendar time) {
 		this.time = time;
-		this.floor = floor;
-		this.direction = direction;
-		this.selectedFloor = selectedFloor;
 	}
 	
 	/**
@@ -82,7 +66,7 @@ public class Command {
 	 * @param direction the direction string
 	 * @return the enum for direction
 	 */
-	private Direction stringToDirection(String direction) {
+	protected Direction stringToDirection(String direction) {
 		direction = direction.toLowerCase();
 		if (direction.equals("up")) {
 			return Direction.UP;
@@ -91,14 +75,6 @@ public class Command {
 		}
 		
 		throw new IllegalArgumentException("Invalid direction string");
-	}
-	
-	/**
-	 * Getter for time
-	 * @return the time as a Calendar object
-	 */
-	public Calendar getTime() {
-		return time;
 	}
 	
 	/**
@@ -111,28 +87,5 @@ public class Command {
 				time.get(Calendar.MINUTE),
 				time.get(Calendar.SECOND), 
 				time.get(Calendar.MILLISECOND));
-	}
-	
-	/**
-	 * Getter for floor
-	 * @return  int floor 
-	 */
-	public int getFloor() {
-		return floor;
-	}
-	/**
-	 * Getter for direction enum
-	 * @return Direction 
-	 */
-	public Direction getDirection() {
-		return direction;
-	}
-	
-	/**
-	 * Getter for the selected floor 
-	 * @return int 
-	 */
-	public int getSelectedFloor() {
-		return selectedFloor;
 	}
 }

@@ -13,6 +13,10 @@ public class FloorButton {
 		return floor;
 	}
 	
+	public Direction getDirection() {
+		return direction;
+	}
+	
 	/* this should create and return a command that needs to be send to the scheduler
 	* public Command pressButton() {
 	* 	
