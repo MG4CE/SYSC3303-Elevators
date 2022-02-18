@@ -1,4 +1,5 @@
-package elevators;
+package main;
+
 
 public class Main {
 	/**

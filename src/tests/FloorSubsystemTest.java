@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import elevators.Command;
-import elevators.FloorSubsystem;
+import commands.Command;
 import elevators.Scheduler;
+import floors.FloorSubsystem;
 
 class FloorSubsystemTest {
 	//Initializing test parameters 

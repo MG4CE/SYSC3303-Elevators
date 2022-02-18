@@ -1,4 +1,6 @@
-package elevators;
+package floors;
+
+import elevators.Direction;
 
 public class FloorButton {
 	private int floor;

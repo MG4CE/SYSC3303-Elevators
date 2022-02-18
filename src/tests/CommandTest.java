@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import commands.Command;
+
 import java.util.Calendar;
-import elevators.Command;
 
 /**
  * Test Class for Command class
@@ -18,7 +19,7 @@ class CommandTest {
 	//Initializing test parameters 
 	private final int FLOOR = 15;
 	private final int SELECTED_FLOOR = 123;
-	private final Command.Direction DIRECTION = Command.Direction.UP;
+	private final Command.Direction DIRECTION = commands.Direction.UP;
 	private final String DIRECTION_STR = "Up";
 	private final Calendar TIME = Calendar.getInstance();
 	private final String TIME_STR = "00:00:00.00";

@@ -1,4 +1,4 @@
-package elevators;
+package components;
 
 public class VerticalLocation {
 	private int location; //Distance from ground floor in meters

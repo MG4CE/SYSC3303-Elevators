@@ -1,4 +1,4 @@
-package elevators;
+package components;
 
 public enum LightStatus {
 	ON,

@@ -1,5 +1,7 @@
 package elevators;
 
+import components.LightStatus;
+
 public class ElevatorButtonLamp {
 	private int floor;
 	private LightStatus lightStatus;

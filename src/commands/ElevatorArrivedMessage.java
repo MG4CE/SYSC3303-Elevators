@@ -1,15 +1,16 @@
-package elevators;
+package commands;
 
 import java.util.Calendar;
 
-public class ElevatorMovingMessage extends Command {
-	private int elevatorID;
-	private int fromFloor;
+public class ElevatorArrivedMessage extends Command {
 	
-	public ElevatorMovingMessage(int elevatorID, int fromFloor) {
+	private int elevatorID;
+	private int atFloor;
+	
+	public ElevatorArrivedMessage(int elevatorID, int floor) {
 		super(Calendar.getInstance());
 		this.elevatorID = elevatorID;
-		this.fromFloor = fromFloor;
+		this.atFloor = floor;
 	}
 	
 	public int getElevatorID() {
@@ -17,6 +18,6 @@ public class ElevatorMovingMessage extends Command {
 	}
 	
 	public int getFloor() {
-		return fromFloor;
+		return atFloor;
 	}
 }
