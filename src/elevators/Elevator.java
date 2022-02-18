@@ -1,111 +1,87 @@
 package elevators;
 
 import commands.Command;
+import stateMachines.ElevatorFSM;
 
-/**
- * This class is to represent an Elevator which will do Three things
- * 1. Read commands from the Scheduler Thread
- * 2. Read and go to the floor which has called the elevator
- * 3. Read and go to the floor that was selected in the elevator
- *
- */
 public class Elevator implements Runnable {
+	// instance variables
+	Motor motor;
+	ElevatorFSM fsm;
 	
-	//Instance Variables
-	private int floor; 
-	private final Scheduler theScheduler;
+	// state holding variables
+	int currentFloor;
+	Direction currentDirection;
+	int destinationFloor;
 	
-	/**
-	 * Basic constructor 
-	 * @param theScheduler the scheduler shared resource
-	 */
-	public Elevator(Scheduler scheduler) {
-		this.floor = 0;
-		this.theScheduler = scheduler;
+	
+	
+	public Elevator(){
+		fsm = new ElevatorFSM();
+		currentFloor = 0;
+		destinationFloor = 0;
+		motor = new Motor();
+		currentDirection = Direction.IDLE;
 	}
-	/**
-	 * Constructor for tests
-	 * @param floor
-	 * @param scheduler
-	 */
-	public Elevator(Scheduler scheduler, int floor) {
-		this.floor = floor;
-		this.theScheduler = scheduler;
+	
+	public int getCurrentFloor() {
+		return this.currentFloor;
 	}
+	
+	//TODO REMOVE AFTER WORKING, HERE FOR TESTS!
+	public void setCurrentFloor(int floor) {
+		this.currentFloor = floor;
+	}
+	
+	public int getDestinationFloor() {
+		return this.destinationFloor;
+	}
+	
+	public void setDestinationFloor(int floor) {
+		this.destinationFloor = floor;
+	}	
+	
+	public Direction getDirection() {
+		return this.currentDirection;
+	}
+	
+	public void setDirection(Direction direction) {
+		this.currentDirection = direction;
+	}
+	
+	public ElevatorFSM.State getElevatorState(){
+		return fsm.getState();
+	}
+	
+	
+	
+	/*
+	 * Wait for the latest command, add synchronize wait
+	 */
+	public void onCommand(Command cmd) {
+		ElevatorFSM.State s = fsm.nextState(cmd, this);
+		switch (s){
+		case INIT :
+			break;
+		case IDLE :
+			break;
+		case BOARDING:
+			//wait for 30s
+			break;
+		case MOVING:
+		case ARRIVING :
+			break;
+		default:
+			break;
+		}
+	}
+	
 	
 	
 	@Override
-	/**
-	 * Overriden run command to run the ELevators main loop
-	 */
 	public void run() {
-		Command command;
-		while(true) {
-			command = theScheduler.getCommand();
-			
-			//This is the from the stop command
-			if (command.getFloor() == -1) {
-				break;
-			}
-			goToFloorForPickup(command);
-		}
-		System.out.println("Elevator terminated");
+		// TODO Auto-generated method stub
 		
 	}
 	
 	
-	/**
-	 * Once a command had been received, go to the next floor
-	 * @param command the event object
-	 */
-	private void goToFloorForPickup(Command command) {
-		
-		System.out.printf("Elevator at Floor %d going to Floor %d for pickup\n",this.getFloor(),command.getFloor());
-		if(this.getFloor() != command.getFloor()) {
-		//This is to simulate the elevator moving
-			try {
-				setFloor(command.getFloor());
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		System.out.printf("Elevator is at Floor %d going to Floor %d for dropoff at time - %s\n\n",this.getFloor(),command.getSelectedFloor(),command.getTimestamp());
-		goToFloorFromFloorSelected(command);
-		
-	}
-	
-	/**
-	 * This method is to simulate going to another floor after a passenger is in the elevator
-	 * @param command the event object
-	 */
-	private void goToFloorFromFloorSelected(Command command) {
-		
-		if(this.getFloor() != command.getSelectedFloor()) {
-		//This is to simulate the elevator moving
-			try {
-				setFloor(command.getSelectedFloor());
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	/**
-	 * Getter for floor
-	 * @return int the current floor of the elevator
-	 */
-	public int getFloor() {
-		return floor;
-	}
-	/**
-	 * Setter for floor
-	 * @param floor the floor the elevator is going to
-	 */
-	public void setFloor(int floor) {
-		this.floor = floor;
-	}
-
 }

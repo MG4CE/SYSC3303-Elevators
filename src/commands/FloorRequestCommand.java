@@ -8,10 +8,10 @@ public class FloorRequestCommand extends Command {
 	private Direction direction;
 	private int requestID;
 	
-	public FloorRequestCommand(String time, int floor, String direction, int requestID) {
+	public FloorRequestCommand(String time, int floor, Direction direction, int requestID) {
 		super(time);
 		this.floor = floor;
-		this.direction = stringToDirection(direction);
+		this.direction = direction;
 		this.requestID = requestID;
 	}
 	
