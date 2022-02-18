@@ -1,6 +1,7 @@
 package commands;
 
 import java.util.Calendar;
+import elevators.Direction;
 
 /**
  * This class is designed to be encapsulate a elevator event
