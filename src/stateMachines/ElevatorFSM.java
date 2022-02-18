@@ -1,6 +1,7 @@
 package stateMachines;
 
 import commands.Command;
+import commands.ElevatorMovingMessage;
 import commands.ElevatorRequestCommand;
 import commands.ElevatorSensorMessage;
 import elevators.Direction;
@@ -47,6 +48,11 @@ public class ElevatorFSM {
 		},
 		BOARDING {
 			@Override public State nextState(Command cmd, Elevator elevator){
+				
+				if(cmd == null) {
+					//This is when no one has pressed a button for another floor
+					return IDLE;
+				}
 				if (cmd instanceof ElevatorRequestCommand) {
 					return IDLE;
 				
@@ -80,8 +86,21 @@ public class ElevatorFSM {
 				}
 				// If a higher priority Command comes in
 				if (cmd instanceof ElevatorRequestCommand) {
+					
 					ElevatorRequestCommand c = (ElevatorRequestCommand)cmd;
-					elevator.setDestinationFloor(c.getFloor());
+					
+					if(elevator.getDirection().equals(Direction.UP)) {
+						if(elevator.getCurrentFloor() < c.getFloor()-1) {
+							elevator.notifySchedulerOfChangeDestination();
+							elevator.setDestinationFloor(c.getFloor());
+						}
+					}
+					else if(elevator.getDirection().equals(Direction.DOWN)) {
+						if(elevator.getCurrentFloor() > c.getFloor()+1) {
+							elevator.notifySchedulerOfChangeDestination();
+							elevator.setDestinationFloor(c.getFloor());
+						}
+					}
 					return MOVING;
 				}
 				return MOVING;

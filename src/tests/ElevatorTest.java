@@ -17,7 +17,7 @@ class ElevatorTest {
 	
 	@BeforeEach
     public void init() {
-		elevator = new Elevator();
+		elevator = new Elevator(null);
     }
 	
 	
@@ -90,6 +90,8 @@ class ElevatorTest {
 		elevator.onCommand(cmd);
 		assertEquals(State.BOARDING, elevator.getElevatorState());
 	}
+	
+	
 	
 
 	
