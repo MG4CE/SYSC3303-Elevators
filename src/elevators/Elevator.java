@@ -1,5 +1,7 @@
 package elevators;
 
+import commands.Command;
+
 /**
  * This class is to represent an Elevator which will do Three things
  * 1. Read commands from the Scheduler Thread

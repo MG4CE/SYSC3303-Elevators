@@ -1,4 +1,4 @@
-package elevators;
+package commands;
 
 import java.util.Calendar;
 

@@ -1,4 +1,6 @@
-package elevators;
+package commands;
+
+import elevators.Direction;
 
 public class FloorRequestCommand extends Command {
 	

@@ -1,4 +1,4 @@
-package elevators;
+package floors;
 
 public class Floor {
 

@@ -1,4 +1,6 @@
-package elevators;
+package components;
+
+import elevators.Direction;
 
 public class DirectionLamp {
 	

@@ -1,4 +1,6 @@
-package elevators;
+package floors;
+
+import components.LightStatus;
 
 public class FloorButtonLamp {
 	private int floor;

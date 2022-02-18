@@ -1,9 +1,11 @@
-package elevators;
+package floors;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import commands.Command;
 
 /**
  * This is a representation of a floor that an elevator will service

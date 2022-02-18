@@ -1,6 +1,8 @@
-package elevators;
+package commands;
 
 import java.util.Calendar;
+
+import elevators.Direction;
 
 public class FloorDirectionMessage extends Command {
 	private Direction direction;

@@ -1,5 +1,7 @@
 package elevators;
 
+import components.VerticalLocation;
+
 /**
  * For now the movement and stop of the motor is instant, but does simulate a constant
  * velocity movement between floors.
