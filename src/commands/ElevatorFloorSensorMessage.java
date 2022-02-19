@@ -15,7 +15,7 @@ public class ElevatorFloorSensorMessage extends Command {
 	 * @param floor requested floor
 	 * @param elevatorID elevator who originated the message
 	 */
-	public ElevatorFloorSensorMessage(int elevatorID, int floor) {
+	public ElevatorFloorSensorMessage(int floor, int elevatorID) {
 		super(Calendar.getInstance());
 		this.elevatorID = elevatorID;
 		this.floor = floor;

@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import commands.ElevatorMovingMessage;
 import commands.InteriorElevatorBtnCommand;
+import commands.ElevatorDispatchCommand;
 import commands.ElevatorFloorSensorMessage;
+import elevators.Direction;
 import elevators.Elevator;
 import scheduler.Scheduler;
 
@@ -16,20 +18,21 @@ class ElevatorTest {
 	
 	@BeforeEach
 	void init() {
-		 s = new Scheduler(elevator);
+		s = new Scheduler();
 		elevator = new Elevator(s,1);
+		s.setElevator(elevator);
 	}
 	
 	@Test
 	void testEnterBoardingState() {
-		InteriorElevatorBtnCommand cmd = new InteriorElevatorBtnCommand(0, 0);
+		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(0);
 		elevator.updateFSM(cmd);
 		assertEquals(Elevator.State.BOARDING, elevator.getCurrentState());
 	}
 
 	@Test
 	void testEnterMovingState() {
-		InteriorElevatorBtnCommand cmd = new InteriorElevatorBtnCommand(10, 0);
+		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(10);
 		elevator.updateFSM(cmd);
 		assertEquals(Elevator.State.MOVING, elevator.getCurrentState());
 	}
@@ -37,8 +40,7 @@ class ElevatorTest {
 	@Test
 	void testEnterArriving() {
 		testEnterMovingState();
-		elevator.setCurrentFloor(10);
-		ElevatorFloorSensorMessage cmd = new ElevatorFloorSensorMessage(0);
+		ElevatorFloorSensorMessage cmd = new ElevatorFloorSensorMessage(1, 0);
 		elevator.updateFSM(cmd);
 		assertEquals(Elevator.State.MOVING, elevator.getCurrentState());
 	}
