@@ -12,7 +12,7 @@ public class InteriorElevatorBtnCommand extends Command {
 	
 
 	/**
-	 * ElevatorRequestCommand Constructor
+	 * InteriorElevatorBtnCommand Constructor
 	 * @param floor requested floor
 	 * @param requestID unique ID assigned to the message
 	 */

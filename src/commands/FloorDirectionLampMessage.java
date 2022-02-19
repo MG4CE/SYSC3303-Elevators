@@ -14,7 +14,7 @@ public class FloorDirectionLampMessage extends Command {
 	private LightStatus lightStatus;
 	
 	/**
-	 * FloorDirectionMessage Constructor
+	 * FloorDirectionLampMessage Constructor
 	 * @param direction which direction light to command
 	 * @param floorNum floor
 	 * @param lightStatus indicate light status

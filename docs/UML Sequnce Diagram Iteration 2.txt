@@ -1,0 +1,47 @@
+title UML Sequence Diagram
+
+participant f.FloorSubsystem
+participant s.Scheduler
+participant e.Elevator
+
+activate f.FloorSubsystem
+activate s.Scheduler
+activate e.Elevator
+
+note left of f.FloorSubsystem:Command File
+
+f.FloorSubsystem->f.FloorSubsystem:parseFileCommands()
+
+loop for each command in list
+  f.FloorSubsystem->f.FloorSubsystem:delayBasedOnTimestamp()
+  f.FloorSubsystem->f.FloorSubsystem:formFloorRequestCommand()
+  f.FloorSubsystem->s.Scheduler:send()
+  s.Scheduler->s.Scheduler:scheduleRequest()
+end
+ 
+opt Elevator Idle && command list not empty
+	s.Scheduler->s.Scheduler:getHighestPriorityFloor()
+    s.Scheduler->s.Scheduler:formElevatorCommand()
+    s.Scheduler->e.Elevator:send()
+end
+
+opt Elevator Moving
+   e.Elevator->e.Elevator:formElevatorMovingMessage()
+   e.Elevator->s.Scheduler:send()
+end
+
+opt Elevator Sensor Trigger
+   e.Elevator->e.Elevator:formElevatorFloorSensorMessage()
+   e.Elevator->s.Scheduler:send()
+end
+
+opt Elevator Arrived
+  e.Elevator->e.Elevator:formElevatorArrivedMessage()
+  e.Elevator->s.Scheduler:send()
+  s.Scheduler->s.Scheduler:formFloorDirectionMessage()
+  s.Scheduler->f.FloorSubsystem:send()
+  f.FloorSubsystem->f.FloorSubsystem:formElevatorButtonCommand()
+  f.FloorSubsystem->e.Elevator:sendCommand()
+  e.Elevator->s.Scheduler:sendCommand()
+  s.Scheduler->s.Scheduler:scheduleRequest()
+end

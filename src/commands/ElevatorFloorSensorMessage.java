@@ -10,7 +10,7 @@ public class ElevatorFloorSensorMessage extends Command {
 	private int floor;
 	
 	/**
-	 * ElevatorSensorMessage Constructor
+	 * ElevatorFloorSensorMessage Constructor
 	 * @param floor requested floor
 	 * @param requestID unique ID assigned to the message
 	 */

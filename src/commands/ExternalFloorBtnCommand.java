@@ -14,7 +14,7 @@ public class ExternalFloorBtnCommand extends Command {
 	private int requestID;
 	
 	/**
-	 * FloorRequestCommand Constructor
+	 * ExternalFloorBtnCommand Constructor
 	 * @param floor the floor that created the request
 	 * @param direction the direction pressed
 	 * @param requestID unique ID assigned to the message
