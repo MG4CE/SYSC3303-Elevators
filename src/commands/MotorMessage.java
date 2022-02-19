@@ -5,7 +5,7 @@ import java.util.Calendar;
 public class MotorMessage extends Command {
 	int height;
 	
-	public MotorMessage(Calendar time, int elevatorHeight) {
+	public MotorMessage(int elevatorHeight) {
 		super(Calendar.getInstance());
 		this.height = elevatorHeight;
 	}
