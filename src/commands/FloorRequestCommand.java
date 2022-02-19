@@ -19,7 +19,7 @@ public class FloorRequestCommand extends Command {
 	 * @param direction the direction pressed
 	 * @param requestID unique ID assigned to the message
 	 */
-	public FloorRequestCommand(int floor, String direction, int requestID) {
+	public FloorRequestCommand(int floor, Direction direction, int requestID) {
 		super(Calendar.getInstance());
 		this.floor = floor;
 		this.direction = direction;
