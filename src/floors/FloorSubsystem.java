@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import commands.Command;
+import scheduler.Scheduler;
 
 /**
  * This is a representation of a floor that an elevator will service

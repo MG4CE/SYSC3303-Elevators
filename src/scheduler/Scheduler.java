@@ -7,7 +7,7 @@ import java.util.Set;
 
 import commands.Command;
 import commands.ElevatorArrivedMessage;
-import commands.ElevatorRequestCommand;
+import commands.InteriorElevatorBtnCommand;
 import elevators.Direction;
 import elevators.Elevator;
 
@@ -45,7 +45,7 @@ public class Scheduler {
 	
 	private void sendElevatorRequest(int destFloor) {
 		//TODO REQUEST ID???
-		ElevatorRequestCommand cmd = new ElevatorRequestCommand(destFloor, 0);
+		InteriorElevatorBtnCommand cmd = new InteriorElevatorBtnCommand(destFloor, 0);
 	}
 	
 	public synchronized void schedulerPutCommand(Command command) {
@@ -78,8 +78,8 @@ public class Scheduler {
 		switch (currentState) {
 		case WAIT:
 			// On new floor request, move to dispatching
-			if(command instanceof ElevatorRequestCommand) {
-				ElevatorRequestCommand c = (ElevatorRequestCommand) command;
+			if(command instanceof InteriorElevatorBtnCommand) {
+				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				currentState = controlState.DISPATCH;
 			}
 			break;
@@ -98,8 +98,8 @@ public class Scheduler {
 					currentState = controlState.DISPATCH;
 				}
 			}
-			if(command instanceof ElevatorRequestCommand) {
-				ElevatorRequestCommand c = (ElevatorRequestCommand) command;
+			if(command instanceof InteriorElevatorBtnCommand) {
+				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 			}
 			
 			break;

@@ -8,7 +8,7 @@ import elevators.Direction;
 /**
  * Message sent to the floor commanding the direction lights
  */
-public class FloorDirectionMessage extends Command {
+public class FloorDirectionLampMessage extends Command {
 	private Direction direction;
 	private int floorNum;
 	private LightStatus lightStatus;
@@ -19,7 +19,7 @@ public class FloorDirectionMessage extends Command {
 	 * @param floorNum floor
 	 * @param lightStatus indicate light status
 	 */
-	public FloorDirectionMessage(Direction direction, int floorNum, LightStatus lightStatus) {
+	public FloorDirectionLampMessage(Direction direction, int floorNum, LightStatus lightStatus) {
 		super(Calendar.getInstance());
 		this.direction = direction;
 		this.floorNum = floorNum;

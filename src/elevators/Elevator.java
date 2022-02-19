@@ -5,8 +5,8 @@ import java.util.concurrent.TimeoutException;
 import commands.Command;
 import commands.ElevatorArrivedMessage;
 import commands.ElevatorMovingMessage;
-import commands.ElevatorRequestCommand;
-import commands.ElevatorSensorMessage;
+import commands.InteriorElevatorBtnCommand;
+import commands.ElevatorFloorSensorMessage;
 
 
 public class Elevator implements Runnable {
@@ -107,8 +107,8 @@ public class Elevator implements Runnable {
 	public synchronized void updateFSM(Command command) {
 		switch (this.currentState){
 		case IDLE :
-			if(command instanceof ElevatorRequestCommand) {
-				ElevatorRequestCommand c = (ElevatorRequestCommand) command;
+			if(command instanceof InteriorElevatorBtnCommand) {
+				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				if(this.currentFloor == c.getFloor()) {
 					this.currentState = State.BOARDING;
 					return;
@@ -126,7 +126,7 @@ public class Elevator implements Runnable {
 			//		this.currentState = State.IDLE;
 			//}
 			// check if button on other floor was clicked
-			if (command instanceof ElevatorRequestCommand) {
+			if (command instanceof InteriorElevatorBtnCommand) {
 				this.currentState = State.IDLE;
 			}
 			break;
@@ -134,14 +134,14 @@ public class Elevator implements Runnable {
 		
 		case MOVING:
 			// check if a higher priority stop was sent by the scheduler, back to MOVING
-			if (command instanceof ElevatorRequestCommand) {
-				ElevatorRequestCommand c = (ElevatorRequestCommand) command;
+			if (command instanceof InteriorElevatorBtnCommand) {
+				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				setDestinationFloor(c.getFloor()); // update latest destination
 				currentState = State.MOVING;
 			} 
 			// Any time elevator passes a floor
-			if(command instanceof ElevatorSensorMessage) {
-				ElevatorSensorMessage c = (ElevatorSensorMessage) command;
+			if(command instanceof ElevatorFloorSensorMessage) {
+				ElevatorFloorSensorMessage c = (ElevatorFloorSensorMessage) command;
 				setCurrentFloor(c.getFloor());
 				if(currentDirection == Direction.UP && currentFloor == destinationFloor -1) {
 					currentState = State.ARRIVING;
@@ -152,7 +152,7 @@ public class Elevator implements Runnable {
 			break;
 			
 		case ARRIVING :
-			if(command instanceof ElevatorSensorMessage) {
+			if(command instanceof ElevatorFloorSensorMessage) {
 				currentState = State.BOARDING;
 			}
 			break;
