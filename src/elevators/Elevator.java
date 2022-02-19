@@ -8,6 +8,7 @@ import commands.ElevatorDispatchCommand;
 import commands.ElevatorMovingMessage;
 import commands.InteriorElevatorBtnCommand;
 import components.DirectionLamp;
+import elevators.Motor.MotorState;
 import scheduler.Scheduler;
 import commands.ElevatorFloorSensorMessage;
 
@@ -122,22 +123,6 @@ public class Elevator implements Runnable {
 	 */
 	public void setDirection(Direction direction) {
 		currentDirection = direction;
-	}
-
-	/**
-	 * Setter for currentFloor 
-	 * @param floor int
-	 */
-	public synchronized void setCurrentFloor(int floor) {
-		currentFloor = floor;
-	}
-	
-	/**
-	 * Getter for the elevators current Floor
-	 * @return int current floor
-	 */
-	public synchronized int getCurrentFloor() {
-		return currentFloor;
 	}
 	
 	/**
@@ -263,18 +248,39 @@ public class Elevator implements Runnable {
 				setDestinationFloor(c.getDestFloor()); // update latest destination
 				currentState = State.MOVING;
 			} 
-			
-			// Any time elevator passes a floor
-			if(command instanceof ElevatorFloorSensorMessage) {
-				ElevatorFloorSensorMessage c = (ElevatorFloorSensorMessage) command;
-				setCurrentFloor(c.getFloor());
-				if(currentDirection == Direction.UP && currentFloor == destinationFloor -1) {
-					currentState = State.ARRIVING;
-					
-				}else if(currentDirection == Direction.DOWN && currentFloor == destinationFloor +1) {
-					currentState = State.ARRIVING;
+			Thread t = new Thread(new Runnable() {
+			    @Override
+			    public void run() {
+					while(true) {
+						synchronized(motor.getLocation()) {
+							while(!motor.isMessageReady()) {
+								try {
+									wait();
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+								
+							}
+							for(ArrivalSensor s: sensors) {
+								if (s.getLocation() == motor.getLocation().getLocation()) {
+									currentFloor = s.getFloor();
+									if(currentFloor != destinationFloor) {
+										notifySchedulerOfState(new ElevatorFloorSensorMessage(ELEVATOR_ID, currentFloor));
+									} else {
+										notifySchedulerOfState(new ElevatorArrivedMessage(ELEVATOR_ID, currentFloor));
+										motor.stopMotor();
+										currentState = State.ARRIVING;
+										break;
+									}
+								}
+							}
+							notifyAll();
+						}
+					}
 				}
-			}
+			});  
+			t.start();
+			
 			break;
 			
 		case ARRIVING :
