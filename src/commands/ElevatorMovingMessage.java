@@ -8,9 +8,11 @@ import elevators.Direction;
  * Message sent by the elevator indicating that it has started moving
  */
 public class ElevatorMovingMessage extends Command {
+	
 	private int elevatorID;
 	private int fromFloor;
 	private Direction currDirection;
+	
 	/**
 	 * ElevatorMovingMessage Constructor
 	 * @param elevatorID elevator who originated the message

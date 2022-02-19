@@ -9,6 +9,7 @@ import elevators.Direction;
  * Message sent to the floor commanding the direction lights
  */
 public class FloorDirectionLampMessage extends Command {
+	
 	private Direction direction;
 	private int floorNum;
 	private LightStatus lightStatus;

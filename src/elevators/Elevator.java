@@ -227,12 +227,6 @@ public class Elevator implements Runnable {
 			
 			elevatorDoor.closeDoor();
 			
-			//try {
-			//	wait(30 * 1000); //TODO COME BACK
-			//} catch (InterruptedException e) {
-			//	if (currentState == State.BOARDING) 
-			//		this.currentState = State.IDLE;
-			//}
 			// check if button on other floor was clicked
 			if (command instanceof InteriorElevatorBtnCommand) {
 				this.elevatorDirectionLamp.turnOffLight();
