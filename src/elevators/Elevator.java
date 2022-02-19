@@ -1,6 +1,7 @@
 package elevators;
 
 import commands.Command;
+import stateMachines.Scheduler;
 
 /**
  * This class is to represent an Elevator which will do Three things

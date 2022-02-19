@@ -8,8 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import commands.Command;
-import elevators.Scheduler;
+import stateMachines.Scheduler;
 import floors.FloorSubsystem;
+import stateMachines.Scheduler;
 
 class FloorSubsystemTest {
 	//Initializing test parameters 

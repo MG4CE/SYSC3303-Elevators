@@ -1,5 +1,7 @@
 package stateMachines;
 
+import commands.Command;
+
 import java.util.LinkedList;
 import java.util.Queue;
 

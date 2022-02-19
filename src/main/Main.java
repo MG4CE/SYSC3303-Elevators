@@ -1,6 +1,10 @@
 package main;
 
 
+import elevators.Elevator;
+import floors.FloorSubsystem;
+import stateMachines.Scheduler;
+
 public class Main {
 	/**
 	 * Main method to be ran
