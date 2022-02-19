@@ -1,7 +1,5 @@
 package elevators;
 
-import java.util.concurrent.TimeoutException;
-
 import commands.Command;
 import commands.ElevatorArrivedMessage;
 import commands.ElevatorMovingMessage;
@@ -9,9 +7,11 @@ import commands.ElevatorRequestCommand;
 import commands.ElevatorSensorMessage;
 
 
+
 public class Elevator implements Runnable {
 	// FSM State Variables
 	public enum State{IDLE, BOARDING, MOVING, ARRIVING};
+	public enum DoorStatus{OPEN,CLOSE};
 	State currentState;
 	
 	// Shared Command Variable
@@ -20,6 +20,7 @@ public class Elevator implements Runnable {
 	
 	// Elevator instance variables
 	Motor motor;
+	DoorStatus elevatorDoor;
 	
 	// Elevator fields
 	Boolean running;
@@ -37,6 +38,7 @@ public class Elevator implements Runnable {
 		latestCommand = null;
 		readyForCommand = true;
 		running = true;
+		elevatorDoor = DoorStatus.CLOSE;
 	}
 	
 	public State getCurrentState() {
@@ -62,6 +64,27 @@ public class Elevator implements Runnable {
 	public void setCurrentFloor(int floor) {
 		currentFloor = floor;
 	}
+	
+	private void doorOpen() {
+		this.elevatorDoor = DoorStatus.OPEN;
+	}
+	
+	private void doorClose() {
+		this.elevatorDoor = DoorStatus.CLOSE;
+	}
+	
+	//TODO This is needed for replying to scheduler
+	private void notifySchedulerOfState() {
+		
+		//This will need to tell the scheduler about the following events
+		//1. After the elevator gets to a new floor
+		//2. After an elevator goes from idle to moving
+		//3. After the elevator goes from moving to arriving
+		//4. After the elevator gets a new destination (Return old destination to be rescheduled)
+		
+		
+	}
+	
 	
 	
 	// FSM Shit
@@ -111,11 +134,25 @@ public class Elevator implements Runnable {
 					return;
 				}else {
 					currentState = State.MOVING;
+					
+					//Check direction
+					if(this.currentFloor < c.getFloor()) {
+						this.currentDirection = Direction.UP;
+					}else if(this.currentFloor > c.getFloor()) {
+						this.currentDirection = Direction.DOWN;
+					}
+					
+					motor.move(currentDirection);
 				}
 			}
 			break;
 			
 		case BOARDING:
+			
+			doorOpen();
+			
+			doorClose();
+			
 			//try {
 			//	wait(30 * 1000); //TODO COME BACK
 			//} catch (InterruptedException e) {
@@ -149,6 +186,8 @@ public class Elevator implements Runnable {
 			break;
 			
 		case ARRIVING :
+			
+			this.motor.stopMotor();
 			if(command instanceof ElevatorSensorMessage) {
 				currentState = State.BOARDING;
 			}
