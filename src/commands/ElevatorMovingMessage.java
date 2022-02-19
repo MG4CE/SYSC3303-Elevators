@@ -2,22 +2,25 @@ package commands;
 
 import java.util.Calendar;
 
+import elevators.Direction;
+
 /**
  * Message sent by the elevator indicating that it has started moving
  */
 public class ElevatorMovingMessage extends Command {
 	private int elevatorID;
 	private int fromFloor;
-	
+	private Direction currDirection;
 	/**
 	 * ElevatorMovingMessage Constructor
 	 * @param elevatorID elevator who originated the message
-	 * @param floor arrived at floor
+	 * @param fromFloor arrived at floor
 	 */
-	public ElevatorMovingMessage(int elevatorID, int fromFloor) {
+	public ElevatorMovingMessage(int elevatorID, int fromFloor, Direction direction) {
 		super(Calendar.getInstance());
 		this.elevatorID = elevatorID;
 		this.fromFloor = fromFloor;
+		this.currDirection = direction;
 	}
 	
 	/**
