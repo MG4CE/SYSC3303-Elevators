@@ -65,6 +65,7 @@ public class Elevator implements Runnable {
 		currentFloor = floor;
 	}
 	
+<<<<<<< HEAD
 	private void doorOpen() {
 		this.elevatorDoor = DoorStatus.OPEN;
 	}
@@ -86,6 +87,11 @@ public class Elevator implements Runnable {
 	}
 	
 	
+=======
+	public int getCurrentFloor() {
+		return currentFloor;
+	}
+>>>>>>> iteration-2
 	
 	// FSM Shit
 	@Override
