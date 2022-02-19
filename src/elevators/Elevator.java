@@ -1,5 +1,7 @@
 package elevators;
 
+import java.util.ArrayList;
+
 import commands.Command;
 import commands.ElevatorArrivedMessage;
 import commands.ElevatorMovingMessage;
@@ -11,8 +13,10 @@ import commands.ElevatorFloorSensorMessage;
 public class Elevator implements Runnable {
 	// FSM State Variables
 	public enum State{IDLE, BOARDING, MOVING, ARRIVING};
-	public enum DoorStatus{OPEN,CLOSE};
+	
 	State currentState;
+	
+	final int NUM_FLOORS = 7;
 	
 	// Shared Command Variable
 	Command latestCommand;
@@ -20,7 +24,11 @@ public class Elevator implements Runnable {
 	
 	// Elevator instance variables
 	Motor motor;
-	DoorStatus elevatorDoor;
+	Door elevatorDoor;
+	
+	ArrayList<ElevatorButton> floorButtons;
+	ArrayList<ArrivalSensor> sensors;
+	ArrayList<ElevatorButtonLamp> floorButtonLamps;
 	
 	// Elevator fields
 	Boolean running;
@@ -38,7 +46,21 @@ public class Elevator implements Runnable {
 		latestCommand = null;
 		readyForCommand = true;
 		running = true;
-		elevatorDoor = DoorStatus.CLOSE;
+		
+		
+		elevatorDoor.closeDoor();
+		
+		//Add sensors
+		sensors = new ArrayList<>();
+		floorButtons = new ArrayList<>();
+		floorButtonLamps = new ArrayList<>();
+		
+		for(int i =0; i<NUM_FLOORS; i++) {
+			sensors.add(new ArrivalSensor(i));
+			floorButtons.add(new ElevatorButton(i));
+			floorButtonLamps.add(new ElevatorButtonLamp(i));
+		}
+		
 	}
 	
 	public State getCurrentState() {
@@ -66,10 +88,26 @@ public class Elevator implements Runnable {
 	}
 	
 
+	
+	//TODO This is needed for replying to scheduler
+	private void notifySchedulerOfState() {
+		
+		//This will need to tell the scheduler about the following events
+		//1. After the elevator gets to a new floor
+		//2. After an elevator goes from idle to moving
+		//3. After the elevator goes from moving to arriving
+		//4. After the elevator gets a new destination (Return old destination to be rescheduled)
+		
+		
+	}
+	
+	
+
+
 	public int getCurrentFloor() {
 		return currentFloor;
 	}
-	
+
 	// FSM Shit
 	@Override
 	public void run() {
@@ -132,9 +170,9 @@ public class Elevator implements Runnable {
 			
 		case BOARDING:
 			
-			doorOpen();
+			elevatorDoor.openDoor();
 			
-			doorClose();
+			elevatorDoor.closeDoor();
 			
 			//try {
 			//	wait(30 * 1000); //TODO COME BACK
@@ -170,7 +208,7 @@ public class Elevator implements Runnable {
 			
 		case ARRIVING :
 			this.motor.stopMotor();
-			if(command instanceof ElevatorSensorMessage) {
+			if(command instanceof ElevatorFloorSensorMessage) {
 				currentState = State.BOARDING;
 			}
 			break;
