@@ -20,9 +20,10 @@ public class Scheduler implements Runnable {
 	ArrayList<Integer> elevatorUpDestinations = new ArrayList<Integer>();
 	ArrayList<Integer> elevatorDownDestinations = new ArrayList<Integer>();
 	ArrayList<Integer> currentElevatorDestinations = new ArrayList<Integer>();
-
+	ArrayList<Integer> shitDests = new ArrayList<Integer>();
+	
 	int elevatorCurrentFloor = 0;
-	Direction elevatorCurrentDirection = null;
+	Direction elevatorCurrentDirection = Direction.IDLE;
 
 	Command latestCommand;
 	Boolean readyForCommand;
@@ -242,12 +243,16 @@ public class Scheduler implements Runnable {
 				insertNewDestination(c.getFloor(), c.getDirection());
 				currentState = controlState.DISPATCH;
 			}
+			//transition
+			sendElevatorRequest(getNextFloor());
 			break;
 		
 		case DISPATCH:
-			//entry condition, send request for next destination
-			sendElevatorRequest(getNextFloor());
 			// Check if elevator has arrived
+			sendElevatorRequest(getNextFloor());
+			if(currentElevatorDestinations.size() > 1) {
+				System.out.print(false);
+			}
 			if(command instanceof ElevatorArrivedMessage) {
 				// remove visited floor
 				currentElevatorDestinations.remove(0);
@@ -255,11 +260,14 @@ public class Scheduler implements Runnable {
 				if(currentElevatorDestinations.isEmpty()) {
 					currentState = controlState.WAIT;
 				}else { // more floors to visit?
+					sendElevatorRequest(getNextFloor());
 					currentState = controlState.DISPATCH;
 				}
 			}
 			if(command instanceof InteriorElevatorBtnCommand) {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
+				insertNewDestination(c.getFloor(), elevatorCurrentDirection);
+				sendElevatorRequest(getNextFloor());
 			}
 			
 			break;

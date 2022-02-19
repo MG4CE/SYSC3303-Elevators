@@ -59,7 +59,7 @@ public class Elevator implements Runnable {
 		this.currentState = State.IDLE;
 		currentFloor = 0;
 		destinationFloor = 0;
-		motor = new Motor();
+		motor = new Motor(this);
 		currentDirection = Direction.IDLE;
 		latestCommand = null;
 		readyForCommand = true;
@@ -95,7 +95,7 @@ public class Elevator implements Runnable {
 			return;
 		}
 		schedulator.schedulerPutCommand(floorButtons.get(button).pushButton());
-		elevatorPutCommand(floorButtons.get(button).pushButton());
+		//elevatorPutCommand(floorButtons.get(button).pushButton());
 	}
 	
 	
@@ -206,21 +206,25 @@ public class Elevator implements Runnable {
 	public synchronized void updateFSM(Command command) {
 		if (command instanceof MotorMessage) {
 			MotorMessage c = (MotorMessage)command;
+			System.out.printf("Elevator passing %d\n", getCurrentFloor(c.getHeight()));
 			currentFloor = getCurrentFloor(c.getHeight());
+			schedulator.schedulerPutCommand(new ElevatorFloorSensorMessage(currentFloor, ELEVATOR_ID));
 		}
 		
 		switch (this.currentState){
 		case IDLE :
 			if(command instanceof ElevatorDispatchCommand) {
 				ElevatorDispatchCommand c = (ElevatorDispatchCommand) command;
-				System.out.printf("Received command to go to floor %d\n", c.getDestFloor());
 				if(this.currentFloor == c.getDestFloor()) {
+					System.out.println("Elevator Already at Floor, going to boarding");
 					this.currentState = State.BOARDING;
 					return;
 				}else {
 					currentDirection = (currentFloor < c.getDestFloor()) ? Direction.UP : Direction.DOWN;
 					motor.move(currentDirection); // Transition action
 					currentState = State.MOVING;
+					System.out.printf("Elevator dispatched to floor %d\n", c.getDestFloor());
+					System.out.printf("Elevator going to moving state in direction %s\n", currentDirection);
 					notifySchedulerOfState(new ElevatorMovingMessage(ELEVATOR_ID, c.getDestFloor(), currentDirection));
 				}
 			}
@@ -229,6 +233,7 @@ public class Elevator implements Runnable {
 		case BOARDING:
 			elevatorDoor.openDoor();
 			elevatorDoor.closeDoor();
+			System.out.println("Elevator in boarding state");
 			// check if button on other floor was clicked
 			if (command instanceof InteriorElevatorBtnCommand) {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand)command;
@@ -247,13 +252,20 @@ public class Elevator implements Runnable {
 			// check if a higher priority stop was sent by the scheduler, back to MOVING
 			if (command instanceof ElevatorDispatchCommand) {
 				ElevatorDispatchCommand c = (ElevatorDispatchCommand) command;
+				System.out.printf("Elevator dispatched to floor %d\n", c.getDestFloor());
 				setDestinationFloor(c.getDestFloor()); // update latest destination
-				currentState = State.MOVING;
+			} if(command instanceof MotorMessage) {
+				if(currentDirection == Direction.UP && currentFloor == destinationFloor -1) {
+					currentState = State.ARRIVING;
+				}else if(currentDirection == Direction.DOWN && currentFloor == destinationFloor +1) {
+					currentState = State.ARRIVING;
+				}
 			}
 			break;
 			
 		case ARRIVING :
-			if(command instanceof ElevatorFloorSensorMessage) {
+			if(command instanceof MotorMessage) {
+				System.out.println("Elevator has Arrived!");
 				motor.stopMotor();
 				currentState = State.BOARDING;
 				notifySchedulerOfState(new ElevatorArrivedMessage(ELEVATOR_ID, currentFloor));

@@ -1,5 +1,6 @@
 package elevators;
 
+import commands.MotorMessage;
 import components.VerticalLocation;
 
 /**
@@ -20,17 +21,16 @@ public class Motor {
 	
 	private static final int VELOCITY_MPS = 1;
 	private MotorState state;
-	private VerticalLocation location;
-	private Boolean messageReady;
 	private Thread t;
+	private int height = 0;
+	private Elevator elevator;
 	
 	/**
 	 * Constructor
 	 */
-	public Motor() {
+	public Motor(Elevator elevator) {
 		this.state = MotorState.STOPPED;
-		this.location = new VerticalLocation();
-		this.messageReady = false;
+		this.elevator = elevator;
 	}
 	
 	/**
@@ -52,52 +52,18 @@ public class Motor {
 					if (state == MotorState.STOPPED) {
 						break;
 					}
-					synchronized(location) {
-						while(messageReady) {
-							try {
-								wait();
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-							
-							if(direction == Direction.UP) {
-								location.increment(VELOCITY_MPS);
-							} else {
-								location.increment(VELOCITY_MPS * -1);
-							}
-						}
-						messageReady = true;
-						notifyAll();
+					if(direction == Direction.UP) {
+						height += VELOCITY_MPS;
+					} else {
+						height -= VELOCITY_MPS;
 					}
+					elevator.elevatorPutCommand(new MotorMessage(height));
 				}
 		    }
 		});  
 		t.start();
 	}
-	
-	/**
-	 * Returns a boolean signal indicating if a location update is ready
-	 * @return Boolean
-	 */
-	public Boolean isMessageReady() {
-		return messageReady;
-	}
-	
-	/**
-	 * Resets the location update signal
-	 */
-	public void resetMessageReady() {
-		this.messageReady = false;
-	}
-	
-	/**
-	 * Get VerticalLocation (requires synchronization when accessed)
-	 * @return VerticalLocation
-	 */
-	public VerticalLocation getLocation() {
-		return location;
-	}
-	
+
 	/**
 	 * Stop the motor
 	 */
