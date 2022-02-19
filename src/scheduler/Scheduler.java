@@ -1,9 +1,6 @@
 package scheduler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 
 import commands.Command;
 import commands.ElevatorArrivedMessage;
@@ -20,9 +17,13 @@ public class Scheduler {
 	
 	// Store the floors elevator must visit, from highest to lowest priority
 	ArrayList<Integer> elevatorDestinations;
+	ArrayList<Integer> elevatorUpDestinations = new ArrayList<Integer>();
+	ArrayList<Integer> elevatorDownDestinations = new ArrayList<Integer>();
+	ArrayList<Integer> currentElevatorDestinations = new ArrayList<Integer>();
+
 	int elevatorCurrentFloor;
 	Direction elevatorCurrentDirection;
-	
+
 	Command latestCommand;
 	Boolean readyForCommand;
 	
@@ -35,17 +36,139 @@ public class Scheduler {
 	}
 
 	int getNextFloor() {
-		// TODO GET NEXT FLOOR BASED OF DIR
-		return elevatorDestinations.get(0);
-	
+		if(currentElevatorDestinations.isEmpty())
+		{
+			if(elevatorCurrentDirection.equals(Direction.UP))
+			{
+				currentElevatorDestinations = elevatorDownDestinations;
+				return currentElevatorDestinations.remove(0);
+			}
+			else
+			{
+				currentElevatorDestinations = elevatorUpDestinations;
+				return currentElevatorDestinations.remove(0);
+			}
+		}
+		else{
+			return currentElevatorDestinations.remove(0);
+		}
 	}
 	
-	void insertNewDestination(int floor) {
-		if(elevatorDestinations.contains(floor)) {
-			return;
+	void insertNewDestination(int floor, Direction direction) {
+		if(elevatorCurrentDirection.equals(Direction.UP)) {
+			//If the request came from above the current elevator position
+			if (floor > elevatorCurrentFloor) {
+				//If the request from the person on the floor was to go up
+				if (direction.equals(Direction.UP)) {
+
+					if(currentElevatorDestinations.contains(floor))
+					{
+						return;
+					}
+					else {
+						currentElevatorDestinations.add(floor);
+						Collections.sort(currentElevatorDestinations);
+					}
+
+				}
+				//If the request from the person on the floor was to go down
+				else {
+					if(elevatorDownDestinations.contains(floor))
+					{
+						return;
+					}
+					else
+					{
+						elevatorDownDestinations.add(floor);
+						Collections.reverse(elevatorDownDestinations);
+					}
+
+				}
+			}
+			//If the request from the person on the floor was below the current position
+			else {
+				//If the request from the person on the floor was to go up
+				if (direction.equals(Direction.UP)) {
+
+					if(elevatorUpDestinations.contains(floor))
+					{
+						return;
+					}
+					else {
+						elevatorUpDestinations.add(floor);
+						Collections.sort(elevatorUpDestinations);
+					}
+				}
+				//If the request from the person on the floor was to go down
+				else {
+					if(elevatorDownDestinations.contains(floor))
+					{
+						return;
+					}
+					else
+					{
+						elevatorDownDestinations.add(floor);
+						Collections.reverse(elevatorDownDestinations);
+					}
+				}
+			}
 		}
-		elevatorDestinations.add(floor);
-		Collections.sort(elevatorDestinations);
+		//The elevator is traveling downwards
+		else
+		{
+			//If the request came from above the current elevator position
+			if (floor > elevatorCurrentFloor) {
+				//If the request from the person on the floor was to go up
+				if (direction.equals(Direction.UP)) {
+					if(elevatorUpDestinations.contains(floor))
+					{
+						return;
+					}
+					else {
+						elevatorUpDestinations.add(floor);
+						Collections.sort(elevatorUpDestinations);
+					}
+				}
+				//If the request from the person on the floor was to go down
+				else {
+					if(elevatorDownDestinations.contains(floor))
+					{
+						return;
+					}
+					else
+					{
+						elevatorDownDestinations.add(floor);
+						Collections.reverse(elevatorDownDestinations);
+					}
+				}
+			}
+			//If the request from the person on the floor was below the current position
+			else {
+				//If the request from the person on the floor was to go up
+				if (direction.equals(Direction.UP)) {
+					if(elevatorUpDestinations.contains(floor))
+					{
+						return;
+					}
+					else {
+						elevatorUpDestinations.add(floor);
+						Collections.sort(elevatorUpDestinations);
+					}
+				}
+				//If the request from the person on the floor was to go down
+				else {
+					if(currentElevatorDestinations.contains(floor))
+					{
+						return;
+					}
+					else {
+						currentElevatorDestinations.add(floor);
+						Collections.sort(currentElevatorDestinations);
+					}
+				}
+			}
+		}
+
 	}
 	
 	private void sendElevatorRequest(int destFloor) {
