@@ -6,6 +6,7 @@ import commands.Command;
 import commands.ElevatorArrivedMessage;
 import commands.ElevatorMovingMessage;
 import commands.InteriorElevatorBtnCommand;
+import components.DirectionLamp;
 import commands.ElevatorFloorSensorMessage;
 
 
@@ -25,6 +26,7 @@ public class Elevator implements Runnable {
 	// Elevator instance variables
 	Motor motor;
 	Door elevatorDoor;
+	DirectionLamp elevatorDirectionLamp;
 	
 	ArrayList<ElevatorButton> floorButtons;
 	ArrayList<ArrivalSensor> sensors;
@@ -47,7 +49,9 @@ public class Elevator implements Runnable {
 		readyForCommand = true;
 		running = true;
 		
+		elevatorDirectionLamp = new DirectionLamp(currentDirection);
 		
+		elevatorDoor = new Door();
 		elevatorDoor.closeDoor();
 		
 		//Add sensors
@@ -151,6 +155,7 @@ public class Elevator implements Runnable {
 			if(command instanceof InteriorElevatorBtnCommand) {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				if(this.currentFloor == c.getFloor()) {
+					
 					this.currentState = State.BOARDING;
 					return;
 				}else {
@@ -162,7 +167,8 @@ public class Elevator implements Runnable {
 					}else if(this.currentFloor > c.getFloor()) {
 						this.currentDirection = Direction.DOWN;
 					}
-					
+					elevatorDirectionLamp = new DirectionLamp(currentDirection);
+					elevatorDirectionLamp.turnOnLight();
 					motor.move(currentDirection);
 				}
 			}
@@ -182,6 +188,7 @@ public class Elevator implements Runnable {
 			//}
 			// check if button on other floor was clicked
 			if (command instanceof InteriorElevatorBtnCommand) {
+				this.elevatorDirectionLamp.turnOffLight();
 				this.currentState = State.IDLE;
 			}
 			break;
