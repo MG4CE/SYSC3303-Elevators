@@ -28,12 +28,12 @@ class CommandsTest {
 	private final String DIRECTION_STR = "Up";
 	private final Calendar TIME = Calendar.getInstance();
 	private final String TIME_STR = "00:00:00.00";
-	ElevatorArrivedMessage arrivedMessage;
-	ElevatorMovingMessage movingMessage;
-	ElevatorRequestCommand elevatorRequestCommand;
-	ElevatorSensorMessage sensorMessage;
-	FloorDirectionMessage directionMessage;
-	FloorRequestCommand floorRequestCommand;
+	private ElevatorArrivedMessage arrivedMessage;
+	private ElevatorMovingMessage movingMessage;
+	private ElevatorRequestCommand elevatorRequestCommand;
+	private ElevatorSensorMessage sensorMessage;
+	private FloorDirectionMessage directionMessage;
+	private FloorRequestCommand floorRequestCommand;
 	@BeforeEach
 
 	/**
@@ -44,10 +44,10 @@ class CommandsTest {
 		testCommand = new Command(TIME);
 		arrivedMessage = new ElevatorArrivedMessage(ELEVATOR_ID,FLOOR);
 		movingMessage = new ElevatorMovingMessage(ELEVATOR_ID,FLOOR);
-		elevatorRequestCommand = new ElevatorRequestCommand(TIME,FLOOR,ELEVATOR_ID);
+		elevatorRequestCommand = new ElevatorRequestCommand(FLOOR,ELEVATOR_ID);
 		sensorMessage = new ElevatorSensorMessage(FLOOR);
 		directionMessage = new FloorDirectionMessage(DIRECTION,FLOOR, LightStatus.ON);
-		floorRequestCommand = new FloorRequestCommand(TIME_STR,FLOOR,DIRECTION_STR,SELECTED_FLOOR);
+		floorRequestCommand = new FloorRequestCommand(FLOOR,DIRECTION,SELECTED_FLOOR);
 
     }
 	
@@ -111,7 +111,7 @@ class CommandsTest {
 				TIME.get(Calendar.SECOND),
 				TIME.get(Calendar.MILLISECOND)));
 
-		ElevatorRequestCommand testElevatorRequestCommand = new ElevatorRequestCommand(TIME,35,12);
+		ElevatorRequestCommand testElevatorRequestCommand = new ElevatorRequestCommand(35,12);
 		assertNotNull(testElevatorRequestCommand);
 		assertEquals(testElevatorRequestCommand.getRequestID(),12);
 		assertEquals(testElevatorRequestCommand.getFloor(),35);
@@ -158,7 +158,7 @@ class CommandsTest {
 		assertEquals(floorRequestCommand.getRequestID(),SELECTED_FLOOR);
 		assertEquals(floorRequestCommand.getDirection(),DIRECTION);
 
-		FloorRequestCommand testFloorRequestCommand = new FloorRequestCommand(TIME_STR,35,"Down",12);
+		FloorRequestCommand testFloorRequestCommand = new FloorRequestCommand(35,Direction.DOWN,12);
 		assertNotNull(testFloorRequestCommand);
 		assertEquals(testFloorRequestCommand.getFloor(),35);
 		assertEquals(testFloorRequestCommand.getRequestID(),12);

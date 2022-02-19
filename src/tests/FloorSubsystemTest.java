@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import commands.Command;
 import stateMachines.Scheduler;
 import floors.FloorSubsystem;
+import floors.*;
 import stateMachines.Scheduler;
 
 class FloorSubsystemTest {
@@ -18,6 +19,9 @@ class FloorSubsystemTest {
 	private Scheduler testScheduler;
 	private String TEST_FILE = "data/input.txt";
 	private String TEST_INVALID_FILE = "data/invalidCommands.txt";
+	private Floor floor;
+	private FloorButton floorButton;
+	private FloorButtonLamp floorButtonLamp;
 	
 	@BeforeEach
 	void init() {
