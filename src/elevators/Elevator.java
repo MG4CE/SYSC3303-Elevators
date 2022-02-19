@@ -1,9 +1,12 @@
 package elevators;
 
+import java.util.ArrayList;
+
 import commands.Command;
 import commands.ElevatorArrivedMessage;
 import commands.ElevatorMovingMessage;
 import commands.InteriorElevatorBtnCommand;
+import components.DirectionLamp;
 import commands.ElevatorFloorSensorMessage;
 
 
@@ -11,8 +14,10 @@ import commands.ElevatorFloorSensorMessage;
 public class Elevator implements Runnable {
 	// FSM State Variables
 	public enum State{IDLE, BOARDING, MOVING, ARRIVING};
-	public enum DoorStatus{OPEN,CLOSE};
+	
 	State currentState;
+	
+	final int NUM_FLOORS = 7;
 	
 	// Shared Command Variable
 	Command latestCommand;
@@ -20,7 +25,12 @@ public class Elevator implements Runnable {
 	
 	// Elevator instance variables
 	Motor motor;
-	DoorStatus elevatorDoor;
+	Door elevatorDoor;
+	DirectionLamp elevatorDirectionLamp;
+	
+	ArrayList<ElevatorButton> floorButtons;
+	ArrayList<ArrivalSensor> sensors;
+	ArrayList<ElevatorButtonLamp> floorButtonLamps;
 	
 	// Elevator fields
 	Boolean running;
@@ -38,7 +48,23 @@ public class Elevator implements Runnable {
 		latestCommand = null;
 		readyForCommand = true;
 		running = true;
-		elevatorDoor = DoorStatus.CLOSE;
+		
+		elevatorDirectionLamp = new DirectionLamp(currentDirection);
+		
+		elevatorDoor = new Door();
+		elevatorDoor.closeDoor();
+		
+		//Add sensors
+		sensors = new ArrayList<>();
+		floorButtons = new ArrayList<>();
+		floorButtonLamps = new ArrayList<>();
+		
+		for(int i =0; i<NUM_FLOORS; i++) {
+			sensors.add(new ArrivalSensor(i));
+			floorButtons.add(new ElevatorButton(i));
+			floorButtonLamps.add(new ElevatorButtonLamp(i));
+		}
+		
 	}
 	
 	public State getCurrentState() {
@@ -66,10 +92,26 @@ public class Elevator implements Runnable {
 	}
 	
 
+	
+	//TODO This is needed for replying to scheduler
+	private void notifySchedulerOfState() {
+		
+		//This will need to tell the scheduler about the following events
+		//1. After the elevator gets to a new floor
+		//2. After an elevator goes from idle to moving
+		//3. After the elevator goes from moving to arriving
+		//4. After the elevator gets a new destination (Return old destination to be rescheduled)
+		
+		
+	}
+	
+	
+
+
 	public int getCurrentFloor() {
 		return currentFloor;
 	}
-	
+
 	// FSM Shit
 	@Override
 	public void run() {
@@ -113,6 +155,7 @@ public class Elevator implements Runnable {
 			if(command instanceof InteriorElevatorBtnCommand) {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				if(this.currentFloor == c.getFloor()) {
+					
 					this.currentState = State.BOARDING;
 					return;
 				}else {
@@ -124,7 +167,8 @@ public class Elevator implements Runnable {
 					}else if(this.currentFloor > c.getFloor()) {
 						this.currentDirection = Direction.DOWN;
 					}
-					
+					elevatorDirectionLamp = new DirectionLamp(currentDirection);
+					elevatorDirectionLamp.turnOnLight();
 					motor.move(currentDirection);
 				}
 			}
@@ -132,9 +176,9 @@ public class Elevator implements Runnable {
 			
 		case BOARDING:
 			
-			doorOpen();
+			elevatorDoor.openDoor();
 			
-			doorClose();
+			elevatorDoor.closeDoor();
 			
 			//try {
 			//	wait(30 * 1000); //TODO COME BACK
@@ -144,6 +188,7 @@ public class Elevator implements Runnable {
 			//}
 			// check if button on other floor was clicked
 			if (command instanceof InteriorElevatorBtnCommand) {
+				this.elevatorDirectionLamp.turnOffLight();
 				this.currentState = State.IDLE;
 			}
 			break;
@@ -170,7 +215,7 @@ public class Elevator implements Runnable {
 			
 		case ARRIVING :
 			this.motor.stopMotor();
-			if(command instanceof ElevatorSensorMessage) {
+			if(command instanceof ElevatorFloorSensorMessage) {
 				currentState = State.BOARDING;
 			}
 			break;
