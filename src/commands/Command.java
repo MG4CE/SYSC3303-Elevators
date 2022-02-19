@@ -3,39 +3,30 @@ import components.*;
 import elevators.Direction;
 
 import java.util.Calendar;
+import elevators.Direction;
+
+import elevators.Direction;
 
 /**
- * This class is designed to be encapsulate a elevator event
- * It holds 
- * 1. The floor the elevator needs to pick up
- * 2. The direction the elevator is going
- * 3. The time at which the floor button was pressed
- * 4. The floor the elevator needs to drop off
- *
+ * Base command that only holds time
  */
 public class Command {
 		
 	private Calendar time;
 	
 	/**
-	 * Basic constructor
-	 * @param time when elevator button was pressed
-	 * @param floor the floor the elevator button was pressed
-	 * @param direction which direction the elevator is going
-	 * @param selectedFloor the floor to drop off
-	 * @throws NumberFormatException when the time is no properly formatted
-	 * @throws IllegalArgumentException When there is no input file / bad format
+	 * Basic constructor (legacy)
+	 * @param time custom time string
+	 * @throws NumberFormatException if time string contains non digits
+	 * @throws IllegalArgumentException bad string format
 	 */
 	public Command(String time) throws NumberFormatException, IllegalArgumentException {
 		this.time = stringToCalendar(time);
 	}
 	
 	/**
-	 * Constructor for testing
-	 * @param time Calendar properly set up
-	 * @param floor int the floor that called the elevator
-	 * @param direction Direction the direction of the elevator
-	 * @param selectedFloor the floor to go to
+	 * Constructor
+	 * @param time Calendar time object
 	 */
 	public Command(Calendar time) {
 		this.time = time;
@@ -45,8 +36,8 @@ public class Command {
 	 * Parse input time into Calendar object format
 	 * @param time the initial string time
 	 * @return the Calendar object with the correct time set
-	 * @throws NumberFormatException
-	 * @throws IllegalArgumentException
+	 * @throws NumberFormatException if time string contains non digits
+	 * @throws IllegalArgumentException bad string format
 	 */
 	private Calendar stringToCalendar(String time) throws NumberFormatException, IllegalArgumentException {
 		String timeParts[] = time.split("[:.]");
@@ -65,8 +56,8 @@ public class Command {
 	
 	/**
 	 * Setting the direction from string
-	 * @param direction the direction string
-	 * @return the enum for direction
+	 * @param direction string
+	 * @return Direction
 	 */
 	protected Direction stringToDirection(String direction) {
 		direction = direction.toLowerCase();

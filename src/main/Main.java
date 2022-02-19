@@ -17,7 +17,7 @@ public class Main {
     	//Create objects
     	Scheduler s = new Scheduler();
     	FloorSubsystem fs = new FloorSubsystem(s, "data/input.txt");
-    	Elevator e = new Elevator(s);
+    	Elevator e = new Elevator();
     	
     	//Set up threads
     	Thread theShedulatorThread = new Thread(s);
