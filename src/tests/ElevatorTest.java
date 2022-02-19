@@ -2,76 +2,86 @@ package tests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 import components.LightStatus;
-import components.VerticalLocation;
 import elevators.*;
-import elevators.ArrivalSensor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import commands.ElevatorRequestCommand;
+import commands.ElevatorSensorMessage;
 
-import elevators.Elevator;
-import stateMachines.Scheduler;
-import stateMachines.Scheduler;
 
+/**
+ * The test class for all the classes that are within the 'elevators' package
+ */
 class ElevatorTest {
-	
-	//Initializing test parameters 
+
+	//Initializing test parameters
 	private Elevator testElevator;
-	private Scheduler testScheduler = new Scheduler();
 	private final int FLOOR = 15;
-	private final int DEFAULT_FLOOR = 0;
 	private final int DISTANCE_BETWEEN_FLOORS_METERS = 4;
 	ArrivalSensor arrivalSensor;
 	Door door;
 	ElevatorButton elevatorButton;
 	ElevatorButtonLamp elevatorButtonLamp;
 	Motor motor;
-	
+
 	@BeforeEach
 	/**
 	 * Before each test, initialize the Elevator object with a scheduler and all other elevator type classes
 	 */
     void init() {
-		testElevator = new Elevator(testScheduler);
+		testElevator = new Elevator();
 		arrivalSensor = new ArrivalSensor(FLOOR);
 		door = new Door();
 		elevatorButton = new ElevatorButton(FLOOR);
 		elevatorButtonLamp = new ElevatorButtonLamp(FLOOR);
 		motor = new Motor();
     }
-	
+
+
+	@Test
+	void testEnterBoardingState() {
+		ElevatorRequestCommand cmd = new ElevatorRequestCommand(0, 0);
+		testElevator.updateFSM(cmd);
+		assertEquals(Elevator.State.BOARDING, testElevator.getCurrentState());
+	}
+
 	@Test
 	/**
-	 * Test the Elevator class
+	 * Test the Motor class
 	 */
-	void testElevator() {
-		assertNotNull(testElevator);
-		assertEquals(testElevator.getFloor(), DEFAULT_FLOOR);
-		assertNotEquals(testElevator.getFloor(), FLOOR);
-		testElevator.setFloor(35);
-		assertEquals(testElevator.getFloor(),35);
-
-		Elevator testElevator2 = new Elevator(testScheduler);
-		assertNotNull(testElevator2);
-		testElevator2.setFloor(25);
-		assertEquals(testElevator2.getFloor(),25);
+	void testEnterArriving() {
+		testEnterMovingState();
+		testElevator.setCurrentFloor(10);
+		ElevatorSensorMessage cmd = new ElevatorSensorMessage(0);
+		testElevator.updateFSM(cmd);
+		assertEquals(Elevator.State.MOVING, testElevator.getCurrentState());
 	}
-	
+
+	void testEnterMovingState() {
+		ElevatorRequestCommand cmd = new ElevatorRequestCommand(10, 0);
+		testElevator.updateFSM(cmd);
+		assertEquals(Elevator.State.MOVING, testElevator.getCurrentState());
+	}
+
 	@Test
 	/**
 	 * Test the ArrivalSensor class
 	 */
 	void testArrivalSensor() {
 		assertNotNull(arrivalSensor);
-		assertEquals(arrivalSensor.getFloor(),FLOOR);
-		assertEquals(arrivalSensor.getLocation(),FLOOR*DISTANCE_BETWEEN_FLOORS_METERS);
+		assertEquals(arrivalSensor.getFloor(), FLOOR);
+		assertEquals(arrivalSensor.getLocation(), FLOOR * DISTANCE_BETWEEN_FLOORS_METERS);
 
 		ArrivalSensor testArrivalSensor = new ArrivalSensor(35);
 		assertNotNull(testArrivalSensor);
-		assertEquals(testArrivalSensor.getFloor(),35);
-		assertEquals(testArrivalSensor.getLocation(),35*DISTANCE_BETWEEN_FLOORS_METERS);
+		assertEquals(testArrivalSensor.getFloor(), 35);
+		assertEquals(testArrivalSensor.getLocation(), 35 * DISTANCE_BETWEEN_FLOORS_METERS);
 	}
-	
+
+
+
 	@Test
 	/**
 	 * Test the Door class
@@ -87,7 +97,7 @@ class ElevatorTest {
 		Door testDoor = new Door();
 		assertNotNull(testDoor);
 	}
-	
+
 	@Test
 	/**
 	 * Test the ElevatorButton class
@@ -123,4 +133,7 @@ class ElevatorTest {
 		assertNotNull(motor);
 		assertEquals(motor.isMessageReady(),false);
 	}
+
+
+
 }
