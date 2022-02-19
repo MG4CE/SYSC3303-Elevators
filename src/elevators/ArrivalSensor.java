@@ -4,6 +4,7 @@ package elevators;
  * Sensors on a floor used by the elevator to determine its location
  */
 public class ArrivalSensor {
+	
 	private static final int DISTANCE_BETWEEN_FLOORS_METERS = 4;
 	private int floorLocation;
 	private int floor;

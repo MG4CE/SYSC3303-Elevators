@@ -49,6 +49,9 @@ public class Motor {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+					if (state == MotorState.STOPPED) {
+						break;
+					}
 					synchronized(location) {
 						while(messageReady) {
 							try {

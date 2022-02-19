@@ -8,14 +8,16 @@ import java.util.Calendar;
 public class ElevatorFloorSensorMessage extends Command {
 	
 	private int floor;
+	private int elevatorID;
 	
 	/**
 	 * ElevatorFloorSensorMessage Constructor
 	 * @param floor requested floor
-	 * @param requestID unique ID assigned to the message
+	 * @param elevatorID elevator who originated the message
 	 */
-	public ElevatorFloorSensorMessage(int floor) {
+	public ElevatorFloorSensorMessage(int elevatorID, int floor) {
 		super(Calendar.getInstance());
+		this.elevatorID = elevatorID;
 		this.floor = floor;
 	}
 	
@@ -25,5 +27,13 @@ public class ElevatorFloorSensorMessage extends Command {
 	 */
 	public int getFloor() {
 		return floor;
+	}
+	
+	/**
+	 * Get elevator ID from message
+	 * @return int 
+	 */
+	public int getElevatorID() {
+		return elevatorID;
 	}
 }
