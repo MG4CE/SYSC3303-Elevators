@@ -2,11 +2,19 @@ package floors;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import commands.Command;
 import scheduler.Scheduler;
+import commands.InteriorElevatorBtnCommand;
+import elevators.Direction;
+import commands.ExternalFloorBtnCommand;
 
 /**
  * This is a representation of a floor that an elevator will service
@@ -17,10 +25,9 @@ public class FloorSubsystem implements Runnable{
 
 	//Instance Variables
 	private Scheduler schedulator;
-	private ArrayList<Command> commandList;
+	private ArrayList<ExternalFloorBtnCommand> floorRequestList;
+	private ArrayList<InteriorElevatorBtnCommand> elevatorRequestList;
 	private String commandFile;
-	private Boolean isFileOpen;
-
 	/**
 	 * Create new instance of Floor Subsystem
 	 *
@@ -28,9 +35,10 @@ public class FloorSubsystem implements Runnable{
 	 */
 	public FloorSubsystem(Scheduler schedulator, String commandFile) {
 		this.schedulator = schedulator;
-		this.commandList = new ArrayList<Command>();
 		this.commandFile = commandFile;
-		this.isFileOpen = false;
+		this.floorRequestList = new ArrayList<>();
+		this.elevatorRequestList = new ArrayList<>();
+
 	}
 
 	/**
@@ -39,16 +47,16 @@ public class FloorSubsystem implements Runnable{
 	 * @param path to file to read
 	 * @return ArrayList of commands
 	 */
-	public ArrayList<Command> readCommandsFile(String cmdFile){
+	public void readCommandsFile(String cmdFile){
 		//Initialize variables
 		Scanner s = null;
-		ArrayList<Command> cmdList = new ArrayList<Command>();
 		String time = null;
-		String direction = null;
-		int floor = 0;
-		int selectedFloor = 0;
+		Direction direction = null;
+		int internalFloorButton = 0;
+		int externalFloorButton = 0;
 		String line = null;
-
+		int requestID= 0;
+		
 		// Initiate scanner and read the file
 		try {
 			s = new Scanner(new File(cmdFile));
@@ -60,36 +68,88 @@ public class FloorSubsystem implements Runnable{
 		while (s.hasNext()){
 			try {
 				
-				//Parse each line into a command object
+				// Parse first half of each command into a floor request, and the second half into a elevator request
+			    // Ex: 00:01:00.1 1 Up 1
+				// String time, int floor, String direction, int requestID)
 				line = s.nextLine();
 				String lineParts[] = line.split(" ");
+			
+				// Time command was recieved 
+				time = lineParts[0]; 
+				System.out.println(time);
 				
-				time = lineParts[0];
-				floor = Integer.parseInt(lineParts[1]); 
-				direction = lineParts[2]; 
-				selectedFloor = Integer.parseInt(lineParts[3]); 
-				cmdList.add(new Command(time,floor,direction,selectedFloor));
+				// Get Floor Direction Enum
+				direction = Command.stringToDirection(lineParts[1]);
+				
+				// External Floor the command was called from
+				externalFloorButton = Integer.parseInt(lineParts[2]);
+				
+				// Interna Elevator destination floor button 
+				internalFloorButton = Integer.parseInt(lineParts[3]);
+				
+				// Make timer to send and make external floor request
+				makeExternalButtonTimer(externalFloorButton,direction,requestID);
+				
+				// Make timer to make and send internal floor request
+				
+//				this.floorRequestList.add(new ExternalFloorBtnCommand(externalFloorButton, direction, requestID));
+				this.elevatorRequestList.add(new InteriorElevatorBtnCommand(internalFloorButton, requestID));
+				
 			} catch (Exception e) {
-				return null; // failed to parse! invalid File!
+				e.printStackTrace(System.out);
 			}
 		}
-		//Return the list of all commands and close the scanner
+		// Close the scanner
 		s.close();
-		return cmdList;
 	}
-
+	
+	/**
+	 * 
+	 * @param request
+	 * @return timer to execute at the request time
+	 */
+	public TimerTask makeExternalButtonTimer(int externalFloorButton, Direction direction, int requestID) {
+		TimerTask task = new TimerTask() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				ExternalFloorBtnCommand externalRequest = new ExternalFloorBtnCommand(externalFloorButton,direction,requestID); 
+				System.out.println("New Request created: " + externalRequest.getTimeStamp());
+			}
+		};
+		
+		return task;
+	}
+	
+	
+	private long getCalendarDifference(Calendar startDate, Calendar endDate) {
+	    long end = endDate.getTimeInMillis();
+	    System.out.println("end: "+ end);
+	    long start = startDate.getTimeInMillis();
+	    System.out.println("start: "+ start);
+	    return Math.abs(end - start);
+	}
+	
 	/**
 	 * Overriden run method
-	 * Will read the file and parse out command objects
-	 * Then it will place those commands into a list with an extra command to end
-	 * Then it will Add each list item to the Schedulers Queue
+	 * Will extract one floor request and elevator request command from each line of input
+	 * A timer will be created to send the floor requests at the correct time.
 	 */
 	@Override
 	public void run(){
-		commandList = readCommandsFile(this.commandFile);
-		Command terminateCommand = new Command("0:0:0.0", -1, "up", -1);
-		commandList.add(terminateCommand);
-		commandList.forEach((n) -> schedulator.addCommand(n));
+		readCommandsFile(this.commandFile);
+		
+		Timer timer  =  new Timer();
+		
+		System.out.println("Time1 : " + floorRequestList.get(0).getTimeString());
+		System.out.println("Time2 : " + floorRequestList.get(1).getTimeString());
+		
+		System.out.println("Difference: " + getCalendarDifference(floorRequestList.get(0).getCalendarTime(), floorRequestList.get(1).getCalendarTime()));
+
+	
+		
+		
 		System.out.println("Floor subsystem terminated");
 	}
 
