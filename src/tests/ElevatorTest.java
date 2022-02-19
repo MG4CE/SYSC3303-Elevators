@@ -8,13 +8,16 @@ import commands.ElevatorMovingMessage;
 import commands.InteriorElevatorBtnCommand;
 import commands.ElevatorFloorSensorMessage;
 import elevators.Elevator;
+import scheduler.Scheduler;
 
 class ElevatorTest {
 	Elevator elevator;
+	Scheduler s;
 	
 	@BeforeEach
 	void init() {
-		elevator = new Elevator();
+		 s = new Scheduler(elevator);
+		elevator = new Elevator(s,1);
 	}
 	
 	@Test
