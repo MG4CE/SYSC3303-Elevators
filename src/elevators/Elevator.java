@@ -63,6 +63,9 @@ public class Elevator implements Runnable {
 		currentFloor = floor;
 	}
 	
+	public int getCurrentFloor() {
+		return currentFloor;
+	}
 	
 	// FSM Shit
 	@Override
