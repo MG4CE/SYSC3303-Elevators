@@ -3,8 +3,8 @@ package elevators;
 import commands.Command;
 import commands.ElevatorArrivedMessage;
 import commands.ElevatorMovingMessage;
-import commands.ElevatorRequestCommand;
-import commands.ElevatorSensorMessage;
+import commands.InteriorElevatorBtnCommand;
+import commands.ElevatorFloorSensorMessage;
 
 
 
@@ -65,33 +65,10 @@ public class Elevator implements Runnable {
 		currentFloor = floor;
 	}
 	
-<<<<<<< HEAD
-	private void doorOpen() {
-		this.elevatorDoor = DoorStatus.OPEN;
-	}
-	
-	private void doorClose() {
-		this.elevatorDoor = DoorStatus.CLOSE;
-	}
-	
-	//TODO This is needed for replying to scheduler
-	private void notifySchedulerOfState() {
-		
-		//This will need to tell the scheduler about the following events
-		//1. After the elevator gets to a new floor
-		//2. After an elevator goes from idle to moving
-		//3. After the elevator goes from moving to arriving
-		//4. After the elevator gets a new destination (Return old destination to be rescheduled)
-		
-		
-	}
-	
-	
-=======
+
 	public int getCurrentFloor() {
 		return currentFloor;
 	}
->>>>>>> iteration-2
 	
 	// FSM Shit
 	@Override
@@ -133,8 +110,8 @@ public class Elevator implements Runnable {
 	public synchronized void updateFSM(Command command) {
 		switch (this.currentState){
 		case IDLE :
-			if(command instanceof ElevatorRequestCommand) {
-				ElevatorRequestCommand c = (ElevatorRequestCommand) command;
+			if(command instanceof InteriorElevatorBtnCommand) {
+				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				if(this.currentFloor == c.getFloor()) {
 					this.currentState = State.BOARDING;
 					return;
@@ -166,7 +143,7 @@ public class Elevator implements Runnable {
 			//		this.currentState = State.IDLE;
 			//}
 			// check if button on other floor was clicked
-			if (command instanceof ElevatorRequestCommand) {
+			if (command instanceof InteriorElevatorBtnCommand) {
 				this.currentState = State.IDLE;
 			}
 			break;
@@ -174,14 +151,14 @@ public class Elevator implements Runnable {
 		
 		case MOVING:
 			// check if a higher priority stop was sent by the scheduler, back to MOVING
-			if (command instanceof ElevatorRequestCommand) {
-				ElevatorRequestCommand c = (ElevatorRequestCommand) command;
+			if (command instanceof InteriorElevatorBtnCommand) {
+				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				setDestinationFloor(c.getFloor()); // update latest destination
 				currentState = State.MOVING;
 			} 
 			// Any time elevator passes a floor
-			if(command instanceof ElevatorSensorMessage) {
-				ElevatorSensorMessage c = (ElevatorSensorMessage) command;
+			if(command instanceof ElevatorFloorSensorMessage) {
+				ElevatorFloorSensorMessage c = (ElevatorFloorSensorMessage) command;
 				setCurrentFloor(c.getFloor());
 				if(currentDirection == Direction.UP && currentFloor == destinationFloor -1) {
 					currentState = State.ARRIVING;
@@ -192,7 +169,6 @@ public class Elevator implements Runnable {
 			break;
 			
 		case ARRIVING :
-			
 			this.motor.stopMotor();
 			if(command instanceof ElevatorSensorMessage) {
 				currentState = State.BOARDING;

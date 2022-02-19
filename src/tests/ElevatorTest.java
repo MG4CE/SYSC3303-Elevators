@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import commands.ElevatorMovingMessage;
-import commands.ElevatorRequestCommand;
-import commands.ElevatorSensorMessage;
+import commands.InteriorElevatorBtnCommand;
+import commands.ElevatorFloorSensorMessage;
 import elevators.Elevator;
 
 class ElevatorTest {
@@ -19,14 +19,14 @@ class ElevatorTest {
 	
 	@Test
 	void testEnterBoardingState() {
-		ElevatorRequestCommand cmd = new ElevatorRequestCommand(0, 0);
+		InteriorElevatorBtnCommand cmd = new InteriorElevatorBtnCommand(0, 0);
 		elevator.updateFSM(cmd);
 		assertEquals(Elevator.State.BOARDING, elevator.getCurrentState());
 	}
 
 	@Test
 	void testEnterMovingState() {
-		ElevatorRequestCommand cmd = new ElevatorRequestCommand(10, 0);
+		InteriorElevatorBtnCommand cmd = new InteriorElevatorBtnCommand(10, 0);
 		elevator.updateFSM(cmd);
 		assertEquals(Elevator.State.MOVING, elevator.getCurrentState());
 	}
@@ -35,7 +35,7 @@ class ElevatorTest {
 	void testEnterArriving() {
 		testEnterMovingState();
 		elevator.setCurrentFloor(10);
-		ElevatorSensorMessage cmd = new ElevatorSensorMessage(0);
+		ElevatorFloorSensorMessage cmd = new ElevatorFloorSensorMessage(0);
 		elevator.updateFSM(cmd);
 		assertEquals(Elevator.State.MOVING, elevator.getCurrentState());
 	}

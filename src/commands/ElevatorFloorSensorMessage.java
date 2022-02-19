@@ -5,7 +5,7 @@ import java.util.Calendar;
 /**
  * Message sent by the elevator indicating that it has passed a floor sensor
  */
-public class ElevatorSensorMessage extends Command {
+public class ElevatorFloorSensorMessage extends Command {
 	
 	private int floor;
 	
@@ -14,7 +14,7 @@ public class ElevatorSensorMessage extends Command {
 	 * @param floor requested floor
 	 * @param requestID unique ID assigned to the message
 	 */
-	public ElevatorSensorMessage(int floor) {
+	public ElevatorFloorSensorMessage(int floor) {
 		super(Calendar.getInstance());
 		this.floor = floor;
 	}

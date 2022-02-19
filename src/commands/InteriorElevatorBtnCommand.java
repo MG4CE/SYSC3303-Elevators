@@ -5,7 +5,7 @@ import java.util.Calendar;
 /**
  * Command sent by the elevator indicating that a button has been pressed
  */
-public class ElevatorRequestCommand extends Command {
+public class InteriorElevatorBtnCommand extends Command {
 	
 	private int floor;
 	private int requestID; //used to match floor request with elevator request
@@ -16,7 +16,7 @@ public class ElevatorRequestCommand extends Command {
 	 * @param floor requested floor
 	 * @param requestID unique ID assigned to the message
 	 */
-	public ElevatorRequestCommand(int floor, int requestID) {
+	public InteriorElevatorBtnCommand(int floor, int requestID) {
 		super(Calendar.getInstance());
 		this.floor = floor;
 		this.requestID = requestID;

@@ -7,7 +7,7 @@ import elevators.Direction;
 /**
  * Command sent by the floor indicating that a button has been pressed
  */
-public class FloorRequestCommand extends Command {
+public class ExternalFloorBtnCommand extends Command {
 	
 	private int floor;
 	private Direction direction;
@@ -19,7 +19,7 @@ public class FloorRequestCommand extends Command {
 	 * @param direction the direction pressed
 	 * @param requestID unique ID assigned to the message
 	 */
-	public FloorRequestCommand(int floor, Direction direction, int requestID) {
+	public ExternalFloorBtnCommand(int floor, Direction direction, int requestID) {
 		super(Calendar.getInstance());
 		this.floor = floor;
 		this.direction = direction;
