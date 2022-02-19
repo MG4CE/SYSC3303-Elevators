@@ -38,4 +38,12 @@ public class ElevatorMovingMessage extends Command {
 	public int getFloor() {
 		return fromFloor;
 	}
+	
+	/**
+	 * get current direction
+	 * @return current direction of the motor
+	 */
+	public Direction getDirection() {
+		return this.currDirection;
+	}
 }
