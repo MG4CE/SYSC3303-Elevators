@@ -7,6 +7,9 @@ import java.util.Set;
 
 import commands.Command;
 import commands.ElevatorArrivedMessage;
+import commands.ElevatorDispatchCommand;
+import commands.ElevatorFloorSensorMessage;
+import commands.ElevatorMovingMessage;
 import commands.InteriorElevatorBtnCommand;
 import elevators.Direction;
 import elevators.Elevator;
@@ -17,6 +20,8 @@ public class Scheduler {
 	
 	// Store the floors elevator must visit, from highest to lowest priority
 	ArrayList<Integer> elevatorDestinations;
+	int elevatorCurrentFloor;
+	Direction elevatorCurrentDirection;
 	
 	Command latestCommand;
 	Boolean readyForCommand;
@@ -45,7 +50,7 @@ public class Scheduler {
 	
 	private void sendElevatorRequest(int destFloor) {
 		//TODO REQUEST ID???
-		InteriorElevatorBtnCommand cmd = new InteriorElevatorBtnCommand(destFloor, 0);
+		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(destFloor);
 	}
 	
 	public synchronized void schedulerPutCommand(Command command) {
@@ -75,6 +80,16 @@ public class Scheduler {
 	}
 	
 	public synchronized void updateControlFSM(Command command) {
+		// On Entry for ALL states, elevator passes a floor
+		if(command instanceof ElevatorFloorSensorMessage) {
+			ElevatorFloorSensorMessage c = (ElevatorFloorSensorMessage)command;
+			elevatorCurrentFloor = c.getFloor();
+		}
+		// On entry for ALL states, elevator starting!
+		if (command instanceof ElevatorMovingMessage) {
+			ElevatorMovingMessage c = (ElevatorMovingMessage)command;
+			elevatorCurrentDirection = c.getDirection();
+		}
 		switch (currentState) {
 		case WAIT:
 			// On new floor request, move to dispatching
