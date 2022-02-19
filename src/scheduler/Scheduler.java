@@ -7,16 +7,16 @@ import commands.ElevatorArrivedMessage;
 import commands.ElevatorDispatchCommand;
 import commands.ElevatorFloorSensorMessage;
 import commands.ElevatorMovingMessage;
+import commands.ExternalFloorBtnCommand;
 import commands.InteriorElevatorBtnCommand;
 import elevators.Direction;
 import elevators.Elevator;
 
-public class Scheduler {
+public class Scheduler implements Runnable {
 	public enum controlState{WAIT, DISPATCH};
 	controlState currentState;
 	
 	// Store the floors elevator must visit, from highest to lowest priority
-	ArrayList<Integer> elevatorDestinations;
 	ArrayList<Integer> elevatorUpDestinations = new ArrayList<Integer>();
 	ArrayList<Integer> elevatorDownDestinations = new ArrayList<Integer>();
 	ArrayList<Integer> currentElevatorDestinations = new ArrayList<Integer>();
@@ -26,31 +26,42 @@ public class Scheduler {
 
 	Command latestCommand;
 	Boolean readyForCommand;
+	Boolean running;
 	
 	Elevator elevator;
 	
-	public Scheduler(Elevator elevator) {
+	public Scheduler() {
 		currentState = controlState.WAIT;
 		readyForCommand = true;
+	}
+	
+	public void setElevator(Elevator elevator) {
 		this.elevator = elevator;
+	}
+	
+	@Override
+	public void run() {
+		while(running) {
+			updateControlFSM(schedulerGetCommand());
+		}
 	}
 
 	int getNextFloor() {
 		if(currentElevatorDestinations.isEmpty())
-		{
+		{			
 			if(elevatorCurrentDirection.equals(Direction.UP))
 			{
 				currentElevatorDestinations = elevatorDownDestinations;
-				return currentElevatorDestinations.remove(0);
+				return currentElevatorDestinations.get(0);
 			}
 			else
 			{
 				currentElevatorDestinations = elevatorUpDestinations;
-				return currentElevatorDestinations.remove(0);
+				return currentElevatorDestinations.get(0);
 			}
 		}
 		else{
-			return currentElevatorDestinations.remove(0);
+			return currentElevatorDestinations.get(0);
 		}
 	}
 	
@@ -80,6 +91,7 @@ public class Scheduler {
 					else
 					{
 						elevatorDownDestinations.add(floor);
+						Collections.sort(elevatorDownDestinations);
 						Collections.reverse(elevatorDownDestinations);
 					}
 
@@ -112,6 +124,7 @@ public class Scheduler {
 					}
 				}
 			}
+
 		}
 		//The elevator is traveling downwards
 		else
@@ -172,8 +185,8 @@ public class Scheduler {
 	}
 	
 	private void sendElevatorRequest(int destFloor) {
-		//TODO REQUEST ID???
 		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(destFloor);
+		elevator.elevatorPutCommand(cmd);
 	}
 	
 	public synchronized void schedulerPutCommand(Command command) {
@@ -217,7 +230,15 @@ public class Scheduler {
 		case WAIT:
 			// On new floor request, move to dispatching
 			if(command instanceof InteriorElevatorBtnCommand) {
-				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
+				// add the command
+				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand)command;
+				Direction dir = (elevatorCurrentFloor < c.getFloor()) ? Direction.UP : Direction.DOWN;
+				insertNewDestination(c.getFloor(), dir);
+				currentState = controlState.DISPATCH;
+			}
+			if(command instanceof ExternalFloorBtnCommand) {
+				ExternalFloorBtnCommand c = (ExternalFloorBtnCommand)command;
+				insertNewDestination(c.getFloor(), c.getDirection());
 				currentState = controlState.DISPATCH;
 			}
 			break;
@@ -228,9 +249,9 @@ public class Scheduler {
 			// Check if elevator has arrived
 			if(command instanceof ElevatorArrivedMessage) {
 				// remove visited floor
-				elevatorDestinations.remove(elevator.getDestinationFloor());
+				currentElevatorDestinations.remove(0);
 				// no more floors to visit?
-				if(elevatorDestinations.isEmpty()) {
+				if(currentElevatorDestinations.isEmpty()) {
 					currentState = controlState.WAIT;
 				}else { // more floors to visit?
 					currentState = controlState.DISPATCH;
