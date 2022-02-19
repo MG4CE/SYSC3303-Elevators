@@ -18,7 +18,7 @@ public class Motor {
 		STOPPED
 	}
 	
-	private static final int VELOCITY_MPS = 4;
+	private static final int VELOCITY_MPS = 1;
 	private MotorState state;
 	private VerticalLocation location;
 	private Boolean messageReady;
@@ -45,7 +45,7 @@ public class Motor {
 		    public void run() {
 				while(state == MotorState.CRUSING) {
 					try {
-						Thread.sleep(VELOCITY_MPS*1000);
+						Thread.sleep(VELOCITY_MPS*1000*ArrivalSensor.DISTANCE_BETWEEN_FLOORS_METERS);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

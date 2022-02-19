@@ -5,7 +5,7 @@ package elevators;
  */
 public class ArrivalSensor {
 	
-	private static final int DISTANCE_BETWEEN_FLOORS_METERS = 4;
+	static final int DISTANCE_BETWEEN_FLOORS_METERS = 3;
 	private int floorLocation;
 	private int floor;
 	
