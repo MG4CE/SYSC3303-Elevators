@@ -3,6 +3,8 @@ package commands;
 import java.util.Calendar;
 import elevators.Direction;
 
+import elevators.Direction;
+
 /**
  * Base command that only holds time
  */

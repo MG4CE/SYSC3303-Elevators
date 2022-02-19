@@ -22,7 +22,7 @@ public class FloorRequestCommand extends Command {
 	public FloorRequestCommand(int floor, String direction, int requestID) {
 		super(Calendar.getInstance());
 		this.floor = floor;
-		this.direction = stringToDirection(direction);
+		this.direction = direction;
 		this.requestID = requestID;
 	}
 	

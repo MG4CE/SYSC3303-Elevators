@@ -10,6 +10,7 @@ public class ElevatorRequestCommand extends Command {
 	private int floor;
 	private int requestID; //used to match floor request with elevator request
 	
+
 	/**
 	 * ElevatorRequestCommand Constructor
 	 * @param floor requested floor
