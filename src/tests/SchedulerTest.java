@@ -14,8 +14,6 @@ class SchedulerTest {
 	
 	@BeforeEach
 	void init() {
-		elevator = new Elevator();
-		scheduler = new Scheduler(elevator);
 	}
 	
 	@Test

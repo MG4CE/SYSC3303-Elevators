@@ -1,19 +1,23 @@
 
 package elevators;
 
+import commands.InteriorElevatorBtnCommand;
+
 /**
  * Represents a single elevator floor button
  */
 public class ElevatorButton {
 	
 	private int floor;
+	private int elevatorId;
 	
 	/**
 	 * Constructor 
 	 * @param floor assigned floor for button
 	 */
-	public ElevatorButton(int floor) {
+	public ElevatorButton(int floor, int elevatorId) {
 		this.floor = floor;
+		this.elevatorId = elevatorId;
 	}
 	
 	/**
@@ -24,10 +28,11 @@ public class ElevatorButton {
 		return floor;
 	}
 	
-   /* this should create and return a command that needs to be sent to the 
-	* scheduler in the future
-	* public Command pressButton() {
-	* 	
-	* }
-	*/
+	/**
+	 * This will be called from FloorSubSystem to simulate an inside button press
+	 * @return command to be sent to scheduler
+	 */
+	public InteriorElevatorBtnCommand pushButton() {
+		return new InteriorElevatorBtnCommand(floor, elevatorId);
+	}
 }
