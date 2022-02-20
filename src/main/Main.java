@@ -25,6 +25,7 @@ public class Main {
     	floorSubsystemThread.start();
     	elevatorThread.start();
     	schedulerThread.start();
+    	floorSubsystemThread.start();    	
     	
     	Thread.sleep(100);
     	ExternalFloorBtnCommand cmd = new ExternalFloorBtnCommand(2,Direction.UP,1);
@@ -43,6 +44,7 @@ public class Main {
     	Thread.sleep(100);
     	e.pushButton(1);
     	Thread.sleep(100);
+
     	
     	cmd = new ExternalFloorBtnCommand(6,Direction.UP,1);
     	s.schedulerPutCommand(cmd);
