@@ -1,5 +1,6 @@
 package floors;
 
+import commands.ExternalFloorBtnCommand;
 import elevators.Direction;
 
 /**
@@ -34,10 +35,11 @@ public class FloorButton {
 		return direction;
 	}
 	
-   /* this should create and return a command that needs to be sent to the 
-	* scheduler in the future
-	* public Command pressButton() {
-	* 	
-	* }
-	*/
+	/**
+	 * Simulate a button press
+	 * @return command to be sent to scheduler
+	 */
+	public ExternalFloorBtnCommand pushButton() {
+		return new ExternalFloorBtnCommand(floor, direction, 1);
+	}
 }

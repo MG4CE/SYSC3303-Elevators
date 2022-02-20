@@ -25,6 +25,7 @@ public class FloorSubsystem implements Runnable{
 	private ArrayList<ExternalFloorBtnCommand> floorRequestList;
 	private ArrayList<InteriorElevatorBtnCommand> elevatorRequestList;
 	private String commandFile;
+	
 	/**
 	 * Create new instance of Floor Subsystem
 	 *
@@ -84,7 +85,6 @@ public class FloorSubsystem implements Runnable{
 					System.out.println("First Line File time :"+ firstLineFileTime.getTime());
 				}
 				
-				
 				externalFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
 				direction = Command.stringToDirection(lineParts[2]);// Get Floor Direction Enum
 				internalFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button 
@@ -100,8 +100,8 @@ public class FloorSubsystem implements Runnable{
 				System.out.println("Timer created at time: " + currentLineAdjustedTime.getTime());
 				timer.schedule(task,currentLineAdjustedTime.getTime());
 				
-//				this.floorRequestList.add(new ExternalFloorBtnCommand(externalFloorButton, direction, requestID));
-//				this.elevatorRequestList.add(new InteriorElevatorBtnCommand(internalFloorButton, requestID));
+				//this.floorRequestList.add(new ExternalFloorBtnCommand(externalFloorButton, direction, requestID));
+				//this.elevatorRequestList.add(new InteriorElevatorBtnCommand(internalFloorButton, requestID));
 				
 			} catch (Exception e) {
 				e.printStackTrace(System.out);
@@ -130,7 +130,12 @@ public class FloorSubsystem implements Runnable{
 		return task;
 	}
 	
-	
+	/**
+	 * 
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
 	private long getCalDifferenceMillis(Calendar startDate, Calendar endDate) {
 	    long end = endDate.getTimeInMillis();
 	    System.out.println("end:   "+ end);
@@ -140,7 +145,6 @@ public class FloorSubsystem implements Runnable{
 	}
 	
 	/**
-	 * Overriden run method
 	 * Will extract one floor request and elevator request command from each line of input
 	 * A timer will be created to send the floor requests at the correct time.
 	 */
@@ -151,9 +155,6 @@ public class FloorSubsystem implements Runnable{
 		readCommandsFile(this.commandFile, timer);
 		
 //		System.out.println("Difference: " + getCalendarDifference(floorRequestList.get(0).getCalendarTime(), floorRequestList.get(1).getCalendarTime()));
-
-	
-		
 		
 		System.out.println("Floor subsystem terminated");
 	}
