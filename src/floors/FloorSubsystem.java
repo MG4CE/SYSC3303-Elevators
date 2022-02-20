@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,6 +29,12 @@ public class FloorSubsystem implements Runnable{
 	private ArrayList<ExternalFloorBtnCommand> floorRequestList;
 	private ArrayList<InteriorElevatorBtnCommand> elevatorRequestList;
 	private String commandFile;
+	private ElevatorArrivedMessage lastestReply;
+	private boolean readyForReply;
+	private Elevator elevate;
+	private List<Integer> repliedMessages;
+	
+	
 	
 	/**
 	 * Create new instance of Floor Subsystem
@@ -40,6 +47,8 @@ public class FloorSubsystem implements Runnable{
 		this.commandFile = commandFile;
 		this.floorRequestList = new ArrayList<>();
 		this.elevatorRequestList = new ArrayList<>();
+		this.readyForReply = true;
+		this.repliedMessages = new ArrayList<>();
 	}
 
 	/**
@@ -155,16 +164,35 @@ public class FloorSubsystem implements Runnable{
 	 * @param elevator the elevator that has arrived 
 	 */
 	public synchronized void putMessage(ElevatorArrivedMessage cmd, Elevator elevator){
-		System.out.println("ape");
-		int reqID = cmd.getElevatorID();
-		for(InteriorElevatorBtnCommand req:elevatorRequestList) {
-			System.out.println("reqID: " +req.getRequestID());
-			if (req.getRequestID() == reqID) {
-				System.out.println("here");
-				elevator.pushButton(req.getFloor());
+		while(!readyForReply) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				System.out.print("something failed???");
 			}
 		}
+		this.lastestReply = cmd;
+		this.elevate = elevator;
+		readyForReply = false;
+		notifyAll();
+	}
+	
 		
+	
+	
+	private synchronized ElevatorArrivedMessage getMessage() {
+		
+			while(readyForReply) {
+			
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				System.out.print("invalid");
+			}
+		}
+		readyForReply = true;
+		notifyAll();
+		return lastestReply;
 	}
 	
 	
@@ -179,6 +207,23 @@ public class FloorSubsystem implements Runnable{
 		
 		readCommandsFile(this.commandFile, timer);
 		
+		while(true) {
+			
+			ElevatorArrivedMessage msg = getMessage();
+			
+			
+			int reqID = msg.getElevatorID();
+			if(!repliedMessages.contains(reqID)) {
+				
+			for(InteriorElevatorBtnCommand req:elevatorRequestList) {
+				
+				if (req.getRequestID() == reqID) {
+					repliedMessages.add(reqID);
+					this.elevate.pushButton(req.getFloor());
+				}
+			}
+		}
+		
 		
 //		System.out.println("Difference: " + getCalendarDifference(floorRequestList.get(0).getCalendarTime(), floorRequestList.get(1).getCalendarTime()));
 
@@ -188,4 +233,5 @@ public class FloorSubsystem implements Runnable{
 //		System.out.println("Floor subsystem terminated");
 	}
 
+	}
 }

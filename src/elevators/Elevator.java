@@ -274,15 +274,15 @@ public class Elevator implements Runnable {
 			} if(command instanceof MotorMessage) {
 				if(currentDirection == Direction.UP && currentFloor == (destinationFloor -1)) {
 					motor.stopMotor();
-					System.out.println("Entering ariving state UP");
+					System.out.println("Entering ariving");
 					currentState = State.ARRIVING;
 				}else if(currentDirection == Direction.DOWN && currentFloor == (destinationFloor +1)) {
-					System.out.println("Entering ariving state DOWN");
+					System.out.println("Entering ariving");
 					motor.stopMotor();
 					currentState = State.ARRIVING;
 				}else if(currentFloor == destinationFloor)
                 {
-                    System.out.println("Entering ariving state when ==");
+                    System.out.println("Entering ariving");
                     motor.stopMotor();
                     currentState = State.ARRIVING;
                 }
