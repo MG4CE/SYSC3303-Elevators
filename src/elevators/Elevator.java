@@ -23,7 +23,7 @@ public class Elevator implements Runnable {
 	
 	private State currentState;
 	private final int NUM_FLOORS = 7;
-	private final int ELEVATOR_ID;
+	private final int ELEVATOR_ID = 1;
 	
 	// Shared Command Variable
 	private Command latestCommand;
@@ -51,7 +51,6 @@ public class Elevator implements Runnable {
 	 * @param elevatorId the id of the elevator
 	 */
 	public Elevator(Scheduler s, int elevatorId){
-		ELEVATOR_ID = elevatorId;
 		this.currentState = State.IDLE;
 		currentFloor = 0;
 		destinationFloor = 0;
