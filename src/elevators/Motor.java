@@ -1,7 +1,6 @@
 package elevators;
 
 import commands.MotorMessage;
-import components.VerticalLocation;
 
 /**
  * Motor controlling movement of the elevator
