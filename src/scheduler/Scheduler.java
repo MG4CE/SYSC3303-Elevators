@@ -76,6 +76,10 @@ public class Scheduler implements Runnable {
 	public void setElevator(Elevator elevator) {
 		this.elevator = elevator;
 	}
+	
+	public Boolean hasElevator() {
+		return (elevator != null);
+	}
 
 	/**
 	 * The run method that will execute when the thread is started
@@ -88,12 +92,20 @@ public class Scheduler implements Runnable {
 			updateControlFSM(schedulerGetCommand());
 		}
 	}
+	
+	/**
+	 * Get the current state
+	 * @return currentState
+	 */
+	public controlState getState() {
+		return currentState;
+	}
 
 	/**
 	 * Get the next floor the elevator will travel to based on array that holds the list of floor to visit
 	 * @return the next floor
 	 */
-	private int getNextFloor() {
+	public int getNextFloor() {
 		//The current floors we need to visit has been furfill, we must be changing direction
 		if(currentElevatorDestinations.isEmpty())
 		{			
