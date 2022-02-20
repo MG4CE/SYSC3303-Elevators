@@ -39,7 +39,7 @@ class CommandsTest {
     public void init() {
         //Initialize a test command with test parameters
         testCommand = new Command(TIME);
-        arrivedMessage = new ElevatorArrivedMessage(ELEVATOR_ID,FLOOR);
+        arrivedMessage = new ElevatorArrivedMessage(ELEVATOR_ID,FLOOR, SELECTED_FLOOR);
         movingMessage = new ElevatorMovingMessage(ELEVATOR_ID,FLOOR,DIRECTION);
         elevatorRequestCommand = new ElevatorFloorSensorMessage(FLOOR,ELEVATOR_ID);
 
@@ -71,7 +71,7 @@ class CommandsTest {
         assertEquals(arrivedMessage.getFloor(),FLOOR);
         assertEquals(arrivedMessage.getElevatorID(),ELEVATOR_ID);
 
-        ElevatorArrivedMessage testArrivedMessage = new ElevatorArrivedMessage(2,35);
+        ElevatorArrivedMessage testArrivedMessage = new ElevatorArrivedMessage(2,35,SELECTED_FLOOR);
         assertNotNull(testArrivedMessage);
         assertEquals(testArrivedMessage.getFloor(),35);
         assertEquals(testArrivedMessage.getElevatorID(),2);
