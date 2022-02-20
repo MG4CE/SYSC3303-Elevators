@@ -19,8 +19,8 @@ public class Main {
     	schedulerThread.start();
     	elevatorThread.start();
     	//cheese
-    	e.pushButton(5);
+    	e.pushButton(3);
     	Thread.sleep(1000);
-    	e.pushButton(2);
+    	//e.pushButton(2);
     }
 }

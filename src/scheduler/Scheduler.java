@@ -20,7 +20,6 @@ public class Scheduler implements Runnable {
 	ArrayList<Integer> elevatorUpDestinations = new ArrayList<Integer>();
 	ArrayList<Integer> elevatorDownDestinations = new ArrayList<Integer>();
 	ArrayList<Integer> currentElevatorDestinations = new ArrayList<Integer>();
-	ArrayList<Integer> shitDests = new ArrayList<Integer>();
 	
 	int elevatorCurrentFloor = 0;
 	Direction elevatorCurrentDirection = Direction.IDLE;
@@ -225,6 +224,7 @@ public class Scheduler implements Runnable {
 		}
 		// On entry for ALL states, elevator starting!
 		if (command instanceof ElevatorMovingMessage) {
+			System.out.println("Elevator starting");
 			ElevatorMovingMessage c = (ElevatorMovingMessage)command;
 			elevatorCurrentDirection = c.getDirection();
 		}
@@ -237,26 +237,19 @@ public class Scheduler implements Runnable {
 				Direction dir = (elevatorCurrentFloor < c.getFloor()) ? Direction.UP : Direction.DOWN;
 				insertNewDestination(c.getFloor(), dir);
 				currentState = controlState.DISPATCH;
+				sendElevatorRequest(getNextFloor());
 			}
 			if(command instanceof ExternalFloorBtnCommand) {
 				ExternalFloorBtnCommand c = (ExternalFloorBtnCommand)command;
 				insertNewDestination(c.getFloor(), c.getDirection());
 				currentState = controlState.DISPATCH;
+				sendElevatorRequest(getNextFloor());
 			}
-			//transition
-			sendElevatorRequest(getNextFloor());
 			break;
 		
 		case DISPATCH:
-			// Check if elevator has arrived
-			sendElevatorRequest(getNextFloor());
-			if(currentElevatorDestinations.size() > 1) {
-				System.out.print(false);
-			}
 			if(command instanceof ElevatorArrivedMessage) {
-				// remove visited floor
 				currentElevatorDestinations.remove(0);
-				// no more floors to visit?
 				if(currentElevatorDestinations.isEmpty()) {
 					currentState = controlState.WAIT;
 				}else { // more floors to visit?
@@ -264,12 +257,12 @@ public class Scheduler implements Runnable {
 					currentState = controlState.DISPATCH;
 				}
 			}
-			if(command instanceof InteriorElevatorBtnCommand) {
+			else if(command instanceof InteriorElevatorBtnCommand) {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				insertNewDestination(c.getFloor(), elevatorCurrentDirection);
 				sendElevatorRequest(getNextFloor());
+				
 			}
-			
 			break;
 		}
 	}
