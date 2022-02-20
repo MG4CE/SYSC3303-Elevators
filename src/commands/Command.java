@@ -3,11 +3,6 @@ package commands;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import elevators.Direction;
-
-import elevators.Direction;
-
-import elevators.Direction;
-
 /**
  * Base command that only holds time
  */
@@ -48,10 +43,15 @@ public class Command {
 		}
 		
 		Calendar cal = Calendar.getInstance();
+		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 		cal.set(Calendar.HOUR, Integer.parseInt(timeParts[0]));
 		cal.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
 		cal.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
 		cal.set(Calendar.MILLISECOND, Integer.parseInt(timeParts[3])*100);
+		cal.set(Calendar.DAY_OF_WEEK,dayOfWeek);
+		cal.getTime();
+		cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 		return cal;
 	}
 	

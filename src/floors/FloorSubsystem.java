@@ -2,14 +2,11 @@ package floors;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
 import commands.Command;
 import scheduler.Scheduler;
 import commands.InteriorElevatorBtnCommand;
@@ -38,7 +35,6 @@ public class FloorSubsystem implements Runnable{
 		this.commandFile = commandFile;
 		this.floorRequestList = new ArrayList<>();
 		this.elevatorRequestList = new ArrayList<>();
-
 	}
 
 	/**
@@ -47,15 +43,23 @@ public class FloorSubsystem implements Runnable{
 	 * @param path to file to read
 	 * @return ArrayList of commands
 	 */
-	public void readCommandsFile(String cmdFile){
+	public void readCommandsFile(String cmdFile, Timer timer){
 		//Initialize variables
 		Scanner s = null;
-		String time = null;
 		Direction direction = null;
 		int internalFloorButton = 0;
 		int externalFloorButton = 0;
 		String line = null;
-		int requestID= 0;
+		int requestID = 0;
+		
+		String currentLineFileTimeStr = null;
+		Command currentLineFileTimeCmd = null;
+		
+		Calendar programStartTime = Calendar.getInstance();
+		System.out.println("Program start time: " + programStartTime.getTime());
+		Calendar firstLineFileTime = null;
+		Calendar currentLineFileTime = null;
+		Calendar currentLineAdjustedTime = Calendar.getInstance();
 		
 		// Initiate scanner and read the file
 		try {
@@ -67,33 +71,37 @@ public class FloorSubsystem implements Runnable{
 		//Read each line until empty
 		while (s.hasNext()){
 			try {
-				
-				// Parse first half of each command into a floor request, and the second half into a elevator request
-			    // Ex: 00:01:00.1 1 Up 1
-				// String time, int floor, String direction, int requestID)
 				line = s.nextLine();
 				String lineParts[] = line.split(" ");
 			
-				// Time command was recieved 
-				time = lineParts[0]; 
-				System.out.println(time);
+				// Get calendar time object for current input file line
+				currentLineFileTime = new Command(lineParts[0]).getCalendarTime();
+				System.out.println("Current Line File time : "+ currentLineFileTime.getTime());
 				
-				// Get Floor Direction Enum
-				direction = Command.stringToDirection(lineParts[1]);
+				// Save the first line of the input files time 
+				if(firstLineFileTime == null) {
+					firstLineFileTime = currentLineFileTime;
+					System.out.println("First Line File time :"+ firstLineFileTime.getTime());
+				}
 				
-				// External Floor the command was called from
-				externalFloorButton = Integer.parseInt(lineParts[2]);
 				
-				// Interna Elevator destination floor button 
-				internalFloorButton = Integer.parseInt(lineParts[3]);
+				externalFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
+				direction = Command.stringToDirection(lineParts[2]);// Get Floor Direction Enum
+				internalFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button 
 				
-				// Make timer to send and make external floor request
-				makeExternalButtonTimer(externalFloorButton,direction,requestID);
+				// Make timer event and schedule to send request in the future
+				TimerTask task = makeExternalButtonTimer(externalFloorButton,direction,requestID);
 				
-				// Make timer to make and send internal floor request
+				// Schedule the event at the adjusted time 
+				long offset = getCalDifferenceMillis(firstLineFileTime, currentLineFileTime);
+				currentLineAdjustedTime.setTimeInMillis(programStartTime.getTimeInMillis() + offset);
+				
+				
+				System.out.println("Timer created at time: " + currentLineAdjustedTime.getTime());
+				timer.schedule(task,currentLineAdjustedTime.getTime());
 				
 //				this.floorRequestList.add(new ExternalFloorBtnCommand(externalFloorButton, direction, requestID));
-				this.elevatorRequestList.add(new InteriorElevatorBtnCommand(internalFloorButton, requestID));
+//				this.elevatorRequestList.add(new InteriorElevatorBtnCommand(internalFloorButton, requestID));
 				
 			} catch (Exception e) {
 				e.printStackTrace(System.out);
@@ -123,9 +131,9 @@ public class FloorSubsystem implements Runnable{
 	}
 	
 	
-	private long getCalendarDifference(Calendar startDate, Calendar endDate) {
+	private long getCalDifferenceMillis(Calendar startDate, Calendar endDate) {
 	    long end = endDate.getTimeInMillis();
-	    System.out.println("end: "+ end);
+	    System.out.println("end:   "+ end);
 	    long start = startDate.getTimeInMillis();
 	    System.out.println("start: "+ start);
 	    return Math.abs(end - start);
@@ -138,14 +146,11 @@ public class FloorSubsystem implements Runnable{
 	 */
 	@Override
 	public void run(){
-		readCommandsFile(this.commandFile);
+		Timer timer = new Timer();
 		
-		Timer timer  =  new Timer();
+		readCommandsFile(this.commandFile, timer);
 		
-		System.out.println("Time1 : " + floorRequestList.get(0).getTimeString());
-		System.out.println("Time2 : " + floorRequestList.get(1).getTimeString());
-		
-		System.out.println("Difference: " + getCalendarDifference(floorRequestList.get(0).getCalendarTime(), floorRequestList.get(1).getCalendarTime()));
+//		System.out.println("Difference: " + getCalendarDifference(floorRequestList.get(0).getCalendarTime(), floorRequestList.get(1).getCalendarTime()));
 
 	
 		
