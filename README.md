@@ -12,6 +12,7 @@
 
 - #### Iteration 2 issues
 - How to smoothly transition between new commands
+- When trying internal button presses 1 floor below 
 
 
 ## Installation
