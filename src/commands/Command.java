@@ -1,10 +1,8 @@
 package commands;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import elevators.Direction;
-
-import elevators.Direction;
-
 /**
  * Base command that only holds time
  */
@@ -45,10 +43,15 @@ public class Command {
 		}
 		
 		Calendar cal = Calendar.getInstance();
+		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+		int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 		cal.set(Calendar.HOUR, Integer.parseInt(timeParts[0]));
 		cal.set(Calendar.MINUTE, Integer.parseInt(timeParts[1]));
 		cal.set(Calendar.SECOND, Integer.parseInt(timeParts[2]));
-		cal.set(Calendar.MILLISECOND, Integer.parseInt(timeParts[3]));
+		cal.set(Calendar.MILLISECOND, Integer.parseInt(timeParts[3])*100);
+		cal.set(Calendar.DAY_OF_WEEK,dayOfWeek);
+		cal.getTime();
+		cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 		return cal;
 	}
 	
@@ -57,7 +60,7 @@ public class Command {
 	 * @param direction string
 	 * @return Direction
 	 */
-	protected Direction stringToDirection(String direction) {
+	public static Direction stringToDirection(String direction) {
 		direction = direction.toLowerCase();
 		if (direction.equals("up")) {
 			return Direction.UP;
@@ -72,11 +75,29 @@ public class Command {
 	 * Converting Calendar into string to be printed
 	 * @return string representation of the Calendar object
 	 */
-	public String getTimestamp() {
+	public String getTimeStamp() {
 		return String.format("%d:%d:%d.%d", 
 				time.get(Calendar.HOUR),
 				time.get(Calendar.MINUTE),
 				time.get(Calendar.SECOND), 
 				time.get(Calendar.MILLISECOND));
 	}
+	
+	
+	public Calendar getCalendarTime(){
+		return this.time;
+	}
+	
+	public String getTimeString(){
+		
+		String strdate = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+		if (time != null) {
+		strdate = sdf.format(time.getTime());
+		}
+
+		return strdate;
+	}
+	
 }

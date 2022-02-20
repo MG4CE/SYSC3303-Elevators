@@ -105,7 +105,7 @@ public class FloorSubsystem implements Runnable{
 				
 //				this.floorRequestList.add(new ExternalFloorBtnCommand(externalFloorButton, direction, requestID));
 				this.elevatorRequestList.add(new InteriorElevatorBtnCommand(internalFloorButton, requestID));
-				
+				requestID += 1;
 			} catch (Exception e) {
 				e.printStackTrace(System.out);
 			}
@@ -155,10 +155,12 @@ public class FloorSubsystem implements Runnable{
 	 * @param elevator the elevator that has arrived 
 	 */
 	public synchronized void putMessage(ElevatorArrivedMessage cmd, Elevator elevator){
-		
-		int reqID = cmd.getRequestID;
+		System.out.println("ape");
+		int reqID = cmd.getElevatorID();
 		for(InteriorElevatorBtnCommand req:elevatorRequestList) {
+			System.out.println("reqID: " +req.getRequestID());
 			if (req.getRequestID() == reqID) {
+				System.out.println("here");
 				elevator.pushButton(req.getFloor());
 			}
 		}
