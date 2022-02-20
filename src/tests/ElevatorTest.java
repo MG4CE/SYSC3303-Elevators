@@ -1,63 +1,48 @@
 package tests;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import commands.ElevatorMovingMessage;
+import commands.InteriorElevatorBtnCommand;
+import commands.ElevatorDispatchCommand;
+import commands.ElevatorFloorSensorMessage;
+import elevators.Direction;
 import elevators.Elevator;
-import elevators.Scheduler;
+import scheduler.Scheduler;
 
 class ElevatorTest {
-	
-	//Initializing test parameters 
-	private Elevator testElevator;
-	private Scheduler testScheduler = new Scheduler();
-	private final int FLOOR = 15;
-	private final int DEFAULT_FLOOR = 0;
+	Elevator elevator;
+	Scheduler s;
 	
 	@BeforeEach
-	/**
-	 * Before each test, initialize the Elevator object with a scheduler
-	 */
-    void init() {
-		testElevator = new Elevator(testScheduler);
-    }
-	
-	@Test
-	/**
-	 * Test Elevators Constructor
-	 */
-	void testCreateElevatorDefault() {
-		testElevator = new Elevator(testScheduler);
-		assertNotNull(testElevator);
-		assertEquals(testElevator.getFloor(), DEFAULT_FLOOR);
+	void init() {
+		s = new Scheduler();
+		elevator = new Elevator(s,1);
+		s.setElevator(elevator);
 	}
 	
 	@Test
-	/**
-	 * Test Constructor with Floor and test Getter for floor
-	 */
-	void testCreateElevator() {
-		testElevator = new Elevator(testScheduler, FLOOR);
-		assertNotNull(testElevator);
-		assertEquals(testElevator.getFloor(), FLOOR);
+	void testEnterBoardingState() {
+		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(0,5);
+		elevator.updateFSM(cmd);
+		assertEquals(Elevator.State.BOARDING, elevator.getCurrentState());
+	}
+
+	@Test
+	void testEnterMovingState() {
+		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(10,5);
+		elevator.updateFSM(cmd);
+		assertEquals(Elevator.State.MOVING, elevator.getCurrentState());
+	}
+
+	@Test
+	void testEnterArriving() {
+		testEnterMovingState();
+		ElevatorFloorSensorMessage cmd = new ElevatorFloorSensorMessage(1, 0);
+		elevator.updateFSM(cmd);
+		assertEquals(Elevator.State.MOVING, elevator.getCurrentState());
 	}
 	
-	@Test
-	/**
-	 * Test Getter for current floor
-	 */
-	void testGetFloor() {
-		assertEquals(this.testElevator.getFloor(), DEFAULT_FLOOR);
-	}
-	
-	@Test
-	/**
-	 * Test Setter for Floor
-	 */
-	void testChangeFloor() {
-		testElevator.setFloor(FLOOR + 1);
-		assertEquals(this.testElevator.getFloor(), FLOOR + 1);
-	}	
 }
