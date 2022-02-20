@@ -52,7 +52,7 @@ The following image should show an example of the src files in the package view
 
 #### Output
 
-![](images/testScheduler.png)
+![](images/testsScheduler.png)
 ![](images/testElevator.png)
 
 ## Files & Description
