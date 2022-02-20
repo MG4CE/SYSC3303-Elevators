@@ -3,6 +3,7 @@ package main;
 import commands.ExternalFloorBtnCommand;
 import elevators.Direction;
 import elevators.Elevator;
+import floors.FloorSubsystem;
 import scheduler.Scheduler;
 
 public class Main {
@@ -14,13 +15,16 @@ public class Main {
     public static void main(String[] args) throws InterruptedException {
     	Scheduler s = new Scheduler();
     	Elevator e = new Elevator(s, 0);
+    	FloorSubsystem f = new FloorSubsystem(s, "data/input.txt");
     	Thread schedulerThread = new Thread(s);
     	Thread elevatorThread = new Thread(e);
+    	Thread floorSubsystemThread = new Thread(f);
     	s.setElevator(e);
+    	
     	//Run threads
-    	schedulerThread.start();
+    	floorSubsystemThread.start();
     	elevatorThread.start();
-    	//cheese
+    	schedulerThread.start();
     	
     	Thread.sleep(100);
     	ExternalFloorBtnCommand cmd = new ExternalFloorBtnCommand(2,Direction.UP,1);
