@@ -191,8 +191,8 @@ Elevator.PushButton(Destination floor)
 
 ## Team & Contributions
 
-1. Maged -  All Commands ,UML <3
+1. Maged -  All Commands, Subcomponents, UML <3
 2. Ehvan - Elevator.java, Scheduler.java, Tests  
-3. Golan - Scheduler.java, Tests
-4. Rodrigo - Subsystem.java, Scheduler.java
-5. Kevin - Helping with Commands, Elevator.java, ReadMe
+3. Golan - Scheduler.java, Elevator.java
+4. Rodrigo - FloorSubsystem.java, Commands
+5. Kevin - Elevator.java, Scheduler.java, ReadMe
