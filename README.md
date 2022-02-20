@@ -52,8 +52,8 @@ The following image should show an example of the src files in the package view
 
 #### Output
 
-![](images/testS.png)
-![]images/testE.png)
+![](images/testScheduler.png)
+![](images/testElevator.png)
 
 ## Files & Description
 
