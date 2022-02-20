@@ -22,8 +22,8 @@ public class Scheduler implements Runnable {
 	private ArrayList<Integer> elevatorDownDestinations = new ArrayList<Integer>();
 	private ArrayList<Integer> currentElevatorDestinations = new ArrayList<Integer>();
 	
-	private int elevatorCurrentFloor = 0;
-	private Direction elevatorCurrentDirection = Direction.IDLE;
+	private int elevatorCurrentFloor;
+	private Direction elevatorCurrentDirection;
 
 	private Command latestCommand;
 	private Boolean readyForCommand;
@@ -35,6 +35,8 @@ public class Scheduler implements Runnable {
 		currentState = controlState.WAIT;
 		readyForCommand = true;
 		running = true;
+		elevatorCurrentFloor = 0;
+		elevatorCurrentDirection = Direction.IDLE;
 	}
 	
 	public void setElevator(Elevator elevator) {
@@ -48,7 +50,7 @@ public class Scheduler implements Runnable {
 		}
 	}
 
-	int getNextFloor() {
+	private int getNextFloor() {
 		if(currentElevatorDestinations.isEmpty())
 		{			
 			if(elevatorCurrentDirection.equals(Direction.UP))
@@ -67,7 +69,7 @@ public class Scheduler implements Runnable {
 		}
 	}
 	
-	void insertNewDestination(int floor, Direction direction) {
+	private void insertNewDestination(int floor, Direction direction) {
 		if(elevatorCurrentDirection == Direction.UP) {
 			//If the request came from above the current elevator position
 			if (floor > elevatorCurrentFloor) {
