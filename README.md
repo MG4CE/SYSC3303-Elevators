@@ -13,6 +13,7 @@
 - #### Iteration 2 issues
 - How to smoothly transition between new commands
 - When trying internal button presses 1 floor below 
+- Issue it doesn't output properly 
 
 
 ## Installation
@@ -51,7 +52,8 @@ The following image should show an example of the src files in the package view
 
 #### Output
 
-![](images/test.png)
+![](images/testS.png)
+![]images/testE.png)
 
 ## Files & Description
 
