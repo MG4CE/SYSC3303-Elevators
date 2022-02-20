@@ -8,9 +8,11 @@ import commands.ElevatorDispatchCommand;
 import commands.ElevatorFloorSensorMessage;
 import commands.ElevatorMovingMessage;
 import commands.ExternalFloorBtnCommand;
+import commands.FloorDirectionLampMessage;
 import commands.InteriorElevatorBtnCommand;
 import elevators.Direction;
 import elevators.Elevator;
+import floors.FloorSubsystem;
 
 /**
  * The Scheduler class which is responsible for getting handling the button presses
@@ -48,9 +50,11 @@ public class Scheduler implements Runnable {
 	//An instance of the elevator
 	private Elevator elevator;
 
-	/**
-	 * The constructor for the Scheduler class, set up all the necessary variables
-	 */
+	private FloorSubsystem floorSubsystem;
+	
+/**
+ * The constructor for the Scheduler class, set up all the necessary variables
+ */
 	public Scheduler() {
 		currentState = controlState.WAIT;
 		readyForCommand = true;
@@ -59,10 +63,16 @@ public class Scheduler implements Runnable {
 		elevatorCurrentDirection = Direction.IDLE;
 	}
 
-	/**
-	 * Set the elevator for the scheduler
-	 * @param elevator The elevator
-	 */
+
+	
+	public void setFloorSubSystem(FloorSubsystem fb) {
+		this.floorSubsystem = fb;
+	}
+	
+/**
+ * Set the elevator for the scheduler
+ * @param elevator The elevator
+ */
 	public void setElevator(Elevator elevator) {
 		this.elevator = elevator;
 	}
@@ -227,12 +237,8 @@ public class Scheduler implements Runnable {
 
 	}
 
-	/**
-	 * Send a command to elevator on where to travel
-	 * @param destFloor The destination to where the elevator must travel
-	 */
-	private void sendElevatorRequest(int destFloor) {
-		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(destFloor);
+	private void sendElevatorRequest(int destFloor, int requestId) {
+		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(destFloor, requestId);
 		elevator.elevatorPutCommand(cmd);
 	}
 
@@ -253,10 +259,20 @@ public class Scheduler implements Runnable {
 		notifyAll();
 	}
 
+	
 	/**
-	 * Get the latest command
-	 * @return The latest command
+	 * Function to hopefully reply correctly
+	 * @param command
+	 * @param e
 	 */
+	private void sendFloorSubsystemReply(Command command,Elevator e) {
+		this.floorSubsystem.putMessage((ElevatorArrivedMessage)command,e);
+	}
+	
+/**
+ * Get the latest command
+ * @return The latest command
+ */
 	private synchronized Command schedulerGetCommand() {
 		while(readyForCommand) {
 			try {
@@ -269,6 +285,7 @@ public class Scheduler implements Runnable {
 		notifyAll();
 		return latestCommand;
 	}
+
 
 	/**
 	 * Update the finite state machine with the current command
@@ -296,25 +313,26 @@ public class Scheduler implements Runnable {
 				insertNewDestination(c.getFloor(), dir);
 				System.out.printf("Elevator dispatched to floor %d\n", getNextFloor());
 				currentState = controlState.DISPATCH;
-				sendElevatorRequest(getNextFloor());
+				sendElevatorRequest(getNextFloor(), ((InteriorElevatorBtnCommand)command).getRequestID());
 			}
 			if(command instanceof ExternalFloorBtnCommand) {
 				ExternalFloorBtnCommand c = (ExternalFloorBtnCommand)command;
 				insertNewDestination(c.getFloor(), c.getDirection());
 				System.out.printf("Elevator dispatched to floor %d\n", getNextFloor());
 				currentState = controlState.DISPATCH;
-				sendElevatorRequest(getNextFloor());
+				sendElevatorRequest(getNextFloor(), ((ExternalFloorBtnCommand)command).getRequestID());
 			}
 			break;
 		
 		case DISPATCH:
 			if(command instanceof ElevatorArrivedMessage) {
+				this.sendFloorSubsystemReply(command, this.elevator);
 				currentElevatorDestinations.remove(0);
 				if(currentElevatorDestinations.isEmpty()) {
 					currentState = controlState.WAIT;
 				}else { // more floors to visit?
 					System.out.printf("Elevator dispatched to floor %d\n", getNextFloor());
-					sendElevatorRequest(getNextFloor());
+					sendElevatorRequest(getNextFloor(),((ElevatorArrivedMessage)command).getElevatorID());
 					currentState = controlState.DISPATCH;
 				}
 			}
@@ -322,7 +340,7 @@ public class Scheduler implements Runnable {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				insertNewDestination(c.getFloor(), elevatorCurrentDirection);
 				System.out.printf("Elevator dispatched to floor %d\n", getNextFloor());
-				sendElevatorRequest(getNextFloor());
+				sendElevatorRequest(getNextFloor(), ((InteriorElevatorBtnCommand)command).getRequestID());
 			}
 			break;
 		}

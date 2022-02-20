@@ -9,16 +9,18 @@ public class ElevatorArrivedMessage extends Command {
 	
 	private int elevatorID;
 	private int atFloor;
+	private int requestId;
 	
 	/**
 	 * ElevatorArrivedMessage Constructor
 	 * @param elevatorID elevator who originated the message
 	 * @param floor arrived at floor
 	 */
-	public ElevatorArrivedMessage(int elevatorID, int floor) {
+	public ElevatorArrivedMessage(int elevatorID, int floor, int requestId) {
 		super(Calendar.getInstance());
 		this.elevatorID = elevatorID;
 		this.atFloor = floor;
+		this.requestId = requestId;
 	}
 	
 	/**
@@ -35,5 +37,9 @@ public class ElevatorArrivedMessage extends Command {
 	 */
 	public int getFloor() {
 		return atFloor;
+	}
+	
+	public int getRequestId() {
+		return this.requestId;
 	}
 }
