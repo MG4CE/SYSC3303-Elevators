@@ -1,15 +1,22 @@
 # Iteration 2 - SYSC 3303 - The Schedulators
 
 ## Issues to address
-- How will we interface with the ElevatorButton's?
-- Scheduler will now need to handle a wider array of commands. Command will need to be broken down into multiple Class for each type of command.
-- How will movement be handled with the new Motor class?
-- How will ElevatorFloorSensor detect the location of the elevator in the shaft?
-- We might need a new type of class Message to notify other components  in the system of changes.
+- #### Iteration 1 issues
+- ~~How will we interface with the ElevatorButton's?~~  completed (External, Internal buttons)
+- ~~Scheduler will now need to handle a wider array of commands. Command will need to be broken down into multiple Class for each type of command.~~ Completed 
+- ~~How will movement be handled with the new Motor class?~~  Completed
+- ~~How will ElevatorFloorSensor detect the location of the elevator in the shaft?~~ Completed
+- ~~We might need a new type of class Message to notify other components  in the system of changes.~~ -Completed
+
+<br />
+
+- #### Iteration 2 issues
+- How to smoothly transition between new commands
+
 
 ## Installation
 
-Import the Iteration 1 project into your IDE.
+Import the Iteration 3 project into your IDE.
 
 or
 
@@ -50,24 +57,69 @@ The following image should show an example of the src files in the package view
 ### Command.java
 
 - Holds Information about elevator commands that will be sent from the Floor to the Scheduler
+##### Subclasses
 
-- Commands will be created by the FloorSubsystem and put into the Scheduler's Queue to be read by the Elevator
+  - ##### ElevatorArrivedMessage.java - 
+    - This is a message from elevator to scheduler for elevator arriving at destination floor
+   - ##### ElevatorDispatchCommand.java
+        - This is a command from the scheduler to elevator to command elevator to go to a floor  
+   - ##### ElevatorFloorSensorMessage.java
+        - This is a message from the floor sensor to tell the elevator it made it to a floor
+   - ##### ElevatorMovingMessage.java
+       - This is a message to tell the scheduler that the elevator started to move to a floor 
+   - ##### ExternalFloorBtnCommand.java
+        - This is a command from a floor to scheduler that the elevator is requested. It will   also be dispatched to the elevator    
+   - ##### FloorDirectionLampMessage.java
+        - This message is from elevator to scheduler to floor to show that the elevator is going in that direction 
+   - ##### InteriorElevatorBtnCommand.java
+        - This is a command from elevator to scheduler that will tell the scheduler that the floor was requested from someeone in the elevator. 
+        -  This will be simulated by the floor subsystem calling pushbutton in the Elevator 
+   - ##### MotorMessage.java
+        - This is a message from the motor to the elevator that it made it to the next floor by sending current floor height. Each floor is 4 metres difference.
+ 
   <br />
   <br />
 
 ### Elevator.java
 
-- The Elevator that will poll the Queue in the scheduler to get commands, sent from the FloorSubsystem
-- The elevator will simulate movement with Thread.sleep()
-- Elevator will stop once a stop command is read in
+- The Elevator that holds a Finite State Machine which holds states of what the elevator is doing.
+- The elevator will listen for commands from the scheduler.java
+    ##### States
+    - IDLE - Waiting for scheduler request
+    - BOARDING - Waiting at floor for Internal Button request or for passengers to leave
+    - MOVING - The elevator is traveling from A floor to another
+    - ARRIVING - The elevator is 1 floor before the destination and will slow down 
+
+- These States are to implement the FSM below
+
+![](images/elevatorFSM.png)
+ 
+
+#### Elevator Components
+  - ##### ArrivalSensor.java - 
+    - This is used to determine which floor the motor has gone past
+   - ##### Door.java
+        - Elevator door that can open and close
+   - ##### ElevatorButton.java
+       - A button that is inside the elevator, the elevator holds a list of buttons * max floors
+   - ##### ElevatorButtonLamp.java
+        - THe light on each elevator button that will light up once it has been pressed 
+   - ##### Motor.java
+        - The motor that simulates moving the elevator. It sends MotorMessages to the elevator to tell that it past a floor
+ 
+
+
   <br />
   <br />
 
 ### FloorSubsystem.java
 
 - Reads input commands from input.txt
-- Parse each line into a command object
-- Add each command to the Queue held in Scheduler
+- Parses the calling floor into an ExternalFloorBtnCommand send to the scheduler
+- Once that command is completed by the elevator then the system will call 
+```java-
+Elevator.PushButton(Destination floor)
+```
 - Once all commands are pushed to the Queue then a stop command will be added to the Queue
   <br />
 
@@ -76,31 +128,55 @@ The following image should show an example of the src files in the package view
 "0:0:0.0", -1, "up", -1
 ```
 
+#### FloorSubSystem Components
+ - ##### Floor.java - 
+    - Each floor of the system
+ - ##### FloorButton.java
+    - The buttons that will control calling an elevator
+ - ##### FloorButtonLamo.java
+    - The light on each floor button that will light up once it has been pressed 
+
 <br />
+
+### Shared Componenents 
+##### Between Floor and Elevator
+- ##### DirectionLamp.java 
+    - The lamp that shows up or down on each floor and inside the elevator
+ 
+  <br />
 
 ### Main.java
 
 - Runs the main method
 - Creates
-
   - FloorSubsytem thread
   - Scheduler Thread
   - Elevator Thread
 
-  <br />
 
 ### Scheduler.java
 
-- Does nothing but hold the Queue of commands
-- Elevator will read the Queue of commands
-- FloorSubsystem will put commands into the Queue
+- The scheduler implements a FSM that goes between a dispatch and Wait state
+    - Dispatch - Send a command to the elevator
+    - Wait - do nothing
+
+- The scheduler dispatches elevator requests to the elevator using the SCAN Algorithm
+
+
+- Holds 3 lists 
+    - Elevator up list - Holds up requests
+    - Elevator down list - Holds down requests
+    - Commands to dispatch - Holds commands to send to the elevator in the current direction
+
+
+- FloorSubsystem will send ExternalFloorBtnCommands
+- Elevator will send InternalFloorBtnCommands
 
 <br />
 
 ### input.txt
 
 - Holds all the test commands to be read by the Floorsubsystem
-
 - Each line is shown in the format below
 
 ```java
@@ -114,8 +190,8 @@ The following image should show an example of the src files in the package view
 
 ## Team & Contributions
 
-1. Maged - Command.java, Scheduler.java, Subsystem.java
-2. Ehvan - JUnit test cases
-3. Golan - Scheduler.java
+1. Maged -  All Commands ,UML <3
+2. Ehvan - Elevator.java, Scheduler.java, Tests  
+3. Golan - Scheduler.java, Tests
 4. Rodrigo - Subsystem.java, Scheduler.java
-5. Kevin - Elevator.java, ReadMe
+5. Kevin - Helping with Commands, Elevator.java, ReadMe
