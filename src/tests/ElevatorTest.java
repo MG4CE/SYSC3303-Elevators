@@ -25,14 +25,14 @@ class ElevatorTest {
 	
 	@Test
 	void testEnterBoardingState() {
-		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(0);
+		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(0,5);
 		elevator.updateFSM(cmd);
 		assertEquals(Elevator.State.BOARDING, elevator.getCurrentState());
 	}
 
 	@Test
 	void testEnterMovingState() {
-		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(10);
+		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(10,5);
 		elevator.updateFSM(cmd);
 		assertEquals(Elevator.State.MOVING, elevator.getCurrentState());
 	}

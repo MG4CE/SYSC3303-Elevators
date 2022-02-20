@@ -1,10 +1,6 @@
 package elevators;
 
 import commands.MotorMessage;
-<<<<<<< HEAD
-
-=======
->>>>>>> 4855efd083e38a518addb7db9547ce9268fe3c7e
 
 /**
  * Motor controlling movement of the elevator
