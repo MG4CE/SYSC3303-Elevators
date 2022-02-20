@@ -44,11 +44,11 @@ public class Motor {
 		    @Override
 		    public void run() {
 				while(state == MotorState.CRUSING) {
-					try {
+					/*try {
 						Thread.sleep(VELOCITY_MPS*1000*ArrivalSensor.DISTANCE_BETWEEN_FLOORS_METERS);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-					}
+					}*/
 					if (state == MotorState.STOPPED) {
 						break;
 					}

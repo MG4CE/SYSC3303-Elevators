@@ -45,7 +45,7 @@ public class Elevator implements Runnable {
 	
 	// Elevator fields
 	Boolean running;
-	int currentFloor;
+	volatile int currentFloor;
 	Direction currentDirection;
 	int destinationFloor;
 
@@ -81,6 +81,8 @@ public class Elevator implements Runnable {
 			floorButtons.add(new ElevatorButton(i, ELEVATOR_ID));
 			floorButtonLamps.add(new ElevatorButtonLamp(i));
 		}
+		
+		
 		//Scheduler to respond to
 		schedulator = s;
 		
@@ -189,6 +191,7 @@ public class Elevator implements Runnable {
 	 */
 	private synchronized Command getLatestCommand() {
 		while(readyForCommand) {
+			
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -206,8 +209,8 @@ public class Elevator implements Runnable {
 	public synchronized void updateFSM(Command command) {
 		if (command instanceof MotorMessage) {
 			MotorMessage c = (MotorMessage)command;
-			System.out.printf("Elevator passing %d\n", getCurrentFloor(c.getHeight()));
-			currentFloor = getCurrentFloor(c.getHeight());
+			System.out.printf("Elevator passing %d\n", c.getHeight());
+			currentFloor = c.getHeight();
 			schedulator.schedulerPutCommand(new ElevatorFloorSensorMessage(currentFloor, ELEVATOR_ID));
 		}
 		
@@ -224,7 +227,7 @@ public class Elevator implements Runnable {
 					currentDirection = (currentFloor < c.getDestFloor()) ? Direction.UP : Direction.DOWN;
 					motor.move(currentDirection); // Transition action
 					currentState = State.MOVING;
-					notifySchedulerOfState(new ElevatorMovingMessage(ELEVATOR_ID, c.getDestFloor(), currentDirection));
+					notifySchedulerOfState(new ElevatorMovingMessage(ELEVATOR_ID, c.getDestFloor(), currentDirection));	
 				}
 			}
 			break;
@@ -260,13 +263,20 @@ public class Elevator implements Runnable {
 				System.out.printf("Elevator dispatched to floor %d\n", c.getDestFloor());
 				setDestinationFloor(c.getDestFloor()); // update latest destination
 			} if(command instanceof MotorMessage) {
-				if(currentDirection == Direction.UP && currentFloor == destinationFloor -1) {
-					System.out.println("Entering ariving state");
+				if(currentDirection == Direction.UP && currentFloor == (destinationFloor -1)) {
+					motor.stopMotor();
+					System.out.println("Entering ariving state UP");
 					currentState = State.ARRIVING;
-				}else if(currentDirection == Direction.DOWN && currentFloor == destinationFloor +1) {
-					System.out.println("Entering ariving state");
+				}else if(currentDirection == Direction.DOWN && currentFloor == (destinationFloor +1)) {
+					System.out.println("Entering ariving state DOWN");
+					motor.stopMotor();
 					currentState = State.ARRIVING;
-				}
+				}else if(currentFloor == destinationFloor)
+                {
+                    System.out.println("Entering ariving state when ==");
+                    motor.stopMotor();
+                    currentState = State.ARRIVING;
+                }
 			}
 			break;
 			
@@ -278,6 +288,6 @@ public class Elevator implements Runnable {
 				notifySchedulerOfState(new ElevatorArrivedMessage(ELEVATOR_ID, currentFloor));
 			}
 			break;
-		}		
+		}
 	}	
 }
