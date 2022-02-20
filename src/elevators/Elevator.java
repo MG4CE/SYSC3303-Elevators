@@ -15,39 +15,35 @@ import commands.ElevatorFloorSensorMessage;
 
 
 /**
- * 
- * @author kevin
- *
+ * Elevator Controller
  */
 public class Elevator implements Runnable {
 	// FSM State Variables
 	public enum State{IDLE, BOARDING, MOVING, ARRIVING};
 	
-	State currentState;
-	
-	
-	final int NUM_FLOORS = 7;
-	final int ELEVATOR_ID;
+	private State currentState;
+	private final int NUM_FLOORS = 7;
+	private final int ELEVATOR_ID;
 	
 	// Shared Command Variable
-	Command latestCommand;
-	Boolean readyForCommand;
-	Scheduler schedulator;
+	private Command latestCommand;
+	private Boolean readyForCommand;
+	private Scheduler schedulator;
 	
 	// Elevator instance variables
-	Motor motor;
-	Door elevatorDoor;
-	DirectionLamp elevatorDirectionLamp;
+	private Motor motor;
+	private Door elevatorDoor;
+	private DirectionLamp elevatorDirectionLamp;
 	
-	ArrayList<ElevatorButton> floorButtons;
-	ArrayList<ArrivalSensor> sensors;
-	ArrayList<ElevatorButtonLamp> floorButtonLamps;
+	private ArrayList<ElevatorButton> floorButtons;
+	private ArrayList<ArrivalSensor> sensors;
+	private ArrayList<ElevatorButtonLamp> floorButtonLamps;
 	
 	// Elevator fields
-	Boolean running;
-	volatile int currentFloor;
-	Direction currentDirection;
-	int destinationFloor;
+	private Boolean running;
+	private volatile int currentFloor;
+	private Direction currentDirection;
+	private int destinationFloor;
 
 	/**
 	 * Elevator Initializer
@@ -99,7 +95,6 @@ public class Elevator implements Runnable {
 		schedulator.schedulerPutCommand(floorButtons.get(button).pushButton());
 		//elevatorPutCommand(floorButtons.get(button).pushButton());
 	}
-	
 	
 	/**
 	 * Getter for current state

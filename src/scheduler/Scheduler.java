@@ -14,21 +14,22 @@ import elevators.Elevator;
 
 public class Scheduler implements Runnable {
 	public enum controlState{WAIT, DISPATCH};
-	controlState currentState;
+	
+	private controlState currentState;
 	
 	// Store the floors elevator must visit, from highest to lowest priority
-	ArrayList<Integer> elevatorUpDestinations = new ArrayList<Integer>();
-	ArrayList<Integer> elevatorDownDestinations = new ArrayList<Integer>();
-	ArrayList<Integer> currentElevatorDestinations = new ArrayList<Integer>();
+	private ArrayList<Integer> elevatorUpDestinations = new ArrayList<Integer>();
+	private ArrayList<Integer> elevatorDownDestinations = new ArrayList<Integer>();
+	private ArrayList<Integer> currentElevatorDestinations = new ArrayList<Integer>();
 	
-	int elevatorCurrentFloor = 0;
-	Direction elevatorCurrentDirection = Direction.IDLE;
+	private int elevatorCurrentFloor = 0;
+	private Direction elevatorCurrentDirection = Direction.IDLE;
 
-	Command latestCommand;
-	Boolean readyForCommand;
-	Boolean running;
+	private Command latestCommand;
+	private Boolean readyForCommand;
+	private Boolean running;
 	
-	Elevator elevator;
+	private Elevator elevator;
 	
 	public Scheduler() {
 		currentState = controlState.WAIT;
