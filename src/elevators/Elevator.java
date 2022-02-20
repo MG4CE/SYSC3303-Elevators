@@ -215,6 +215,7 @@ public class Elevator implements Runnable {
 		case IDLE :
 			if(command instanceof ElevatorDispatchCommand) {
 				ElevatorDispatchCommand c = (ElevatorDispatchCommand) command;
+				setDestinationFloor(c.getDestFloor());
 				if(this.currentFloor == c.getDestFloor()) {
 					System.out.println("Elevator Already at Floor, going to boarding");
 					this.currentState = State.BOARDING;
@@ -256,8 +257,10 @@ public class Elevator implements Runnable {
 				setDestinationFloor(c.getDestFloor()); // update latest destination
 			} if(command instanceof MotorMessage) {
 				if(currentDirection == Direction.UP && currentFloor == destinationFloor -1) {
+					System.out.println("Entering ariving state");
 					currentState = State.ARRIVING;
 				}else if(currentDirection == Direction.DOWN && currentFloor == destinationFloor +1) {
+					System.out.println("Entering ariving state");
 					currentState = State.ARRIVING;
 				}
 			}
