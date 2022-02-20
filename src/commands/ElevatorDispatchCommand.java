@@ -9,14 +9,16 @@ import java.util.Calendar;
 public class ElevatorDispatchCommand extends Command {
 	
 	private int destFloor;
+	private int requestId;
 	
 	/**
 	 * Constructor
 	 * @param floor destination floor
 	 */
-	public ElevatorDispatchCommand(int floor) {
+	public ElevatorDispatchCommand(int floor, int requestId) {
 		super(Calendar.getInstance());
 		this.destFloor = floor;
+		this.requestId = requestId;
 	}
 	
 	/**
@@ -25,5 +27,9 @@ public class ElevatorDispatchCommand extends Command {
 	 */
 	public int getDestFloor() {
 		return this.destFloor;
+	}
+	
+	public int getRequestId() {
+		return this.requestId;
 	}
 }

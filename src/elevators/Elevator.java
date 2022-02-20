@@ -9,19 +9,23 @@ import commands.ElevatorMovingMessage;
 import commands.InteriorElevatorBtnCommand;
 import commands.MotorMessage;
 import components.DirectionLamp;
-import elevators.Motor.MotorState;
 import scheduler.Scheduler;
 import commands.ElevatorFloorSensorMessage;
 
 
 /**
  * Elevator Controller
+ * This is the new instance of elevator it is a slave to the scheduler class
+ * It implements a finite state system and iterates through them based on call from the scheduler
+ * 
+ * The elevator will wait for commands from the scheduler and send a response back
  */
 public class Elevator implements Runnable {
 	// FSM State Variables
 	public enum State{IDLE, BOARDING, MOVING, ARRIVING};
 	
 	private State currentState;
+	//Max floors and Id of elevator
 	private final int NUM_FLOORS = 7;
 	private final int ELEVATOR_ID = 1;
 	
@@ -30,11 +34,14 @@ public class Elevator implements Runnable {
 	private Boolean readyForCommand;
 	private Scheduler schedulator;
 	
+	private int requestId;
+	
 	// Elevator instance variables
 	private Motor motor;
 	private Door elevatorDoor;
 	private DirectionLamp elevatorDirectionLamp;
 	
+	//Arrays of internal components
 	private ArrayList<ElevatorButton> floorButtons;
 	private ArrayList<ArrivalSensor> sensors;
 	private ArrayList<ElevatorButtonLamp> floorButtonLamps;
@@ -151,7 +158,9 @@ public class Elevator implements Runnable {
 		this.schedulator.schedulerPutCommand(response);
 	}
 	
-	// FSM Shit
+	/**
+	 * Run method implemented from Runnable
+	 */
 	@Override
 	public void run() {
 		while(running) {
@@ -200,7 +209,12 @@ public class Elevator implements Runnable {
 	/*
 	 * FSM IMPLEMETNATION
 	 */
+	/**
+	 * This method is to increment the elevators state and send messages back to the scheduler
+	 * @param command
+	 */
 	public synchronized void updateFSM(Command command) {
+		//Motor sending message to say what floor it is
 		if (command instanceof MotorMessage) {
 			MotorMessage c = (MotorMessage)command;
 			System.out.printf("Elevator passing %d\n", c.getHeight());
@@ -221,6 +235,7 @@ public class Elevator implements Runnable {
 					currentDirection = (currentFloor < c.getDestFloor()) ? Direction.UP : Direction.DOWN;
 					motor.move(currentDirection); // Transition action
 					currentState = State.MOVING;
+					this.requestId = ((ElevatorDispatchCommand)command).getRequestId();
 					notifySchedulerOfState(new ElevatorMovingMessage(ELEVATOR_ID, c.getDestFloor(), currentDirection));	
 				}
 			}
@@ -279,7 +294,7 @@ public class Elevator implements Runnable {
 				System.out.println("Elevator has Arrived!");
 				motor.stopMotor();
 				currentState = State.BOARDING;
-				notifySchedulerOfState(new ElevatorArrivedMessage(ELEVATOR_ID, currentFloor));
+				notifySchedulerOfState(new ElevatorArrivedMessage(ELEVATOR_ID, currentFloor, this.requestId));
 			}
 			break;
 		}
