@@ -12,25 +12,45 @@ import commands.InteriorElevatorBtnCommand;
 import elevators.Direction;
 import elevators.Elevator;
 
+/**
+ * The Scheduler class which is responsible for getting handling the button presses
+ * and telling the elevator which floor it needs to travel to. It will also prioritize
+ * which floor to visit based on the current position and direction the elevator is moving in.
+ */
 public class Scheduler implements Runnable {
 	public enum controlState{WAIT, DISPATCH};
-	
+
+	//The current state of the scheduler
 	private controlState currentState;
 	
-	// Store the floors elevator must visit, from highest to lowest priority
+	// Store the floors elevator must visit, from highest to lowest priority on an up journey
 	private ArrayList<Integer> elevatorUpDestinations = new ArrayList<Integer>();
+	// Store the floors elevator must visit, from highest to lowest priority on a down journey
 	private ArrayList<Integer> elevatorDownDestinations = new ArrayList<Integer>();
+	// Store the floors elevator must visit, from highest to lowest priority on this journey, regardless of direction
 	private ArrayList<Integer> currentElevatorDestinations = new ArrayList<Integer>();
-	
+
+	//The current floor of the elevator
 	private int elevatorCurrentFloor;
+
+	//The direction the elevator is traveling in
 	private Direction elevatorCurrentDirection;
 
+	//The most recent command
 	private Command latestCommand;
+
+	//If we are ready for a command, or still handling something
 	private Boolean readyForCommand;
+
+	//If the program is running
 	private Boolean running;
-	
+
+	//An instance of the elevator
 	private Elevator elevator;
-	
+
+	/**
+	 * The constructor for the Scheduler class, set up all the necessary variables
+	 */
 	public Scheduler() {
 		currentState = controlState.WAIT;
 		readyForCommand = true;
@@ -38,11 +58,20 @@ public class Scheduler implements Runnable {
 		elevatorCurrentFloor = 0;
 		elevatorCurrentDirection = Direction.IDLE;
 	}
-	
+
+	/**
+	 * Set the elevator for the scheduler
+	 * @param elevator The elevator
+	 */
 	public void setElevator(Elevator elevator) {
 		this.elevator = elevator;
 	}
-	
+
+	/**
+	 * The run method that will execute when the thread is started
+	 * It is responsible for updating the commands that will be sent to the elevator
+	 * based on the position and direction
+	 */
 	@Override
 	public void run() {
 		while(running) {
@@ -50,7 +79,12 @@ public class Scheduler implements Runnable {
 		}
 	}
 
+	/**
+	 * Get the next floor the elevator will travel to based on array that holds the list of floor to visit
+	 * @return the next floor
+	 */
 	private int getNextFloor() {
+		//The current floors we need to visit has been furfill, we must be changing direction
 		if(currentElevatorDestinations.isEmpty())
 		{			
 			if(elevatorCurrentDirection.equals(Direction.UP))
@@ -68,7 +102,12 @@ public class Scheduler implements Runnable {
 			return currentElevatorDestinations.get(0);
 		}
 	}
-	
+
+	/**
+	 * Determine the order for all the floors to visit based on the appropriate elevator algorithm
+	 * @param floor The floor where an elevator was requested
+	 * @param direction The direction the person on said floor wants to travel in
+	 */
 	private void insertNewDestination(int floor, Direction direction) {
 		if(elevatorCurrentDirection == Direction.UP) {
 			//If the request came from above the current elevator position
@@ -187,25 +226,37 @@ public class Scheduler implements Runnable {
 		}
 
 	}
-	
+
+	/**
+	 * Send a command to elevator on where to travel
+	 * @param destFloor The destination to where the elevator must travel
+	 */
 	private void sendElevatorRequest(int destFloor) {
 		ElevatorDispatchCommand cmd = new ElevatorDispatchCommand(destFloor);
 		elevator.elevatorPutCommand(cmd);
 	}
-	
+
+	/**
+	 * Understand a command that came from the floor subsystem on the requests made for the elevator
+	 * @param command The command
+	 */
 	public synchronized void schedulerPutCommand(Command command) {
 		while(!readyForCommand) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
-				System.out.print("something failed???");
+				System.out.print("Failure");
 			}
 		}
 		latestCommand = command;
 		readyForCommand = false;
 		notifyAll();
 	}
-	
+
+	/**
+	 * Get the latest command
+	 * @return The latest command
+	 */
 	private synchronized Command schedulerGetCommand() {
 		while(readyForCommand) {
 			try {
@@ -218,7 +269,11 @@ public class Scheduler implements Runnable {
 		notifyAll();
 		return latestCommand;
 	}
-	
+
+	/**
+	 * Update the finite state machine with the current command
+	 * @param command The command for the state machine
+	 */
 	public synchronized void updateControlFSM(Command command) {
 		// On Entry for ALL states, elevator passes a floor
 		if(command instanceof ElevatorFloorSensorMessage) {
