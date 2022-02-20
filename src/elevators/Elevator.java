@@ -192,7 +192,7 @@ public class Elevator implements Runnable {
 			try {
 				wait();
 			} catch (InterruptedException e) {
-				System.out.print("Fuck you");
+				System.out.print("invalid");
 			}
 		}
 		readyForCommand = true;
@@ -224,8 +224,6 @@ public class Elevator implements Runnable {
 					currentDirection = (currentFloor < c.getDestFloor()) ? Direction.UP : Direction.DOWN;
 					motor.move(currentDirection); // Transition action
 					currentState = State.MOVING;
-					System.out.printf("Elevator dispatched to floor %d\n", c.getDestFloor());
-					System.out.printf("Elevator going to moving state in direction %s\n", currentDirection);
 					notifySchedulerOfState(new ElevatorMovingMessage(ELEVATOR_ID, c.getDestFloor(), currentDirection));
 				}
 			}
@@ -234,7 +232,6 @@ public class Elevator implements Runnable {
 		case BOARDING:
 			elevatorDoor.openDoor();
 			elevatorDoor.closeDoor();
-			System.out.println("Elevator in boarding state");
 			// check if button on other floor was clicked
 			if (command instanceof InteriorElevatorBtnCommand) {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand)command;
@@ -243,9 +240,16 @@ public class Elevator implements Runnable {
 				}else {
 					currentState = State.IDLE;
 				}
-				System.out.printf("Interrior button %d clicked!\n", c.getFloor());
 				this.elevatorDirectionLamp.turnOffLight();
 				this.currentState = State.IDLE;
+			}else if(command instanceof ElevatorDispatchCommand) {
+				ElevatorDispatchCommand c = (ElevatorDispatchCommand) command;
+				if(c.getDestFloor() != currentFloor) {
+					destinationFloor = c.getDestFloor();
+					currentDirection = (currentFloor > destinationFloor) ? Direction.DOWN : Direction.UP;
+					currentState = State.MOVING;
+					motor.move(currentDirection);
+				}
 			}
 			break;
 		

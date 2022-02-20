@@ -236,12 +236,14 @@ public class Scheduler implements Runnable {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand)command;
 				Direction dir = (elevatorCurrentFloor < c.getFloor()) ? Direction.UP : Direction.DOWN;
 				insertNewDestination(c.getFloor(), dir);
+				System.out.printf("Elevator dispatched to floor %d\n", getNextFloor());
 				currentState = controlState.DISPATCH;
 				sendElevatorRequest(getNextFloor());
 			}
 			if(command instanceof ExternalFloorBtnCommand) {
 				ExternalFloorBtnCommand c = (ExternalFloorBtnCommand)command;
 				insertNewDestination(c.getFloor(), c.getDirection());
+				System.out.printf("Elevator dispatched to floor %d\n", getNextFloor());
 				currentState = controlState.DISPATCH;
 				sendElevatorRequest(getNextFloor());
 			}
@@ -253,6 +255,7 @@ public class Scheduler implements Runnable {
 				if(currentElevatorDestinations.isEmpty()) {
 					currentState = controlState.WAIT;
 				}else { // more floors to visit?
+					System.out.printf("Elevator dispatched to floor %d\n", getNextFloor());
 					sendElevatorRequest(getNextFloor());
 					currentState = controlState.DISPATCH;
 				}
@@ -260,8 +263,8 @@ public class Scheduler implements Runnable {
 			else if(command instanceof InteriorElevatorBtnCommand) {
 				InteriorElevatorBtnCommand c = (InteriorElevatorBtnCommand) command;
 				insertNewDestination(c.getFloor(), elevatorCurrentDirection);
+				System.out.printf("Elevator dispatched to floor %d\n", getNextFloor());
 				sendElevatorRequest(getNextFloor());
-				
 			}
 			break;
 		}
