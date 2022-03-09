@@ -3,6 +3,7 @@ package elevators;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.SocketException;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import elevatorCommands.Button;
@@ -92,17 +93,20 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 			}
 		}
 	}
+
 	void motorUpdate() throws IOException {
 		if(this.currentDirection == Direction.UP){
 			this.currentFloor++;
-		} else {
+		} else if(this.currentDirection == Direction.DOWN) {
 			this.currentFloor--;
 		}
+		LOGGER.info("Elevator Passing floor " + Integer.toString(currentFloor));
 		sendFloorSensorMessage();
 		this.elevatorFSM.updateFSM(null); // poke with null message
 	}
 
 	protected void setDestinationFloor(int floor) {
+		LOGGER.info("Elevator dispatched to floor " + Integer.toString(floor));
 		this.destinationFloor = floor;
 	}
 
@@ -144,7 +148,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		}else if (this.currentDirection == Direction.DOWN && this.currentFloor == this.destinationFloor +1) {
 			return true;
 		}
-		return true;
+		return false;
 	}
 
 

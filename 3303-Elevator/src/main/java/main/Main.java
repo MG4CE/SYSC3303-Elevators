@@ -14,7 +14,6 @@ public class Main extends UdpPBHelper {
 	}
 
 	void sendSchedulerDispatchMessage(int destFloor, int elevatorID) throws IOException {
-		System.out.println("Sending from main");
 		SchedulerDispatchMessage msg = SchedulerDispatchMessage.newBuilder()
 				.setDestFloor(destFloor)
 				.setElevatorID(elevatorID)
@@ -26,14 +25,12 @@ public class Main extends UdpPBHelper {
 
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		System.out.println("Starting!\n");
 		Main m = new Main(23, 24);
 		Thread elevator = new Thread(m.e);
 		elevator.start();
-		while(true) {
-			System.out.println("RUNNING");
-			m.sendSchedulerDispatchMessage(0, 123);
-			Thread.sleep(1000);
-		}
+		m.sendSchedulerDispatchMessage(10, 123);
+		Thread.sleep(12000);
+		m.sendSchedulerDispatchMessage(0, 123);
+		Thread.sleep(50000);
 	}
 }

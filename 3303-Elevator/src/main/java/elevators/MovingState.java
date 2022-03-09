@@ -17,14 +17,13 @@ public class MovingState implements State{
 	@Override
 	public void entryActions() {
 		// TODO Auto-generated method stub
-		//start motors
-		
+		elevator.elevatorMotor.startMotor();
+
 	}
 
 	@Override
 	public void exitActions() {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override

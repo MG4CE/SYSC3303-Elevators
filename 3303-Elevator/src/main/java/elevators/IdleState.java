@@ -1,6 +1,7 @@
 package elevators;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import elevatorCommands.SchedulerDispatchMessage;
 import pbHelpers.PbMessage;
@@ -8,7 +9,8 @@ import stateMachine.State;
 
 public class IdleState implements State {
 	Elevator elevator; // hold ref to elevator
-	
+	private final Logger LOGGER = Logger.getLogger(IdleState.class.getName());
+
 	IdleState(Elevator elevator){
 		this.elevator = elevator;
 	}
@@ -35,7 +37,6 @@ public class IdleState implements State {
 				return new BoardingState(elevator); // return instance of next state
 			} else {
 				elevator.updateCurrentDirection(); // got a new floor to go to
-				// ADD MOVING LOGIC
 				elevator.sendDepartureMessage();
 				return new MovingState(elevator); // return instance of next state
 			}

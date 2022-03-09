@@ -1,56 +1,54 @@
 package elevators;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import elevatorCommands.Direction;
 
-public class Motor {
-	final int FULL_SPEED_TIME_PER_FLOOR = 5; // seconds
-	final int ARRIVING_TIME_PER_FLOOR = (int)(FULL_SPEED_TIME_PER_FLOOR * 1.5); // slightly slower
-
+public class Motor extends TimerTask {
+	private final Logger LOGGER = Logger.getLogger(Motor.class.getName());
+	final int TIME_PER_FLOOR = 3; // seconds
+	final int TIME_PER_FLOOR_ARRIVING = 5;
 	motorState currentState;
 	Elevator elevator;
+	Timer timer;
 	Thread motorThread;
 
 	private enum motorState{
-		FULL_SPEED,
-		ARRIVING_SPEED,
+		RUNNING,
 		IDLE,
 	}
 
-	Motor(Elevator elevator){
+	Motor(Elevator elevator) {
 		this.elevator = elevator;
 		this.currentState = motorState.IDLE;
+	}
 
-	}
-	
-	private final Runnable motorRunThread = () -> {
-		while(this.currentState != motorState.IDLE) {
-			try {
-				wait(FULL_SPEED_TIME_PER_FLOOR * 1000);
-			} catch (InterruptedException e) { // floor passed
-				break;
-			}
-			try {
-				this.elevator.motorUpdate();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	@Override
+	public void run() {
+		try {
+			elevator.motorUpdate();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-	};
-	
-	void startMotor(Direction direction) throws IOException {
-		if(this.currentState != motorState.IDLE) {
-			throw new IOException("Elevator already running!\n");
-		}
-		this.currentState = motorState.FULL_SPEED;
-		this.motorThread = new Thread(motorRunThread);
-		this.motorThread.start();
 	}
-	
+
+
+	void startMotor(){
+		LOGGER.info("Starting motor at full speed");
+		Timer t = new Timer();
+		this.currentState = motorState.RUNNING;
+		timer = new Timer();
+		timer.schedule(this, TIME_PER_FLOOR*1000, TIME_PER_FLOOR*1000);
+	}
+
+
 	void stopMotor() {
-		this.currentState = motorState.IDLE;
-		this.motorThread.interrupt(); // tell to stop waiting
+		LOGGER.info("Stopping motor");
+		this.timer.cancel();
 	}
 }

@@ -15,13 +15,13 @@ public class ArrivingState implements State {
 	
 	@Override
 	public void entryActions() {
-		
 	}
 
 	@Override
 	public void exitActions() {
+		this.elevator.elevatorMotor.stopMotor();
 		System.out.printf("Elevator has arrived at floor %d\n", elevator.getCurrentFloor());
-		// stop motors
+
 	}
 	
 	@Override
