@@ -29,12 +29,13 @@ public class Motor {
 			try {
 				wait(FULL_SPEED_TIME_PER_FLOOR * 1000);
 			} catch (InterruptedException e) { // floor passed
-				try {
-					this.elevator.motorUpdate(); // tell elevator when floor hit!
-				} catch (IOException ex) {
-					System.out.println("failed to update elevator floor");
-					ex.printStackTrace();
-				}
+				break;
+			}
+			try {
+				this.elevator.motorUpdate();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	};
@@ -50,6 +51,6 @@ public class Motor {
 	
 	void stopMotor() {
 		this.currentState = motorState.IDLE;
-		this.motorThread.notify(); // tell to stop waiting
+		this.motorThread.interrupt(); // tell to stop waiting
 	}
 }
