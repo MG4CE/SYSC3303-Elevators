@@ -15,7 +15,7 @@ import pbHelpers.UdpPBHelper;
 import stateMachine.StateMachine;
 
 
-public class Elevator extends UdpPBHelper {
+public class Elevator extends UdpPBHelper implements  Runnable {
 	int currentFloor;
 	int destinationFloor;
 	Direction currentDirection;
@@ -78,14 +78,18 @@ public class Elevator extends UdpPBHelper {
 		sendMessage(msg);
 	}
 
-	void pollScheduler() throws IOException {
+	@Override
+	public void run() {
 		while(this.running){
-			DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
-			this.elevatorFSM.fireFSM(new PbMessage(recvMessage)); // update fsm
+			try {
+				DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
+				this.elevatorFSM.fireFSM(new PbMessage(recvMessage)); // update fsm
+			}catch (IOException e){
+				this.running = false;
+				break;
+			}
 		}
-		this.closePbSocket();
 	}
-
 	void motorUpdate() throws IOException {
 		if(this.currentDirection == Direction.UP){
 			this.currentFloor++;

@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.SocketException;
 
-public class Scheduler extends UdpPBHelper {
+public class Scheduler extends UdpPBHelper implements Runnable {
     private Boolean running = true;
-    private StateMachine schedulerFSM;
+    private final StateMachine schedulerFSM;
 
     public Scheduler(int sendPort, int recvPort) throws SocketException {
         super(sendPort, recvPort);
@@ -30,12 +30,16 @@ public class Scheduler extends UdpPBHelper {
         sendMessage(msg);
     }
 
-    void pollElevator() throws IOException {
+    @Override
+    public void run() {
         while(this.running){
-            DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
-            this.schedulerFSM.fireFSM(new PbMessage(recvMessage)); // update fsm
+            try {
+                DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
+                this.schedulerFSM.fireFSM(new PbMessage(recvMessage)); // update fsm
+            }catch (IOException e){
+                this.running = false;
+                break;
+            }
         }
     }
-
-
 }
