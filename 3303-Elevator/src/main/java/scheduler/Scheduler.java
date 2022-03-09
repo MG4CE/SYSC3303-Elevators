@@ -1,8 +1,8 @@
 package scheduler;
 
 import elevatorCommands.SchedulerDispatchMessage;
-import pbHelpers.PbMessage;
-import pbHelpers.UdpPBHelper;
+import protoBufHelpers.ProtoBufMessage;
+import protoBufHelpers.UDPHelper;
 import stateMachine.StateMachine;
 
 import java.io.IOException;
@@ -10,13 +10,13 @@ import java.net.DatagramPacket;
 import java.net.SocketException;
 import java.util.logging.Logger;
 
-public class Scheduler extends UdpPBHelper implements Runnable {
+public class Scheduler extends UDPHelper implements Runnable {
     private final Logger LOGGER = Logger.getLogger(Scheduler.class.getName());
     private Boolean running = true;
     private final StateMachine schedulerFSM;
 
-    public Scheduler(int sendPort, int recvPort) throws SocketException {
-        super(sendPort, recvPort);
+    public Scheduler(int recvPort) throws SocketException {
+        super(recvPort);
         LOGGER.info("Initializing scheduler");
         this.schedulerFSM = new StateMachine(null); // todo: ADD STATES
     }
@@ -30,7 +30,7 @@ public class Scheduler extends UdpPBHelper implements Runnable {
                 // TODO: SET ELEVATOR ID
                 //TODO ADD TIMESTAMP
                 .build();
-        sendMessage(msg);
+        sendMessage(msg, 0);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class Scheduler extends UdpPBHelper implements Runnable {
         while(this.running){
             try {
                 DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
-                this.schedulerFSM.updateFSM(new PbMessage(recvMessage)); // update fsm
+                this.schedulerFSM.updateFSM(new ProtoBufMessage(recvMessage)); // update fsm
             }catch (IOException e){
                 this.running = false;
                 break;

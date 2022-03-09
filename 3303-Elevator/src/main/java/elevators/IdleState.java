@@ -3,7 +3,7 @@ package elevators;
 import java.io.IOException;
 
 import elevatorCommands.SchedulerDispatchMessage;
-import pbHelpers.PbMessage;
+import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
 public class IdleState implements State {
@@ -26,7 +26,7 @@ public class IdleState implements State {
 	}
 	
 	@Override
-	public State nextState(PbMessage message) throws IOException {
+	public State nextState(ProtoBufMessage message) throws IOException {
 		if(message.isSchedulerDispatchMessage()) { // if message from scheduler
 			SchedulerDispatchMessage msg = message.toSchedulerDispatchMessage();
 			elevator.setDestinationFloor(msg.getDestFloor()); // update destination floor

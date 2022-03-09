@@ -3,7 +3,7 @@ package elevators;
 import java.io.IOException;
 
 import elevatorCommands.SchedulerDispatchMessage;
-import pbHelpers.PbMessage;
+import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
 public class MovingState implements State{
@@ -26,7 +26,7 @@ public class MovingState implements State{
 	}
 	
 	@Override
-	public State nextState(PbMessage message) throws IOException {
+	public State nextState(ProtoBufMessage message) throws IOException {
 		if (message == null) { // internal motor triggering FSM (floor change!)
 			if(elevator.isElevatorArriving()) {
 				return new ArrivingState(elevator);

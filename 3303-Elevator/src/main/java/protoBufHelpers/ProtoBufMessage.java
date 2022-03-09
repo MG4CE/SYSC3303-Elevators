@@ -1,4 +1,4 @@
-package pbHelpers;
+package protoBufHelpers;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
@@ -13,15 +13,13 @@ import elevatorCommands.FloorSensorMessage;
 import elevatorCommands.LampMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import elevatorCommands.WrapperMessage;
-import elevators.Elevator;
 
-
-public class PbMessage {
-	private final Logger LOGGER = Logger.getLogger(PbMessage.class.getName());
+public class ProtoBufMessage {
+	private final Logger LOGGER = Logger.getLogger(ProtoBufMessage.class.getName());
 	WrapperMessage wrapper;
 	com.google.protobuf.GeneratedMessageV3 message;
 	
-	public PbMessage(DatagramPacket message) throws InvalidProtocolBufferException{
+	public ProtoBufMessage(DatagramPacket message) throws InvalidProtocolBufferException{
 		byte[] rawPBArray = cpyDatagramArr(message);
 		this.wrapper = getWrapper(rawPBArray); // unpack raw message
 		this.unpackMessage(wrapper); // get internal message
@@ -73,7 +71,6 @@ public class PbMessage {
 		return this.message instanceof LampMessage;
 	}
  
-	
 	//TODO: ADD ERROR CHECKING TO CASTS!
 	
 	public ElevatorRequestMessage toElevatorRequestMessage() {

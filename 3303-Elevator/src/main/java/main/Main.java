@@ -2,15 +2,15 @@ package main;
 
 import elevatorCommands.SchedulerDispatchMessage;
 import elevators.Elevator;
-import pbHelpers.UdpPBHelper;
+import protoBufHelpers.UDPHelper;
 
 import java.io.IOException;
 import java.net.SocketException;
 
-public class Main extends UdpPBHelper {
-	Elevator e = new Elevator(24, 23);
-	public Main(int sendPort, int recvPort) throws SocketException {
-		super(sendPort, recvPort);
+public class Main extends UDPHelper {
+	Elevator e = new Elevator(23, 24);
+	public Main(int recvPort) throws SocketException {
+		super(recvPort);
 	}
 
 	void sendSchedulerDispatchMessage(int destFloor, int elevatorID) throws IOException {
@@ -20,12 +20,12 @@ public class Main extends UdpPBHelper {
 				// TODO: SET ELEVATOR ID
 				//TODO ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, 24);
 	}
 
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		Main m = new Main(23, 24);
+		Main m = new Main(23);
 		Thread elevator = new Thread(m.e);
 		elevator.start();
 		m.sendSchedulerDispatchMessage(10, 123);

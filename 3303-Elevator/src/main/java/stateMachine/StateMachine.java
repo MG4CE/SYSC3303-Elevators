@@ -1,9 +1,9 @@
 package stateMachine;
 
 import java.io.IOException;
-
-import pbHelpers.PbMessage;
 import java.util.logging.Logger;
+
+import protoBufHelpers.ProtoBufMessage;
 
 public class StateMachine {
 	private State currentState;
@@ -15,7 +15,7 @@ public class StateMachine {
 		this.currentState.entryActions(); // invoke entry actions if any
 	}
 	
-	public synchronized void updateFSM(PbMessage message) throws IOException {
+	public synchronized void updateFSM(ProtoBufMessage message) throws IOException {
 		State prevState = getCurrentState();
 		currentState = currentState.nextState(message);
 		if (currentState != prevState) { // State change occurred!

@@ -3,7 +3,7 @@ package elevators;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import pbHelpers.PbMessage;
+import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
 public class ArrivingState implements State {
@@ -22,7 +22,7 @@ public class ArrivingState implements State {
 	}
 	
 	@Override
-	public State nextState(PbMessage message) throws IOException {
+	public State nextState(ProtoBufMessage message) throws IOException {
 		if(message == null) { // internal message from motors
 			if(elevator.getCurrentFloor() == elevator.getDestinationFloor()) {
 				elevator.sendElevatorArrivedMessage(); // let scheduler know arrived

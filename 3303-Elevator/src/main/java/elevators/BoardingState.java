@@ -5,7 +5,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import elevatorCommands.SchedulerDispatchMessage;
-import pbHelpers.PbMessage;
+import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
 public class BoardingState extends TimerTask implements State {
@@ -41,7 +41,7 @@ public class BoardingState extends TimerTask implements State {
 	}
 	
 	@Override
-	public State nextState(PbMessage message) throws IOException {
+	public State nextState(ProtoBufMessage message) throws IOException {
 		if (message == null) { //timeout trigger
 			return new IdleState(elevator);
 		} else if(message.isSchedulerDispatchMessage()) { // if message from scheduler

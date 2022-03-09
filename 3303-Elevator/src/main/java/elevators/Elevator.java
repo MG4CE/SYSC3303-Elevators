@@ -11,33 +11,38 @@ import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
-import pbHelpers.PbMessage;
-import pbHelpers.UdpPBHelper;
+import protoBufHelpers.ProtoBufMessage;
+import protoBufHelpers.UDPHelper;
 import stateMachine.StateMachine;
 
-public class Elevator extends UdpPBHelper implements  Runnable {
+public class Elevator extends UDPHelper implements Runnable {
 	protected final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
 	
-	protected int currentFloor;
-	protected int destinationFloor;
-	protected Direction currentDirection;
-	protected int elevatorID;
-	protected DoorState currentDoorState = DoorState.CLOSE;
+	private int schedulerPort;
+	private int currentFloor;
+	private int destinationFloor;
+	private Direction currentDirection;
+	private int elevatorID;
+	private DoorState currentDoorState;
+	
 	protected Motor elevatorMotor;
 	protected StateMachine elevatorFSM;
-	protected Boolean running = true;
+	protected Boolean running;
 
 	private enum DoorState{
 		OPEN,
 		CLOSE,
 	}
 	
-	public Elevator(int schedulerPort, int listenPort) throws SocketException {
-		super(schedulerPort, listenPort); // create pb interface
+	public Elevator(int schedulerPort, int receivePort) throws SocketException {
+		super(receivePort); //takes in a receive port just for testing
+		this.schedulerPort = schedulerPort;
 		this.currentFloor = 0;
 		this.elevatorID = 0;
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
+		this.currentDoorState = DoorState.CLOSE;
+		this.running = true;
 	}
 
 	protected void sendInternalButtonMessage(int floor) throws IOException {
@@ -48,7 +53,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 				.setDirection(Direction.STATIONARY)
 				//TODO ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, schedulerPort);
 	}
 
 	// Should this include direction?
@@ -58,7 +63,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 				.setElevatorID(this.elevatorID)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, schedulerPort);
 	}
 
 	protected void sendDepartureMessage() throws IOException {
@@ -68,7 +73,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 				.setElevatorID(this.elevatorID)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, schedulerPort);
 	}
 
 	protected void sendElevatorArrivedMessage() throws IOException {
@@ -77,7 +82,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 				.setFloor(this.currentFloor)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, schedulerPort);
 	}
 
 	@Override
@@ -85,7 +90,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		while(this.running){
 			try {
 				DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
-				this.elevatorFSM.updateFSM(new PbMessage(recvMessage)); // update fsm
+				this.elevatorFSM.updateFSM(new ProtoBufMessage(recvMessage)); // update fsm
 			}catch (IOException e){
 				LOGGER.severe(e.getMessage());
 				this.running = false;
