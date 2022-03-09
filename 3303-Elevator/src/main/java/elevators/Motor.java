@@ -3,7 +3,6 @@ package elevators;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
 
 public class Motor extends TimerTask {	
 	protected final int TIME_PER_FLOOR = 3; // seconds

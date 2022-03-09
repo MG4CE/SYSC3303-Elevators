@@ -87,6 +87,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 				DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
 				this.elevatorFSM.updateFSM(new PbMessage(recvMessage)); // update fsm
 			}catch (IOException e){
+				LOGGER.severe(e.getMessage());
 				this.running = false;
 				break;
 			}
