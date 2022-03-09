@@ -21,7 +21,7 @@ public class StateMachine {
 		}
 	}
 	
-	State getCurrentState() {
+	public State getCurrentState() {
 		return this.currentState;
 	}
 }
