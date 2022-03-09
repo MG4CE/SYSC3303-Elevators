@@ -30,4 +30,10 @@ public interface ElevatorArrivedMessageOrBuilder extends
    */
   com.google.protobuf.ByteString
       getTimeStampBytes();
+
+  /**
+   * <code>uint32 requestID = 4;</code>
+   * @return The requestID.
+   */
+  int getRequestID();
 }

@@ -23,6 +23,7 @@ message ElevatorRequestMessage{
 	Button button = 3;
 	uint32 floor = 4;
 	string timeStamp = 5;
+	uint32 requestID = 6;
 }
 
 // Dispatch sent from scheduler to elevator
@@ -30,6 +31,7 @@ message SchedulerDispatchMessage{
 	uint32 elevatorID = 1;
 	uint32 destFloor = 2;
 	string timeStamp = 3;
+	uint32 requestID = 4;
 }
 
 // Notify schedule that elevator has arrived
@@ -37,6 +39,7 @@ message ElevatorArrivedMessage{
 	uint32 elevatorID = 1;
 	uint32 floor = 2;
 	string timeStamp = 3;
+	uint32 requestID = 4;
 }
 
 // Notify scheduler elevator is moving
@@ -45,6 +48,7 @@ message ElevatorDepartureMessage{
 	Direction direction = 2;
 	uint32 initialFloor = 3;
 	string timeStamp = 4;
+	uint32 requestID = 5;
 }
 
 // Tell scheduler when elevator passes a floor

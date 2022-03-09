@@ -69,6 +69,11 @@ private static final long serialVersionUID = 0L;
             timeStamp_ = s;
             break;
           }
+          case 32: {
+
+            requestID_ = input.readUInt32();
+            break;
+          }
           default: {
             if (!parseUnknownField(
                 input, unknownFields, extensionRegistry, tag)) {
@@ -161,6 +166,17 @@ private static final long serialVersionUID = 0L;
     }
   }
 
+  public static final int REQUESTID_FIELD_NUMBER = 4;
+  private int requestID_;
+  /**
+   * <code>uint32 requestID = 4;</code>
+   * @return The requestID.
+   */
+  @java.lang.Override
+  public int getRequestID() {
+    return requestID_;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -184,6 +200,9 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(timeStamp_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 3, timeStamp_);
     }
+    if (requestID_ != 0) {
+      output.writeUInt32(4, requestID_);
+    }
     unknownFields.writeTo(output);
   }
 
@@ -203,6 +222,10 @@ private static final long serialVersionUID = 0L;
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(timeStamp_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, timeStamp_);
+    }
+    if (requestID_ != 0) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeUInt32Size(4, requestID_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -225,6 +248,8 @@ private static final long serialVersionUID = 0L;
         != other.getDestFloor()) return false;
     if (!getTimeStamp()
         .equals(other.getTimeStamp())) return false;
+    if (getRequestID()
+        != other.getRequestID()) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -242,6 +267,8 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getDestFloor();
     hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
     hash = (53 * hash) + getTimeStamp().hashCode();
+    hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
+    hash = (53 * hash) + getRequestID();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -385,6 +412,8 @@ private static final long serialVersionUID = 0L;
 
       timeStamp_ = "";
 
+      requestID_ = 0;
+
       return this;
     }
 
@@ -414,6 +443,7 @@ private static final long serialVersionUID = 0L;
       result.elevatorID_ = elevatorID_;
       result.destFloor_ = destFloor_;
       result.timeStamp_ = timeStamp_;
+      result.requestID_ = requestID_;
       onBuilt();
       return result;
     }
@@ -471,6 +501,9 @@ private static final long serialVersionUID = 0L;
       if (!other.getTimeStamp().isEmpty()) {
         timeStamp_ = other.timeStamp_;
         onChanged();
+      }
+      if (other.getRequestID() != 0) {
+        setRequestID(other.getRequestID());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -635,6 +668,37 @@ private static final long serialVersionUID = 0L;
   checkByteStringIsUtf8(value);
       
       timeStamp_ = value;
+      onChanged();
+      return this;
+    }
+
+    private int requestID_ ;
+    /**
+     * <code>uint32 requestID = 4;</code>
+     * @return The requestID.
+     */
+    @java.lang.Override
+    public int getRequestID() {
+      return requestID_;
+    }
+    /**
+     * <code>uint32 requestID = 4;</code>
+     * @param value The requestID to set.
+     * @return This builder for chaining.
+     */
+    public Builder setRequestID(int value) {
+      
+      requestID_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>uint32 requestID = 4;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearRequestID() {
+      
+      requestID_ = 0;
       onChanged();
       return this;
     }

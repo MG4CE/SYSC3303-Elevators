@@ -52,4 +52,10 @@ public interface ElevatorRequestMessageOrBuilder extends
    */
   com.google.protobuf.ByteString
       getTimeStampBytes();
+
+  /**
+   * <code>uint32 requestID = 6;</code>
+   * @return The requestID.
+   */
+  int getRequestID();
 }
