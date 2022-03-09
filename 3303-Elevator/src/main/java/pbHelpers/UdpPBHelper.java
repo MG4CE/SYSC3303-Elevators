@@ -34,14 +34,14 @@ public abstract class UdpPBHelper {
 		sendMessage(msgB);
 	}	
 	
-	DatagramPacket receiveMessage() throws IOException {
+	protected DatagramPacket receiveMessage() throws IOException {
 		byte[] r = new byte[PACKET_SIZE];
 		DatagramPacket rcv = new DatagramPacket(r, PACKET_SIZE);
 		this.recvSocket.receive(rcv);
 		return rcv;
 	}
 
-	protected void close(){
+	protected void closePbSocket(){
 		this.recvSocket.close();
 	}
 

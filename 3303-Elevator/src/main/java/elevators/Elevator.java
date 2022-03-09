@@ -1,6 +1,7 @@
 package elevators;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.SocketException;
 
 import elevatorCommands.Button;
@@ -9,8 +10,10 @@ import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
+import pbHelpers.PbMessage;
 import pbHelpers.UdpPBHelper;
 import stateMachine.StateMachine;
+
 
 public class Elevator extends UdpPBHelper {
 	int currentFloor;
@@ -20,6 +23,7 @@ public class Elevator extends UdpPBHelper {
 	DoorState currentDoorState = DoorState.CLOSE;
 	Motor elevatorMotor;
 	StateMachine elevatorFSM;
+	Boolean running = true;
 
 	enum DoorState{
 		OPEN,
@@ -30,12 +34,13 @@ public class Elevator extends UdpPBHelper {
 		super(schedulerPort, listenPort); // create pb interface
 		this.currentFloor = 0;
 		this.elevatorID = 0;
+		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 	}
 
-	void sendInternalButtonMessage() throws IOException {
+	void sendInternalButtonMessage(int floor) throws IOException {
 		ElevatorRequestMessage msg = ElevatorRequestMessage.newBuilder()
-				.setFloor(this.currentFloor)
+				.setFloor(floor)
 				.setButton(Button.INTERIOR)
 				.setElevatorID(this.elevatorID)
 				.setDirection(Direction.STATIONARY)
@@ -44,6 +49,7 @@ public class Elevator extends UdpPBHelper {
 		sendMessage(msg);
 	}
 
+	// Should this include direction?
 	void sendFloorSensorMessage() throws IOException {
 		FloorSensorMessage msg = FloorSensorMessage.newBuilder()
 				.setFloor(this.currentFloor)
@@ -72,12 +78,21 @@ public class Elevator extends UdpPBHelper {
 		sendMessage(msg);
 	}
 
+	void pollScheduler() throws IOException {
+		while(this.running){
+			DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
+			this.elevatorFSM.fireFSM(new PbMessage(recvMessage)); // update fsm
+		}
+		this.closePbSocket();
+	}
+
 	void motorUpdate() throws IOException {
 		if(this.currentDirection == Direction.UP){
 			this.currentFloor++;
 		} else {
 			this.currentFloor--;
 		}
+		sendFloorSensorMessage();
 		this.elevatorFSM.fireFSM(null); // poke with null message
 	}
 
@@ -99,6 +114,10 @@ public class Elevator extends UdpPBHelper {
 		}else {
 			this.currentDirection = Direction.DOWN;
 		}
+	}
+
+	public void pushElevatorButton(int floor) throws IOException {
+		sendInternalButtonMessage(floor);
 	}
 
 	protected Direction getCurrentDirection() {

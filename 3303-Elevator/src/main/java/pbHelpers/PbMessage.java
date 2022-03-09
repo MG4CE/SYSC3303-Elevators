@@ -18,7 +18,7 @@ public class PbMessage {
 	WrapperMessage wrapper;
 	com.google.protobuf.GeneratedMessageV3 message;
 	
-	PbMessage(DatagramPacket message) throws InvalidProtocolBufferException{
+	public PbMessage(DatagramPacket message) throws InvalidProtocolBufferException{
 		byte[] rawPBArray = cpyDatagramArr(message);
 		this.wrapper = getWrapper(rawPBArray); // unpack raw message
 		this.unpackMessage(wrapper); // get internal message
@@ -26,8 +26,7 @@ public class PbMessage {
 	
 	// will not be able to parse without this!
 	private byte[] cpyDatagramArr(DatagramPacket p){
-		byte[] pb = Arrays.copyOfRange(p.getData(), 0, p.getLength());
-		return pb;
+		return Arrays.copyOfRange(p.getData(), 0, p.getLength());
 	}
 	
 	private WrapperMessage getWrapper(byte[] rawData) throws InvalidProtocolBufferException {
