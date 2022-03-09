@@ -13,10 +13,10 @@ public class StateMachine {
 	public StateMachine(State initialState){
 		this.currentState = initialState;
 		LOGGER.info("Initializing State Machine at State: " + currentState.getClass().getName());
-		this.currentState.entryActions(); // invoke entry actions if anys
+		this.currentState.entryActions(); // invoke entry actions if any
 	}
 	
-	public void updateFSM(PbMessage message) throws IOException {
+	public synchronized void updateFSM(PbMessage message) throws IOException {
 		State prevState = getCurrentState();
 		currentState = currentState.nextState(message);
 		if (currentState != prevState) { // State change occurred!

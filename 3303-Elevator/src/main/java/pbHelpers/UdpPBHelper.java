@@ -5,13 +5,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
 
-import com.google.protobuf.Descriptors;
+
 import elevatorCommands.*;
-import floorSubsystem.FloorSubsystem;
+
 
 public abstract class UdpPBHelper {
 	private final Logger LOGGER = Logger.getLogger(UdpPBHelper.class.getName());
@@ -35,30 +33,30 @@ public abstract class UdpPBHelper {
 	
 	protected void sendMessage(com.google.protobuf.GeneratedMessageV3 message) throws IOException {
 		LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
-		WrapperMessage.Builder msg = WrapperMessage.newBuilder();
+		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
 		// find type of message
 		if(message instanceof ElevatorRequestMessage){
-			msg.setElevatorRequest((ElevatorRequestMessage) message);
+			msgBldr.setElevatorRequest((ElevatorRequestMessage) message);
 		}else if(message instanceof SchedulerDispatchMessage){
-			msg.setSchedulerDispatch((SchedulerDispatchMessage) message);
+			msgBldr.setSchedulerDispatch((SchedulerDispatchMessage) message);
 		}else if(message instanceof ElevatorArrivedMessage){
-			msg.setElevatorArrived((ElevatorArrivedMessage) message);
+			msgBldr.setElevatorArrived((ElevatorArrivedMessage) message);
 		}else if(message instanceof ElevatorDepartureMessage){
-			msg.setElevatorDeparture((ElevatorDepartureMessage) message);
+			msgBldr.setElevatorDeparture((ElevatorDepartureMessage) message);
 		}else if(message instanceof FloorSensorMessage){
-			msg.setFloorSensor((FloorSensorMessage) message);
+			msgBldr.setFloorSensor((FloorSensorMessage) message);
 		}else if(message instanceof LampMessage){
-			msg.setLampMessage((LampMessage) message);
+			msgBldr.setLampMessage((LampMessage) message);
 		}
-		msg.build();
-		byte[] msgB = message.toByteArray();
-		sendMessage(msgB);
+		WrapperMessage msg = msgBldr.build();
+		sendMessage(msg.toByteArray());
 	}	
 	
 	protected DatagramPacket receiveMessage() throws IOException {
 		byte[] r = new byte[PACKET_SIZE];
 		DatagramPacket rcv = new DatagramPacket(r, PACKET_SIZE);
 		this.recvSocket.receive(rcv);
+		LOGGER.info("Receiving message from " + Integer.toString(rcv.getPort()));
 		return rcv;
 	}
 

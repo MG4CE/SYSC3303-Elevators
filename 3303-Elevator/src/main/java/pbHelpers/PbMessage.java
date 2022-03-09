@@ -2,6 +2,7 @@ package pbHelpers;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -12,9 +13,11 @@ import elevatorCommands.FloorSensorMessage;
 import elevatorCommands.LampMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import elevatorCommands.WrapperMessage;
-	
+import elevators.Elevator;
+
 
 public class PbMessage {
+	private final Logger LOGGER = Logger.getLogger(PbMessage.class.getName());
 	WrapperMessage wrapper;
 	com.google.protobuf.GeneratedMessageV3 message;
 	
@@ -34,6 +37,7 @@ public class PbMessage {
 	}
 	
 	private void unpackMessage(WrapperMessage msg) {
+		LOGGER.info("Unpacking message of type " + msg.getMsgCase().toString());
 		switch (msg.getMsgCase()) {
 			case ELEVATORARRIVED -> this.message = msg.getElevatorArrived();
 			case ELEVATORDEPARTURE -> this.message = msg.getElevatorDeparture();

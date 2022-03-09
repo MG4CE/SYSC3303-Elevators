@@ -32,7 +32,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		CLOSE,
 	}
 	
-	Elevator(int listenPort, int schedulerPort) throws SocketException {
+	public Elevator(int schedulerPort, int listenPort) throws SocketException {
 		super(schedulerPort, listenPort); // create pb interface
 		this.currentFloor = 0;
 		this.elevatorID = 0;
