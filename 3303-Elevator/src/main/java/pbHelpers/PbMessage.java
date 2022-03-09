@@ -30,33 +30,18 @@ public class PbMessage {
 	}
 	
 	private WrapperMessage getWrapper(byte[] rawData) throws InvalidProtocolBufferException {
-		WrapperMessage w = WrapperMessage.parseFrom(rawData);
-		return w;
+		return WrapperMessage.parseFrom(rawData);
 	}
 	
 	private void unpackMessage(WrapperMessage msg) {
-		switch(msg.getMsgCase()){
-			case ELEVATORARRIVED:
-				this.message = msg.getElevatorArrived();
-				break;
-			case ELEVATORDEPARTURE:
-				this.message = msg.getElevatorDeparture();
-				break;
-			case ELEVATORREQUEST:
-				this.message = msg.getElevatorRequest();
-				break;
-			case FLOORSENSOR:
-				this.message = msg.getFloorSensor();
-				break;
-			case LAMPMESSAGE:
-				this.message = msg.getLampMessage();
-				break;
-			case SCHEDULERDISPATCH:
-				this.message = msg.getSchedulerDispatch();
-				break;				
-			default:
-				this.message = null;
-				break;
+		switch (msg.getMsgCase()) {
+			case ELEVATORARRIVED -> this.message = msg.getElevatorArrived();
+			case ELEVATORDEPARTURE -> this.message = msg.getElevatorDeparture();
+			case ELEVATORREQUEST -> this.message = msg.getElevatorRequest();
+			case FLOORSENSOR -> this.message = msg.getFloorSensor();
+			case LAMPMESSAGE -> this.message = msg.getLampMessage();
+			case SCHEDULERDISPATCH -> this.message = msg.getSchedulerDispatch();
+			default -> this.message = null;
 		}
 	}
 	

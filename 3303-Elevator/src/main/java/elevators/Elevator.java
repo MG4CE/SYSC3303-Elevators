@@ -3,6 +3,7 @@ package elevators;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.SocketException;
+import java.util.logging.Logger;
 
 import elevatorCommands.Button;
 import elevatorCommands.Direction;
@@ -16,6 +17,7 @@ import stateMachine.StateMachine;
 
 
 public class Elevator extends UdpPBHelper implements  Runnable {
+	private final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
 	int currentFloor;
 	int destinationFloor;
 	Direction currentDirection;
@@ -70,7 +72,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 	}
 
 	void sendElevatorArrivedMessage() throws IOException {
-		ElevatorArrivedMessage msg = ElevatorArrivedMessage.newBuilder()
+ 		ElevatorArrivedMessage msg = ElevatorArrivedMessage.newBuilder()
 				.setElevatorID(this.elevatorID)
 				.setFloor(this.currentFloor)
 				//TODO: ADD TIMESTAMP
@@ -83,7 +85,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		while(this.running){
 			try {
 				DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
-				this.elevatorFSM.fireFSM(new PbMessage(recvMessage)); // update fsm
+				this.elevatorFSM.updateFSM(new PbMessage(recvMessage)); // update fsm
 			}catch (IOException e){
 				this.running = false;
 				break;
@@ -97,7 +99,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 			this.currentFloor--;
 		}
 		sendFloorSensorMessage();
-		this.elevatorFSM.fireFSM(null); // poke with null message
+		this.elevatorFSM.updateFSM(null); // poke with null message
 	}
 
 	protected void setDestinationFloor(int floor) {

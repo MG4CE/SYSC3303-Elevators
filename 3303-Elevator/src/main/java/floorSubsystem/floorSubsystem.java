@@ -1,26 +1,24 @@
-package floors;
+package floorSubsystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
-import commands.Command;
-import commands.ElevatorArrivedMessage;
+import java.util.logging.Logger;
+
 import elevatorCommands.Button;
 import elevatorCommands.Direction;
 import elevatorCommands.ElevatorRequestMessage;
 import pbHelpers.UdpPBHelper;
 import scheduler.Scheduler;
-import commands.InteriorElevatorBtnCommand;
-import elevators.Direction;
 import elevators.Elevator;
-import commands.ExternalFloorBtnCommand;
-import commands.FloorDirectionLampMessage;
+
 
 /**
  * This is a representation of a floor that an elevator will service
@@ -30,6 +28,7 @@ import commands.FloorDirectionLampMessage;
 public class FloorSubsystem extends UdpPBHelper implements Runnable{
 
     //Instance Variables
+    private final Logger LOGGER = Logger.getLogger(FloorSubsystem.class.getName());
     private Scheduler schedulator;
     private ArrayList<ExternalFloorBtnCommand> floorRequestList;
     private ArrayList<InteriorElevatorBtnCommand> elevatorRequestList;
@@ -47,7 +46,7 @@ public class FloorSubsystem extends UdpPBHelper implements Runnable{
      * @param scheduler
      * @patsm commandFile : input text file contatining the list of commands
      */
-    public FloorSubsystem(Scheduler schedulator, String commandFile) {
+    public FloorSubsystem(Scheduler schedulator, String commandFile) throws SocketException {
         super(0,0); // send, receive
         this.schedulator = schedulator;
         this.commandFile = commandFile;
@@ -159,10 +158,11 @@ public class FloorSubsystem extends UdpPBHelper implements Runnable{
      * @throws IOException
      */
     void sendExternalButtonMessage(int floor, Direction direction, int requestId) throws IOException {
+        LOGGER.info("External elevator button pressed on floor " + Integer.toString(floor) + " with direction " +
+                direction.toString() + ", REQUEST_ID=" + Integer.toString(requestId));
         ElevatorRequestMessage msg = ElevatorRequestMessage.newBuilder()
                 .setFloor(floor)
                 .setButton(Button.EXTERIOR)
-                .setElevatorID(this.elevatorID)
                 .setDirection(direction)
                 .setTimeStamp("Monkey Moment")
                 .setRequestID(requestId)
@@ -184,28 +184,6 @@ public class FloorSubsystem extends UdpPBHelper implements Runnable{
 //	    System.out.println("start: "+ start);
         return Math.abs(end - start);
     }
-
-    /**
-     * Recieves a message from elevator and replies with corresponding (interior) button press
-     * @param cmd Elevator arrived message
-     * @param elevator the elevator that has arrived
-     */
-    public synchronized void putMessage(ElevatorArrivedMessage cmd, Elevator elevator){
-        while(!readyForReply) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                System.out.print("something failed???");
-            }
-        }
-        this.lastestReply = cmd;
-        this.elevate = elevator;
-        readyForReply = false;
-        notifyAll();
-    }
-
-
-
 
     private synchronized ElevatorArrivedMessage getMessage() {
 
