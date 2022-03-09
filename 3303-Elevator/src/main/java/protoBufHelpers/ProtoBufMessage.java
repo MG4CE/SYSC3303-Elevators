@@ -1,7 +1,8 @@
-package pbHelpers;
+package protoBufHelpers;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -12,13 +13,13 @@ import elevatorCommands.FloorSensorMessage;
 import elevatorCommands.LampMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import elevatorCommands.WrapperMessage;
-	
 
-public class PbMessage {
+public class ProtoBufMessage {
+	private final Logger LOGGER = Logger.getLogger(ProtoBufMessage.class.getName());
 	WrapperMessage wrapper;
 	com.google.protobuf.GeneratedMessageV3 message;
 	
-	public PbMessage(DatagramPacket message) throws InvalidProtocolBufferException{
+	public ProtoBufMessage(DatagramPacket message) throws InvalidProtocolBufferException{
 		byte[] rawPBArray = cpyDatagramArr(message);
 		this.wrapper = getWrapper(rawPBArray); // unpack raw message
 		this.unpackMessage(wrapper); // get internal message
@@ -34,6 +35,7 @@ public class PbMessage {
 	}
 	
 	private void unpackMessage(WrapperMessage msg) {
+		LOGGER.info("Unpacking message of type " + msg.getMsgCase().toString());
 		switch (msg.getMsgCase()) {
 			case ELEVATORARRIVED -> this.message = msg.getElevatorArrived();
 			case ELEVATORDEPARTURE -> this.message = msg.getElevatorDeparture();
@@ -69,7 +71,6 @@ public class PbMessage {
 		return this.message instanceof LampMessage;
 	}
  
-	
 	//TODO: ADD ERROR CHECKING TO CASTS!
 	
 	public ElevatorRequestMessage toElevatorRequestMessage() {

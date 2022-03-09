@@ -2,10 +2,10 @@ package stateMachine;
 
 import java.io.IOException;
 
-import pbHelpers.PbMessage;
+import protoBufHelpers.ProtoBufMessage;
 
 public interface State {
 	abstract void entryActions();
 	abstract void exitActions();
-	abstract State nextState(PbMessage message) throws IOException;
+	abstract State nextState(ProtoBufMessage message) throws IOException;
 }

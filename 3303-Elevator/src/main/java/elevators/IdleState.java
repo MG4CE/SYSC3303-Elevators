@@ -3,13 +3,13 @@ package elevators;
 import java.io.IOException;
 
 import elevatorCommands.SchedulerDispatchMessage;
-import pbHelpers.PbMessage;
+import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
 public class IdleState implements State {
-	Elevator elevator; // hold ref to elevator
-	
-	IdleState(Elevator elevator){
+	private Elevator elevator; // hold ref to elevator
+
+	protected IdleState(Elevator elevator){
 		this.elevator = elevator;
 	}
 
@@ -26,7 +26,7 @@ public class IdleState implements State {
 	}
 	
 	@Override
-	public State nextState(PbMessage message) throws IOException {
+	public State nextState(ProtoBufMessage message) throws IOException {
 		if(message.isSchedulerDispatchMessage()) { // if message from scheduler
 			SchedulerDispatchMessage msg = message.toSchedulerDispatchMessage();
 			elevator.setDestinationFloor(msg.getDestFloor()); // update destination floor
@@ -35,11 +35,10 @@ public class IdleState implements State {
 				return new BoardingState(elevator); // return instance of next state
 			} else {
 				elevator.updateCurrentDirection(); // got a new floor to go to
-				// ADD MOVING LOGIC
 				elevator.sendDepartureMessage();
 				return new MovingState(elevator); // return instance of next state
 			}
-		} else { // or return to current state?
+		} else {
 			throw new IOException("ELEVATOR FSM IN INVALID STATE");
 		}
 	}

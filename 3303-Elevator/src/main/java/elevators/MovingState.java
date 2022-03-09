@@ -2,33 +2,31 @@ package elevators;
 
 import java.io.IOException;
 
-import elevatorCommands.Direction;
 import elevatorCommands.SchedulerDispatchMessage;
-import pbHelpers.PbMessage;
+import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
 public class MovingState implements State{
-	Elevator elevator; // hold ref to elevator
+	private Elevator elevator; // hold ref to elevator
 	
-	MovingState(Elevator elevator){
+	protected MovingState(Elevator elevator){
 		this.elevator = elevator;
 	}
 	
 	@Override
 	public void entryActions() {
 		// TODO Auto-generated method stub
-		//start motors
-		
+		elevator.elevatorMotor.startMotor();
+
 	}
 
 	@Override
 	public void exitActions() {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
-	public State nextState(PbMessage message) throws IOException {
+	public State nextState(ProtoBufMessage message) throws IOException {
 		if (message == null) { // internal motor triggering FSM (floor change!)
 			if(elevator.isElevatorArriving()) {
 				return new ArrivingState(elevator);

@@ -11,36 +11,41 @@ import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
-import pbHelpers.PbMessage;
-import pbHelpers.UdpPBHelper;
+import protoBufHelpers.ProtoBufMessage;
+import protoBufHelpers.UDPHelper;
 import stateMachine.StateMachine;
 
+public class Elevator extends UDPHelper implements Runnable {
+	protected final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
+	
+	private int schedulerPort;
+	private int currentFloor;
+	private int destinationFloor;
+	private Direction currentDirection;
+	private int elevatorID;
+	private DoorState currentDoorState;
+	
+	protected Motor elevatorMotor;
+	protected StateMachine elevatorFSM;
+	protected Boolean running;
 
-public class Elevator extends UdpPBHelper implements  Runnable {
-	private final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
-	int currentFloor;
-	int destinationFloor;
-	Direction currentDirection;
-	int elevatorID;
-	DoorState currentDoorState = DoorState.CLOSE;
-	Motor elevatorMotor;
-	StateMachine elevatorFSM;
-	Boolean running = true;
-
-	enum DoorState{
+	private enum DoorState{
 		OPEN,
 		CLOSE,
 	}
 	
-	Elevator(int listenPort, int schedulerPort) throws SocketException {
-		super(schedulerPort, listenPort); // create pb interface
+	public Elevator(int schedulerPort, int receivePort) throws SocketException {
+		super(receivePort); //takes in a receive port just for testing
+		this.schedulerPort = schedulerPort;
 		this.currentFloor = 0;
 		this.elevatorID = 0;
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
+		this.currentDoorState = DoorState.CLOSE;
+		this.running = true;
 	}
 
-	void sendInternalButtonMessage(int floor) throws IOException {
+	protected void sendInternalButtonMessage(int floor) throws IOException {
 		ElevatorRequestMessage msg = ElevatorRequestMessage.newBuilder()
 				.setFloor(floor)
 				.setButton(Button.INTERIOR)
@@ -48,36 +53,36 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 				.setDirection(Direction.STATIONARY)
 				//TODO ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, schedulerPort);
 	}
 
 	// Should this include direction?
-	void sendFloorSensorMessage() throws IOException {
+	protected void sendFloorSensorMessage() throws IOException {
 		FloorSensorMessage msg = FloorSensorMessage.newBuilder()
 				.setFloor(this.currentFloor)
 				.setElevatorID(this.elevatorID)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, schedulerPort);
 	}
 
-	void sendDepartureMessage() throws IOException {
+	protected void sendDepartureMessage() throws IOException {
 		ElevatorDepartureMessage msg = ElevatorDepartureMessage.newBuilder()
 				.setDirection(this.currentDirection)
 				.setInitialFloor(this.currentFloor)
 				.setElevatorID(this.elevatorID)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, schedulerPort);
 	}
 
-	void sendElevatorArrivedMessage() throws IOException {
+	protected void sendElevatorArrivedMessage() throws IOException {
  		ElevatorArrivedMessage msg = ElevatorArrivedMessage.newBuilder()
 				.setElevatorID(this.elevatorID)
 				.setFloor(this.currentFloor)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg);
+		sendMessage(msg, schedulerPort);
 	}
 
 	@Override
@@ -85,24 +90,28 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		while(this.running){
 			try {
 				DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
-				this.elevatorFSM.updateFSM(new PbMessage(recvMessage)); // update fsm
+				this.elevatorFSM.updateFSM(new ProtoBufMessage(recvMessage)); // update fsm
 			}catch (IOException e){
+				LOGGER.severe(e.getMessage());
 				this.running = false;
 				break;
 			}
 		}
 	}
-	void motorUpdate() throws IOException {
+
+	protected void motorUpdate() throws IOException {
 		if(this.currentDirection == Direction.UP){
 			this.currentFloor++;
-		} else {
+		} else if(this.currentDirection == Direction.DOWN) {
 			this.currentFloor--;
 		}
+		LOGGER.info("Elevator Passing floor " + Integer.toString(currentFloor));
 		sendFloorSensorMessage();
 		this.elevatorFSM.updateFSM(null); // poke with null message
 	}
 
 	protected void setDestinationFloor(int floor) {
+		LOGGER.info("Elevator dispatched to floor " + Integer.toString(floor));
 		this.destinationFloor = floor;
 	}
 
@@ -144,7 +153,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		}else if (this.currentDirection == Direction.DOWN && this.currentFloor == this.destinationFloor +1) {
 			return true;
 		}
-		return true;
+		return false;
 	}
 
 
