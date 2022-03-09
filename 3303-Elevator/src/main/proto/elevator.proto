@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package elevatorCommands;
+option java_multiple_files = true;
+option java_outer_classname = "ElevatorCommandProtos";
+
+// wrapper to send different message types
+message WrapperMessage{
+	oneof msg{
+		ElevatorRequestMessage elevatorRequest = 1;
+		SchedulerDispatchMessage schedulerDispatch = 2;
+		ElevatorArrivedMessage elevatorArrived = 3;
+		ElevatorDepartureMessage elevatorDeparture = 4;
+		FloorSensorMessage floorSensor = 5;
+		LampMessage lampMessage = 6;
+	}
+}
+
+// button clicks made by people in or out of elevator
+message ElevatorRequestMessage{
+	uint32 elevatorID = 1;
+	Direction direction = 2;
+	Button button = 3;
+	uint32 floor = 4;
+	string timeStamp = 5;
+}
+
+// Dispatch sent from scheduler to elevator
+message SchedulerDispatchMessage{
+	uint32 elevatorID = 1;
+	uint32 destFloor = 2;
+	string timeStamp = 3;
+}
+
+// Notify schedule that elevator has arrived
+message ElevatorArrivedMessage{
+	uint32 elevatorID = 1;
+	uint32 floor = 2;
+	string timeStamp = 3;
+}
+
+// Notify scheduler elevator is moving
+message ElevatorDepartureMessage{
+	uint32 elevatorID = 1;
+	Direction direction = 2;
+	uint32 initialFloor = 3;
+	string timeStamp = 4;
+}
+
+// Tell scheduler when elevator passes a floor
+message FloorSensorMessage{
+	uint32 elevatorID = 1;
+	uint32 floor = 2;
+	string timeStamp = 3;
+}
+
+// tell a floor to turn on lamp
+message LampMessage{
+	uint32 floor = 1;
+	Direction direction = 2;
+	LampState state = 3;
+	string timeStamp = 4;
+}
+
+enum Direction{
+	UP = 0;
+	DOWN = 1;
+	STATIONARY = 2;
+}
+
+enum LampState{
+	ON = 0;
+	OFF = 1;
+}
+
+enum Button{
+	INTERIOR = 0;
+	EXTERIOR = 1;
+}
