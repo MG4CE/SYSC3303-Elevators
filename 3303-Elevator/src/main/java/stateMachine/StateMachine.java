@@ -4,15 +4,15 @@ import java.io.IOException;
 
 import pbHelpers.PbMessage;
 
-class StateMachine {
+public class StateMachine {
 	private State currentState;
 	
-	StateMachine(State initialState){
+	public StateMachine(State initialState){
 		this.currentState = initialState;
 		this.currentState.entryActions(); // invoke entry actions if anys
 	}
 	
-	void fireFSM(PbMessage message) throws IOException {
+	public void fireFSM(PbMessage message) throws IOException {
 		State prevState = getCurrentState();
 		currentState = currentState.nextState(message);
 		if (currentState != prevState) { // State change occurred!

@@ -10,6 +10,7 @@ import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
 import pbHelpers.UdpPBHelper;
+import stateMachine.StateMachine;
 
 public class Elevator extends UdpPBHelper {
 	int currentFloor;
@@ -17,19 +18,21 @@ public class Elevator extends UdpPBHelper {
 	Direction currentDirection;
 	int elevatorID;
 	DoorState currentDoorState = DoorState.CLOSE;
-	
+	Motor elevatorMotor;
+	StateMachine elevatorFSM;
+
 	enum DoorState{
 		OPEN,
 		CLOSE,
 	}
 	
-	Elevator(int listenPort, int schedulerPort) throws SocketException{
+	Elevator(int listenPort, int schedulerPort) throws SocketException {
 		super(schedulerPort, listenPort); // create pb interface
 		this.currentFloor = 0;
 		this.elevatorID = 0;
+		this.elevatorFSM = new StateMachine(new IdleState(this));
 	}
-	
-	
+
 	void sendInternalButtonMessage() throws IOException {
 		ElevatorRequestMessage msg = ElevatorRequestMessage.newBuilder()
 				.setFloor(this.currentFloor)
@@ -40,7 +43,7 @@ public class Elevator extends UdpPBHelper {
 				.build();
 		sendMessage(msg);
 	}
-	
+
 	void sendFloorSensorMessage() throws IOException {
 		FloorSensorMessage msg = FloorSensorMessage.newBuilder()
 				.setFloor(this.currentFloor)
@@ -49,7 +52,7 @@ public class Elevator extends UdpPBHelper {
 				.build();
 		sendMessage(msg);
 	}
-	
+
 	void sendDepartureMessage() throws IOException {
 		ElevatorDepartureMessage msg = ElevatorDepartureMessage.newBuilder()
 				.setDirection(this.currentDirection)
@@ -59,7 +62,7 @@ public class Elevator extends UdpPBHelper {
 				.build();
 		sendMessage(msg);
 	}
-	
+
 	void sendElevatorArrivedMessage() throws IOException {
 		ElevatorArrivedMessage msg = ElevatorArrivedMessage.newBuilder()
 				.setElevatorID(this.elevatorID)
@@ -68,20 +71,28 @@ public class Elevator extends UdpPBHelper {
 				.build();
 		sendMessage(msg);
 	}
-	
-	
+
+	void motorUpdate() throws IOException {
+		if(this.currentDirection == Direction.UP){
+			this.currentFloor++;
+		} else {
+			this.currentFloor--;
+		}
+		this.elevatorFSM.fireFSM(null); // poke with null message
+	}
+
 	protected void setDestinationFloor(int floor) {
 		this.destinationFloor = floor;
 	}
-	
+
 	protected int getDestinationFloor() {
 		return this.destinationFloor;
 	}
-	
+
 	protected int getCurrentFloor() {
 		return this.currentFloor;
 	}
-	
+
 	protected void updateCurrentDirection() {
 		if(this.currentFloor < this.destinationFloor) {
 			this.currentDirection = Direction.UP;
@@ -89,19 +100,19 @@ public class Elevator extends UdpPBHelper {
 			this.currentDirection = Direction.DOWN;
 		}
 	}
-	
+
 	protected Direction getCurrentDirection() {
 		return this.currentDirection;
 	}
-	
+
 	protected void openDoors() {
 		this.currentDoorState = DoorState.OPEN;
 	}
-	
+
 	protected void closeDoors() {
 		this.currentDoorState = DoorState.OPEN;
 	}
-	
+
 	protected Boolean isElevatorArriving() {
 		if(this.currentDirection == Direction.UP && this.currentFloor == this.destinationFloor -1) {
 			return true;
@@ -111,6 +122,6 @@ public class Elevator extends UdpPBHelper {
 		return true;
 	}
 
-	
-	
+
+
 }

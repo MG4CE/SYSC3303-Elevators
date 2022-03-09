@@ -41,4 +41,8 @@ public abstract class UdpPBHelper {
 		return rcv;
 	}
 
+	protected void close(){
+		this.recvSocket.close();
+	}
+
 }
