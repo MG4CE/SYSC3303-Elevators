@@ -3,27 +3,22 @@ package elevators;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-import elevatorCommands.Direction;
-
-public class Motor extends TimerTask {
-	private final Logger LOGGER = Logger.getLogger(Motor.class.getName());
-	final int TIME_PER_FLOOR = 3; // seconds
-	final int TIME_PER_FLOOR_ARRIVING = 5;
-	motorState currentState;
-	Elevator elevator;
-	Timer timer;
-	Thread motorThread;
+public class Motor extends TimerTask {	
+	protected final int TIME_PER_FLOOR = 3; // seconds
+	protected final int TIME_PER_FLOOR_ARRIVING = 5;
+	protected motorState currentState;
+	protected Elevator elevator;
+	protected Timer timer;
+	protected Thread motorThread;
 
 	private enum motorState{
 		RUNNING,
 		IDLE,
 	}
 
-	Motor(Elevator elevator) {
+	protected Motor(Elevator elevator) {
 		this.elevator = elevator;
 		this.currentState = motorState.IDLE;
 	}
@@ -39,8 +34,7 @@ public class Motor extends TimerTask {
 
 
 	void startMotor(){
-		LOGGER.info("Starting motor at full speed");
-		Timer t = new Timer();
+		elevator.LOGGER.info("Starting motor at full speed");
 		this.currentState = motorState.RUNNING;
 		timer = new Timer();
 		timer.schedule(this, TIME_PER_FLOOR*1000, TIME_PER_FLOOR*1000);
@@ -48,7 +42,8 @@ public class Motor extends TimerTask {
 
 
 	void stopMotor() {
-		LOGGER.info("Stopping motor");
+		elevator.LOGGER.info("Stopping motor");
+		this.currentState = motorState.IDLE;
 		this.timer.cancel();
 	}
 }

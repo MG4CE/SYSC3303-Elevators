@@ -2,16 +2,14 @@ package elevators;
 
 import java.io.IOException;
 
-import elevatorCommands.Button;
-import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import pbHelpers.PbMessage;
 import stateMachine.State;
 
 public class BoardingState implements State {
-	Elevator elevator; // hold ref to elevator
+	private Elevator elevator; // hold ref to elevator
 	
-	BoardingState(Elevator elevator){
+	protected BoardingState(Elevator elevator){
 		this.elevator = elevator;
 	}
 	
@@ -42,9 +40,4 @@ public class BoardingState implements State {
 		}
 		return this;
 	}
-
-
-
-
-
 }

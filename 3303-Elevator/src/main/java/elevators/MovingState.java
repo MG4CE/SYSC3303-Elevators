@@ -2,15 +2,14 @@ package elevators;
 
 import java.io.IOException;
 
-import elevatorCommands.Direction;
 import elevatorCommands.SchedulerDispatchMessage;
 import pbHelpers.PbMessage;
 import stateMachine.State;
 
 public class MovingState implements State{
-	Elevator elevator; // hold ref to elevator
+	private Elevator elevator; // hold ref to elevator
 	
-	MovingState(Elevator elevator){
+	protected MovingState(Elevator elevator){
 		this.elevator = elevator;
 	}
 	

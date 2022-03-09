@@ -3,7 +3,6 @@ package elevators;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.SocketException;
-import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import elevatorCommands.Button;
@@ -16,19 +15,19 @@ import pbHelpers.PbMessage;
 import pbHelpers.UdpPBHelper;
 import stateMachine.StateMachine;
 
-
 public class Elevator extends UdpPBHelper implements  Runnable {
-	private final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
-	int currentFloor;
-	int destinationFloor;
-	Direction currentDirection;
-	int elevatorID;
-	DoorState currentDoorState = DoorState.CLOSE;
-	Motor elevatorMotor;
-	StateMachine elevatorFSM;
-	Boolean running = true;
+	protected final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
+	
+	protected int currentFloor;
+	protected int destinationFloor;
+	protected Direction currentDirection;
+	protected int elevatorID;
+	protected DoorState currentDoorState = DoorState.CLOSE;
+	protected Motor elevatorMotor;
+	protected StateMachine elevatorFSM;
+	protected Boolean running = true;
 
-	enum DoorState{
+	private enum DoorState{
 		OPEN,
 		CLOSE,
 	}
@@ -41,7 +40,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 	}
 
-	void sendInternalButtonMessage(int floor) throws IOException {
+	protected void sendInternalButtonMessage(int floor) throws IOException {
 		ElevatorRequestMessage msg = ElevatorRequestMessage.newBuilder()
 				.setFloor(floor)
 				.setButton(Button.INTERIOR)
@@ -53,7 +52,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 	}
 
 	// Should this include direction?
-	void sendFloorSensorMessage() throws IOException {
+	protected void sendFloorSensorMessage() throws IOException {
 		FloorSensorMessage msg = FloorSensorMessage.newBuilder()
 				.setFloor(this.currentFloor)
 				.setElevatorID(this.elevatorID)
@@ -62,7 +61,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		sendMessage(msg);
 	}
 
-	void sendDepartureMessage() throws IOException {
+	protected void sendDepartureMessage() throws IOException {
 		ElevatorDepartureMessage msg = ElevatorDepartureMessage.newBuilder()
 				.setDirection(this.currentDirection)
 				.setInitialFloor(this.currentFloor)
@@ -72,7 +71,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		sendMessage(msg);
 	}
 
-	void sendElevatorArrivedMessage() throws IOException {
+	protected void sendElevatorArrivedMessage() throws IOException {
  		ElevatorArrivedMessage msg = ElevatorArrivedMessage.newBuilder()
 				.setElevatorID(this.elevatorID)
 				.setFloor(this.currentFloor)
@@ -94,7 +93,7 @@ public class Elevator extends UdpPBHelper implements  Runnable {
 		}
 	}
 
-	void motorUpdate() throws IOException {
+	protected void motorUpdate() throws IOException {
 		if(this.currentDirection == Direction.UP){
 			this.currentFloor++;
 		} else if(this.currentDirection == Direction.DOWN) {
