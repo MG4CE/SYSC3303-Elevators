@@ -6,11 +6,15 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Logger;
 
-import elevatorCommands.ElevatorCommandProtos;
-import elevatorCommands.WrapperMessage;
+import com.google.protobuf.Descriptors;
+import elevatorCommands.*;
+import floorSubsystem.FloorSubsystem;
 
 public abstract class UdpPBHelper {
+	private final Logger LOGGER = Logger.getLogger(UdpPBHelper.class.getName());
 	int sendPort, recvPort;
 	DatagramSocket recvSocket;
 	final int PACKET_SIZE = 1024;
@@ -30,6 +34,23 @@ public abstract class UdpPBHelper {
 	}
 	
 	protected void sendMessage(com.google.protobuf.GeneratedMessageV3 message) throws IOException {
+		LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
+		WrapperMessage.Builder msg = WrapperMessage.newBuilder();
+		// find type of message
+		if(message instanceof ElevatorRequestMessage){
+			msg.setElevatorRequest((ElevatorRequestMessage) message);
+		}else if(message instanceof SchedulerDispatchMessage){
+			msg.setSchedulerDispatch((SchedulerDispatchMessage) message);
+		}else if(message instanceof ElevatorArrivedMessage){
+			msg.setElevatorArrived((ElevatorArrivedMessage) message);
+		}else if(message instanceof ElevatorDepartureMessage){
+			msg.setElevatorDeparture((ElevatorDepartureMessage) message);
+		}else if(message instanceof FloorSensorMessage){
+			msg.setFloorSensor((FloorSensorMessage) message);
+		}else if(message instanceof LampMessage){
+			msg.setLampMessage((LampMessage) message);
+		}
+		msg.build();
 		byte[] msgB = message.toByteArray();
 		sendMessage(msgB);
 	}	
