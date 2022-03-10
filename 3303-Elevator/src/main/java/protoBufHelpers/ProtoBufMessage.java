@@ -9,6 +9,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
+import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
 import elevatorCommands.LampMessage;
@@ -127,6 +128,13 @@ public class ProtoBufMessage {
 	public Boolean isLampMessage() {
 		return this.message instanceof LampMessage;
 	}
+	
+	public Boolean isElevatorRegisterMessage() {
+		return this.message instanceof ElevatorRegisterMessage;
+	}
+	
+	
+	
  
 	//TODO: ADD ERROR CHECKING TO CASTS!
 
@@ -176,5 +184,13 @@ public class ProtoBufMessage {
 	 */
 	public LampMessage toLampMessage() {
 		return (LampMessage)(this.message);
+	}
+
+	/*
+	 * Cast message to type to ElevatorRegisterMessage
+	 * @return message of type ElevatorRegisterMessage
+	 */
+	public ElevatorRegisterMessage toElevatorRegisterMessage() {
+		return (ElevatorRegisterMessage)(this.message);
 	}
 }

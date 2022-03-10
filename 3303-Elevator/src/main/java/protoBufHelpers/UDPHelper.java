@@ -67,6 +67,8 @@ public abstract class UDPHelper {
 			msgBldr.setFloorSensor((FloorSensorMessage) message);
 		}else if(message instanceof LampMessage){
 			msgBldr.setLampMessage((LampMessage) message);
+		}else if(message instanceof ElevatorRegisterMessage) {
+			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
 		}
 		
 		WrapperMessage msg = msgBldr.build();
