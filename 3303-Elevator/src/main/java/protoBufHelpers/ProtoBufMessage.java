@@ -1,6 +1,7 @@
 package protoBufHelpers;
 
 import java.net.DatagramPacket;
+import java.sql.Wrapper;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -14,26 +15,58 @@ import elevatorCommands.LampMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import elevatorCommands.WrapperMessage;
 
+
+/*
+ * Class that provides Java wrapper for Protobuf Messages, used to unpack wrapper message, get type of message,
+ * as well as cast to specific type.
+ */
 public class ProtoBufMessage {
 	private final Logger LOGGER = Logger.getLogger(ProtoBufMessage.class.getName());
 	WrapperMessage wrapper;
 	com.google.protobuf.GeneratedMessageV3 message;
-	
+
+	/*
+	 * Create a new protobuf message type, takes in a DatagramPacket and unpacks wrapper
+	 * @pararm message DatagramPacket received from socket.receive()
+	 */
 	public ProtoBufMessage(DatagramPacket message) throws InvalidProtocolBufferException{
 		byte[] rawPBArray = cpyDatagramArr(message);
 		this.wrapper = getWrapper(rawPBArray); // unpack raw message
 		this.unpackMessage(wrapper); // get internal message
 	}
-	
-	// will not be able to parse without this!
+
+	/*
+	 * Create a new protobuf message type, takes in a WrapperMessage (defined by proto), unpacks its contents
+	 * @param WrapperMesage
+	 */
+	public ProtoBufMessage(WrapperMessage wrapperMessage){
+		this.wrapper = wrapperMessage;
+		this.unpackMessage(wrapper);
+	}
+
+	/*
+	 * Copy protobuf wrapper message from raw bytes array
+	 * @param Datagram packet to parse
+	 * @return bytes array containing protobuf message
+	 */
 	private byte[] cpyDatagramArr(DatagramPacket p){
 		return Arrays.copyOfRange(p.getData(), 0, p.getLength());
 	}
-	
+
+	/*
+	 * Parse the wrappermessaeg from the raw bytes array
+	 * @param byte array holding protobuf wrapper message
+	 * @return WrapperMessage received from byte array
+	 */
 	private WrapperMessage getWrapper(byte[] rawData) throws InvalidProtocolBufferException {
 		return WrapperMessage.parseFrom(rawData);
 	}
-	
+
+	/*
+	 * Unpack a wrapper message into its corresponding message type (types defined in elevator.proto)
+	 * Store message as parent class and save as field
+	 * @param WrapperMessage to unpack
+	 */
 	private void unpackMessage(WrapperMessage msg) {
 		LOGGER.info("Unpacking message of type " + msg.getMsgCase().toString());
 		switch (msg.getMsgCase()) {
@@ -46,53 +79,101 @@ public class ProtoBufMessage {
 			default -> this.message = null;
 		}
 	}
-	
+
+	/*
+	 * Check if message of type ElevatorRequestMessage
+	 * @return True if of type
+	 */
 	public Boolean isElevatorRequestMessage() {
 		return this.message instanceof ElevatorRequestMessage;
 	}
-	
+
+	/*
+	 * Check if message of type SchedulerDispatchMessage
+	 * @return True if of type
+	 */
 	public Boolean isSchedulerDispatchMessage() {
 		return this.message instanceof SchedulerDispatchMessage;
 	}
 
+	/*
+	 * Check if message of type ElevatorArrivedMessage
+	 * @return True if of type
+	 */
 	public Boolean isElevatorArrivedMessage() {
 		return this.message instanceof ElevatorArrivedMessage;
 	}
-	
+
+	/*
+	 * Check if message of type ElevatorDepartureMessage
+	 * @return True if of type
+	 */
 	public Boolean isElevatorDepartureMessage() {
 		return this.message instanceof ElevatorDepartureMessage;
 	}
-	
+
+	/*
+	 * Check if message of type FloorSensorMessage
+	 * @return True if of type
+	 */
 	public Boolean isFloorSensorMessage() {
 		return this.message instanceof FloorSensorMessage;
 	}
-	
+
+	/*
+	 * Check if message of type LampMessage
+	 * @return True if of type
+	 */
 	public Boolean isLampMessage() {
 		return this.message instanceof LampMessage;
 	}
  
 	//TODO: ADD ERROR CHECKING TO CASTS!
-	
+
+	/*
+	 * Cast message to type toElevatorRequestMessage
+	 * @return message of type ElevatorRequestMessage
+	 */
 	public ElevatorRequestMessage toElevatorRequestMessage() {
 		return (ElevatorRequestMessage)(this.message);
 	}
-	
+
+	/*
+	 * Cast message to type toElevatorRequestMessage
+	 * @return message of type SchedulerDispatchMessage
+	 */
 	public SchedulerDispatchMessage toSchedulerDispatchMessage() {
 		return (SchedulerDispatchMessage)(this.message);
 	}
-	
+
+	/*
+	 * Cast message to type toElevatorRequestMessage
+	 * @return message of type ElevatorArrivedMessage
+	 */
 	public ElevatorArrivedMessage toElevatorArrivedMessage() {
 		return (ElevatorArrivedMessage)(this.message);
 	}
-	
+
+	/*
+	 * Cast message to type toElevatorRequestMessage
+	 * @return message of type ElevatorDepartureMessage
+	 */
 	public ElevatorDepartureMessage toElevatorDepartureMessage() {
 		return (ElevatorDepartureMessage)(this.message);
 	}
-	
+
+	/*
+	 * Cast message to type toElevatorRequestMessage
+	 * @return message of type FloorSensorMessage
+	 */
 	public FloorSensorMessage toFloorSensorMessage() {
 		return (FloorSensorMessage)(this.message);
 	}
-	
+
+	/*
+	 * Cast message to type toElevatorRequestMessage
+	 * @return message of type LampMessage
+	 */
 	public LampMessage toLampMessage() {
 		return (LampMessage)(this.message);
 	}
