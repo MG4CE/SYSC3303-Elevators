@@ -17,13 +17,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import elevatorCommands.Button;
 import elevatorCommands.Direction;
-import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
-import scheduler.Scheduler;
-import elevators.Elevator;
-
 
 /**
  * This is a representation of a floor that an elevator will service
@@ -58,7 +54,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param path to file to read
      * @return ArrayList of commands
      */
-    public void readCommandsFile(String cmdFile, Timer timer){
+    public void readCommandsFile(Timer timer){
         Scanner s = null;
         Direction direction = null;
         int internalFloorButton = 0;
@@ -70,11 +66,14 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         Calendar firstLineFileTime = null;
         Calendar currentLineFileTime = null;
         Calendar currentLineAdjustedTime = Calendar.getInstance();
-
+        
+        LOGGER.info("Reading commands for " + commandFile);
+        
         // Initiate scanner and read the file
         try {
-            s = new Scanner(new File(cmdFile));
+            s = new Scanner(new File(commandFile));
         } catch (FileNotFoundException e) {
+			e.printStackTrace();
            LOGGER.severe(e.getMessage());
            System.exit(1);
         }
@@ -114,6 +113,8 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         }
         // Close the scanner
         s.close();
+        
+        LOGGER.info("Command file read complete!");
     }
 
     /**
@@ -189,7 +190,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     @Override
     public void run(){
         Timer timer = new Timer();
-        readCommandsFile(this.commandFile, timer);
+        readCommandsFile(timer);
 
         while(true) {
 			DatagramPacket recvMessage = null;
