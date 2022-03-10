@@ -126,7 +126,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		} else if(this.currentDirection == Direction.DOWN) {
 			this.currentFloor--;
 		}
-		System.out.printf("Elevator %d passing floor %d", this.elevatorID, this.currentFloor);
+		System.out.printf("Elevator %d passing floor %d\n", this.elevatorID, this.currentFloor);
 		sendFloorSensorMessage();
 		this.elevatorFSM.updateFSM(null); // poke with null message
 	}
@@ -135,8 +135,9 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * Set the destination floor to a new floor
 	 */
 	protected void setDestinationFloor(int floor) {
-		LOGGER.info("Elevator dispatched to floor " + Integer.toString(floor));
 		this.destinationFloor = floor;
+		System.out.printf("Elevator %d: Dispatched to floor %d\n", this.elevatorID, this.destinationFloor);
+
 	}
 
 	/*
@@ -173,7 +174,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * @param destination floor (i.e. button pressed)
 	 */
 	public void pushElevatorButton(int floor) throws IOException {
-		System.out.printf("Elevator %d had button %d pressed\n", this.elevatorID, floor);
+		System.out.printf("Elevator %d: Had button %d pressed\n", this.elevatorID, floor);
 		sendInternalButtonMessage(floor);
 	}
 
@@ -189,7 +190,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * Open the doors
 	 */
 	protected void openDoors() {
-		System.out.println("Doors opening on elevator " + Integer.toString(this.elevatorID));
+		System.out.printf("Elevator %d: Doors opening\n",  this.elevatorID);
 		this.currentDoorState = DoorState.OPEN;
 	}
 
@@ -197,7 +198,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * Close the doors
 	 */
 	protected void closeDoors() {
-		System.out.printf("Doors closing on elevator %d\n",  this.elevatorID);
+		System.out.printf("Elevator %d: Doors closing\n",  this.elevatorID);
 		this.currentDoorState = DoorState.OPEN;
 	}
 
@@ -206,15 +207,21 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * @return true or false
 	 */
 	protected Boolean isElevatorArriving() {
-		System.out.printf("Elevator %d arriving at floor %d\n", this.elevatorID, this.destinationFloor);
 		if(this.currentDirection == Direction.UP && this.currentFloor == this.destinationFloor -1) {
+			System.out.printf("Elevator %d: Arriving at floor %d\n", this.elevatorID, this.destinationFloor);
 			return true;
 		}else if (this.currentDirection == Direction.DOWN && this.currentFloor == this.destinationFloor +1) {
+			System.out.printf("Elevator %d: Arriving at floor %d\n", this.elevatorID, this.destinationFloor);
 			return true;
 		}
 		return false;
 	}
 
-
-
+	protected Boolean isElevatorArrived() {
+		if (this.currentFloor == this.destinationFloor) {
+			System.out.printf("Elevator %d: Arrived at floor %d\n", this.elevatorID, this.destinationFloor);
+			return true;
+		}
+		return false;
+	}
 }

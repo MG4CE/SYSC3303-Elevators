@@ -23,11 +23,12 @@ public class Main extends UDPHelper {
 		sendMessage(msg, 24);
 	}
 
-
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Main m = new Main(23);
 		Thread elevator = new Thread(m.e);
 		elevator.start();
+		m.sendSchedulerDispatchMessage(0, 123);
+		Thread.sleep(5000);
 		m.sendSchedulerDispatchMessage(10, 123);
 		Thread.sleep(12000);
 		m.sendSchedulerDispatchMessage(0, 123);
