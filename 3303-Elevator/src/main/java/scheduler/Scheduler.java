@@ -18,10 +18,12 @@ import com.google.protobuf.InvalidProtocolBufferException;
 public class Scheduler extends UDPHelper {
     private final Logger LOGGER = Logger.getLogger(Scheduler.class.getName());
     private int numFloors;
-    private ArrayList<ElevatorRequestMessage> requestQueue;
+    private ArrayList<ProtoBufMessage> messageQueue;
     private ArrayList<Elevator> elevators;
     private int elevatorIDCounter;
-
+    private Thread schedulerThread, listenerThread;
+    
+    
     public Scheduler(int listenPort, int numFloors) throws SocketException {
         super(listenPort);
         this.numFloors = numFloors;
@@ -31,40 +33,73 @@ public class Scheduler extends UDPHelper {
     }
     
     public void startListenerThread() {
-    	while(true) {
-			DatagramPacket recvMessage = null;
-			try {
-				recvMessage = receiveMessage();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-				LOGGER.severe("Failed to receive data from socket!");
-				System.exit(1);
-			}
-			
-			ProtoBufMessage msg = null;
-			try {
-				msg = new ProtoBufMessage(recvMessage);
-			} catch (InvalidProtocolBufferException e2) {
-				e2.printStackTrace();
-				LOGGER.severe("Failed to convert received to protobuf type!");
-				System.exit(1);
-			}
-			
-			if(msg.isElevatorRequestMessage()) {
-				ElevatorRequestMessage req = msg.toElevatorRequestMessage();
-				synchronized(requestQueue) {
-					requestQueue.add(req);
-				}
-				LOGGER.info("Elevator button request received and inserted into queue.");
-			} else {
-				LOGGER.info("Received unknown request, ignoring!");
-			}
+    	
+    	listenerThread =  new Thread(new Runnable() {
+    		public void run() {
+    		
+    			while(true) {
+ 
+    			try {
+    				ProtoBufMessage recvMessage = new ProtoBufMessage(receiveMessage());
+    				synchronized(recvMessage)
+    				{
+    					messageQueue.add(recvMessage);
+    				}
+    			} catch (IOException e1) {
+    				e1.printStackTrace();
+    				LOGGER.severe("Failed to receive data from socket!");
+    				System.exit(1);
+    			}
+    			
+    		  }
+    		}
     	}
     }
     
-    public void startSchedulingThread() {
+	public void startSchedulingThread() {
+    	schedulerThread = new Thread(new Runnable)
+    			{
+
+    		public void run
+    		{
+    			synchronized(messageQueue) {
+    				while(messageQueue.isEmpty())
+    				{
+    					wait();
+    				}
+    				ProtoBufMessage msg = messageQueue.remove(0);
+    				if(msg.isElevatorRequestMessage())
+    				{
+    					ElevatorRequestMessage request = msg.toElevatorRequestMessage();
+    					if(request.getButton().equals(Button.INTERIOR))
+    					{
+    						for(Elevator elevator:elevators)
+    						{
+    							if(request.getelevatorID().equals(elevator.getElevatorID()))
+    							{
+    								elevator.add(new ElevatorRequest(request.getfloor(),request.getrequestID(), ))
+    							}
+    						}
+    						//Insert into request array
+    						//check if its the same as the top request floor, 
+    					}
+    					else
+    					{}
+    				}
+    				else if(msg.isElevatorRegisterMessage())
+    				{
+    					
+    				}
+    				else if()
+    				//check what type
+    				//If not empty then get the mesage check priority and send if appropriate?
+				}
+    				
+    		}
+    	}
+
+	}
     	
-    }
     
     public void assignBestElevator(ElevatorRequest req) {
     	if(elevators.size() == 1) {
