@@ -5,13 +5,10 @@ import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
-
-import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Scheduler extends UDPHelper {
     private final Logger LOGGER = Logger.getLogger(Scheduler.class.getName());
@@ -78,33 +75,77 @@ public class Scheduler extends UDPHelper {
     							if(request.getElevatorID() == elevator.getElevatorID())
     							{
     								elevator.addDestination(new ElevatorRequest(request.getFloor(),request.getRequestID(), request.getDirection()));
+									if(elevator.getFloorDestinations().get(0).getFloor() == request.getFloor())
+									{
+										try {
+											sendSchedulerDispatchMessage(request.getFloor(),request.getRequestID(),request.getDirection(),request.getElevatorID(),request.getTimeStamp());
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+									}
     							}
     						}
-    						//Insert into request array
-    						//check if its the same as the top request floor, 
     					}
     					else
-    					{}
+    					{
+							//Exterior button press means we need to add the floor to the queue
+							for(Elevator elevator:elevators)
+							{
+								if(request.getElevatorID() == elevator.getElevatorID())
+								{
+									elevator.addDestination(new ElevatorRequest(request.getFloor(),request.getRequestID(), request.getDirection()));
+								}
+							}
+						}
     				}
     				else if(msg.isElevatorRegisterMessage())
     				{
-    					
+						ElevatorRegisterMessage request = msg.toElevatorRegisterMessage();
+    					elevators.add(new Elevator(request.hashCode(),request.getElevatorID(),request.getFloor()));
     				}
     				else if(msg.isElevatorArrivedMessage())
 					{
-
+						ElevatorArrivedMessage request = msg.toElevatorArrivedMessage();
+						for(Elevator elevator:elevators)
+						{
+							if(request.getElevatorID() == elevator.getElevatorID()) {
+								//TODO:have field saying the elevator is stopped?
+								//Have field saying
+								//elevator.
+								if (!elevator.getFloorDestinations().isEmpty()){
+									try {
+										sendSchedulerDispatchMessage(elevator.getFloorDestinations().remove(0).getFloor(), elevator.getPort(), elevator.getlDirection(), elevator.getElevatorID(), request.getTimeStamp());
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+								else
+								{
+									break;
+								}
+							}
+						}
 					}
 					else if(msg.isElevatorDepartureMessage())
 					{
-
+						ElevatorDepartureMessage request = msg.toElevatorDepartureMessage();
+						try {
+							sendLampMessage(request.getInitialFloor(),request.hashCode(),Direction.forNumber(request.getDirectionValue()),request.getElevatorID());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 					else if(msg.isFloorSensorMessage())
 					{
-
+						FloorSensorMessage request = msg.toFloorSensorMessage();
+						for(Elevator elevator:elevators)
+						{
+							if(request.getElevatorID() == elevator.getElevatorID())
+							{
+								elevator.setCurrentFloor(request.getFloor());
+							}
+						}
 					}
-    				//check what type
-    				//If not empty then get the mesage check priority and send if appropriate?
-
 				}
     				
     		}
@@ -116,7 +157,7 @@ public class Scheduler extends UDPHelper {
 	private void sendLampMessage(int floor, int port, Direction direction, int elevatorID) throws IOException {
 		LampMessage lampMsg = LampMessage.newBuilder()
 				.setFloor(floor)
-				//.setElevatorID(elevatorID)
+				.setElevatorID(elevatorID)
 				.setDirection(direction)
 				.build();
 
@@ -125,8 +166,17 @@ public class Scheduler extends UDPHelper {
 
 	//when an elevator arrives send another dispatch message, and another message is in queue
 	//If the button pressed has highest priority
-	private void sendDispatch()
-	{}
+	private void sendSchedulerDispatchMessage(int destFloor, int port, Direction direction, int elevatorID, String timeStamp) throws IOException {
+		LOGGER.info("Dispatching elevator " + Integer.toString(elevatorID) + "to floor " +
+				Integer.toString(destFloor));
+		SchedulerDispatchMessage dispatchMsg = SchedulerDispatchMessage.newBuilder()
+				.setDestFloor(destFloor)
+				.setElevatorID(elevatorID)
+				.setTimeStamp(timeStamp)
+				.build();
+
+		sendMessage(dispatchMsg,port);
+	}
 
     public void assignBestElevator(ElevatorRequest req) {
     	if(elevators.size() == 1) {
@@ -166,19 +216,7 @@ public class Scheduler extends UDPHelper {
     	}
     	return score;
     }
-    
-    void sendSchedulerDispatchMessage(int destFloor, int elevatorID) throws IOException {
-        LOGGER.info("Dispatching elevator " + Integer.toString(elevatorID) + "to floor " +
-                Integer.toString(destFloor));
-        SchedulerDispatchMessage msg = SchedulerDispatchMessage.newBuilder()
-                .setDestFloor(destFloor)
-                .setElevatorID(elevatorID)
-                //TODO: SET ELEVATOR ID
-                //TODO ADD TIMESTAMP
-                .build();
-        sendMessage(msg, 0);
-    }
-    
+
 	public static void main(String[] args) {
 	    Logger LOGGER = Logger.getLogger("Scheduler Main");
 		Scheduler s = null;

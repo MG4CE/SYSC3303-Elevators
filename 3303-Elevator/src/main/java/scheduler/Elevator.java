@@ -77,7 +77,15 @@ public class Elevator {
 	public Direction getlDirection() {
 		return this.currentDirection;
 	}
-	
+
+	public void setCurrentFloor(int currentFloor) {
+		this.currentFloor = currentFloor;
+	}
+
+	public ArrayList<ElevatorRequest> getFloorDestinations() {
+		return floorDestinations;
+	}
+
 	public void switchDirections() {
 		if (currentDirection == Direction.DOWN) {
 			currentDirection = Direction.UP;
