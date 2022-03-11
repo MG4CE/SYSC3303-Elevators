@@ -2,6 +2,7 @@ package main;
 
 import elevatorCommands.SchedulerDispatchMessage;
 import elevators.Elevator;
+import floorSubsystem.FloorSubsystem;
 import protoBufHelpers.UDPHelper;
 
 import java.io.IOException;
@@ -24,14 +25,19 @@ public class Main extends UDPHelper {
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		Main m = new Main(23);
-		Thread elevator = new Thread(m.e);
-		elevator.start();
-		m.sendSchedulerDispatchMessage(0, 123);
-		Thread.sleep(5000);
-		m.sendSchedulerDispatchMessage(10, 123);
-		Thread.sleep(12000);
-		m.sendSchedulerDispatchMessage(0, 123);
-		Thread.sleep(50000);
+//		Main m = new Main(23);
+//		Thread elevator = new Thread(m.e);
+//		elevator.start();
+		String inputFile = "src\\main\\java\\input\\input.txt";
+
+		Thread f = new Thread(new FloorSubsystem(2323, inputFile));
+		f.start();
+
+//		m.sendSchedulerDispatchMessage(0, 123);
+//		Thread.sleep(5000);
+//		m.sendSchedulerDispatchMessage(10, 123);
+//		Thread.sleep(12000);
+//		m.sendSchedulerDispatchMessage(0, 123);
+//		Thread.sleep(50000);
 	}
 }
