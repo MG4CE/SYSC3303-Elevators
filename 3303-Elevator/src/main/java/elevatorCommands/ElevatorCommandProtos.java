@@ -93,15 +93,15 @@ public final class ElevatorCommandProtos {
       "torCommands.Direction\022\024\n\014initialFloor\030\003 " +
       "\001(\r\022\021\n\ttimeStamp\030\004 \001(\t\022\021\n\trequestID\030\005 \001(" +
       "\r\"J\n\022FloorSensorMessage\022\022\n\nelevatorID\030\001 " +
-      "\001(\r\022\r\n\005floor\030\002 \001(\r\022\021\n\ttimeStamp\030\003 \001(\t\"\213\001" +
+      "\001(\r\022\r\n\005floor\030\002 \001(\r\022\021\n\ttimeStamp\030\003 \001(\t\"\237\001" +
       "\n\013LampMessage\022\r\n\005floor\030\001 \001(\r\022.\n\tdirectio" +
       "n\030\002 \001(\0162\033.elevatorCommands.Direction\022*\n\005" +
       "state\030\003 \001(\0162\033.elevatorCommands.LampState" +
-      "\022\021\n\ttimeStamp\030\004 \001(\t*-\n\tDirection\022\006\n\002UP\020\000" +
-      "\022\010\n\004DOWN\020\001\022\016\n\nSTATIONARY\020\002*\034\n\tLampState\022" +
-      "\006\n\002ON\020\000\022\007\n\003OFF\020\001*$\n\006Button\022\014\n\010INTERIOR\020\000" +
-      "\022\014\n\010EXTERIOR\020\001B\031B\025ElevatorCommandProtosP" +
-      "\001b\006proto3"
+      "\022\021\n\ttimeStamp\030\004 \001(\t\022\022\n\nelevatorID\030\005 \001(\r*" +
+      "-\n\tDirection\022\006\n\002UP\020\000\022\010\n\004DOWN\020\001\022\016\n\nSTATIO" +
+      "NARY\020\002*\034\n\tLampState\022\006\n\002ON\020\000\022\007\n\003OFF\020\001*$\n\006" +
+      "Button\022\014\n\010INTERIOR\020\000\022\014\n\010EXTERIOR\020\001B\031B\025El" +
+      "evatorCommandProtosP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -154,7 +154,7 @@ public final class ElevatorCommandProtos {
     internal_static_elevatorCommands_LampMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_elevatorCommands_LampMessage_descriptor,
-        new java.lang.String[] { "Floor", "Direction", "State", "TimeStamp", });
+        new java.lang.String[] { "Floor", "Direction", "State", "TimeStamp", "ElevatorID", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
