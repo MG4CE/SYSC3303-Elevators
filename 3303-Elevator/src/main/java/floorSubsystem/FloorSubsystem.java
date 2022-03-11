@@ -22,9 +22,8 @@ import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 
 /**
- * This is a representation of a floor that an elevator will service
- * For this iteration, the subsystem will read an input file and create command objects from it
- * Then it will place those commands objects into the Scheduler
+ * Responsible for reading input file and generating commands that will be sent to the scheduler and the elevator.
+ * The scheduler will receive internal button commands, and the
  */
 public class FloorSubsystem extends UDPHelper implements Runnable{
 	
@@ -37,7 +36,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     /**
      * Create new instance of Floor Subsystem
      *
-     * @param scheduler
+     * @param schedulerPort : The port where the scheduler will be listening for requests
      * @param commandFile : input text file containing the list of commands
      */
     public FloorSubsystem(int schedulerPort, String commandFile) throws SocketException {
@@ -49,18 +48,23 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     }
 
     /**
-     * Read input from a file and store each line as as command
-     * Creates a Command object from each line and adds to command array list
-     * @param path to file to read
-     * @return ArrayList of commands
+     * Reads the input file and for every line it does 2 things:
+     * 1. Create an external button request timer event, that schedules a (external) request message to be sent later.
+     * 2. Append an internal button request to an array list.
+     *
+     * NOTE: Internal button requests are saved for later use. (when elevator arrival messages are received)
+     *
+     * @param timer Timer Task events are scheduled with this timer instance
      */
     public void readCommandsFile(Timer timer){
+        System.out.println("opening file");
+
         Scanner s = null;
         Direction direction = null;
-        int internalFloorButton = 0;
-        int externalFloorButton = 0;
+        int interiorFloorButton = 0;
+        int exteriorFloorButton = 0;
         String line = null;
-        int requestID = 0;
+        int requestId = 0;
 
         Calendar programStartTime = Calendar.getInstance();
         Calendar firstLineFileTime = null;
@@ -78,11 +82,15 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
            System.exit(1);
         }
 
-        //Read each line until empty
+        /* Parse each line in the input file
+         * Each line generates 1 interior and 1 exterior request message
+         * Exterior requests are schedule to be sent depending on the timestamp difference relative to runtime
+         * Interior requests are stored in a list to be sent when elevator arrival message are received
+         */
         while (s.hasNext()){
             try {
                 line = s.nextLine();
-                String lineParts[] = line.split(" ");
+                String[] lineParts = line.split(" ");
 
                 // Get calendar time object for current input file line
                 currentLineFileTime = utils.Utils.stringToCalendar(lineParts[0]);
@@ -93,20 +101,24 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                     firstLineFileTime = currentLineFileTime;
                 }
 
-                externalFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
+                exteriorFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
                 direction = utils.Utils.stringToDirection(lineParts[2]);// Get Floor Direction Enum
-                internalFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button
+                interiorFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button
 
-                // Make timer event and schedule to send request in the future
-                TimerTask task = makeExternalButtonTimer(externalFloorButton,direction,requestID);
+                // Create Request - EXTERIOR elevator request message
+                ElevatorRequestMessage exteriorRequestMessage = createExteriorElevatorRequestMessage(exteriorFloorButton,requestId,direction);
 
-                // Schedule the event at the adjusted time
+                // Create Timer Event - for EXTERIOR elevator button request
+                TimerTask task = makeMessageRequestTimer(exteriorRequestMessage);
+
+                // Schedule Timer Event task in the future
                 long offset = getCalDifferenceMillis(firstLineFileTime, currentLineFileTime);
                 currentLineAdjustedTime.setTimeInMillis(programStartTime.getTimeInMillis() + offset);
                 timer.schedule(task,currentLineAdjustedTime.getTime());
-                
-                this.elevatorRequestList.add(createElevatorRequestMessage(internalFloorButton, requestID));
-                requestID += 1;
+
+                // Add Interior Button request to the list
+                this.elevatorRequestList.add(createInteriorElevatorRequestMessage(interiorFloorButton, requestId));
+                requestId += 1; // Increment ID for next event
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
@@ -119,15 +131,16 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
 
     /**
      * Creates timer that sends a request in the future
-     * @param request
-     * @return timer to execute at the request time
+     * The Code inside the run() method is what will execute when the timer executes
+     * @param requestMessage Elevator request message to be sent
+     * @return Timer Task event
      */
-    public TimerTask makeExternalButtonTimer(int floor, Direction direction, int requestId) {
+    public TimerTask makeMessageRequestTimer(ElevatorRequestMessage requestMessage) {
         return new TimerTask() {
             @Override
             public void run() {
                 try {
-                    sendElevatorRequestMessage(floor, direction, requestId);
+                    sendElevatorRequestMessage(requestMessage);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -137,38 +150,45 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     }
 
     /**
-     * Creates and send button message
-     *
-     * @param floor
+     * Sends an elevator request message to the scheduler subsystem
+     * @param requestMessage Elevator Request Message to be sent
      * @throws IOException
      */
-    private void sendElevatorRequestMessage(int floor, Direction direction, int requestId) throws IOException {
-        LOGGER.info("External elevator button pressed on floor " + Integer.toString(floor) + " with direction " +
-                direction.toString() + ", REQUEST_ID=" + Integer.toString(requestId));
-        ElevatorRequestMessage msg = ElevatorRequestMessage.newBuilder()
+    private void sendElevatorRequestMessage(ElevatorRequestMessage requestMessage) throws IOException {
+        LOGGER.info("External elevator button pressed on floor " + requestMessage.getFloor() + " with direction " +
+                requestMessage.getDirection() + ", REQUEST_ID=" + requestMessage.getRequestID() + "\n");
+        sendMessage(requestMessage, this.schedulerPort);
+    }
+
+    /**
+     * EXTERIOR elevator request message  is made (protobuf builder)
+     * @param floor Floor for the request message
+     * @param requestId ID of the request
+     * @return Exterior elevator request message
+     */
+    private ElevatorRequestMessage createExteriorElevatorRequestMessage(int floor, int requestId,Direction direction) {
+        return ElevatorRequestMessage.newBuilder()
                 .setFloor(floor)
                 .setButton(Button.EXTERIOR)
                 .setDirection(direction)
                 .setTimeStamp("Monkey Moment")
                 .setRequestID(requestId)
                 .build();
-        sendMessage(msg, schedulerPort);
     }
-    
+
     /**
-     * Creates an interior button message
-     *
-     * @param floor
-     * @throws IOException
+     * INTERIOR elevator request message is made (protobuf builder)
+     * @param floor Floor for the request message
+     * @param requestId ID of the request
+     * @return Interior elevator request message
      */
-    private ElevatorRequestMessage createElevatorRequestMessage(int floor, int requestId) {
-        ElevatorRequestMessage msg = ElevatorRequestMessage.newBuilder()
+    private ElevatorRequestMessage createInteriorElevatorRequestMessage(int floor, int requestId) {
+        return ElevatorRequestMessage.newBuilder()
                 .setFloor(floor)
                 .setButton(Button.INTERIOR)
                 .setTimeStamp("Monkey Moment")
                 .setRequestID(requestId)
                 .build();
-        return msg;
     }
 
     /**
