@@ -1,7 +1,6 @@
 package protoBufHelpers;
 
 import java.net.DatagramPacket;
-import java.sql.Wrapper;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -132,9 +131,6 @@ public class ProtoBufMessage {
 	public Boolean isElevatorRegisterMessage() {
 		return this.message instanceof ElevatorRegisterMessage;
 	}
-	
-	
-	
  
 	//TODO: ADD ERROR CHECKING TO CASTS!
 
