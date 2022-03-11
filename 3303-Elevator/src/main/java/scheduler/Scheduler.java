@@ -1,8 +1,6 @@
 package scheduler;
 
-import elevatorCommands.Direction;
-import elevatorCommands.ElevatorRequestMessage;
-import elevatorCommands.SchedulerDispatchMessage;
+import elevatorCommands.*;
 import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 
@@ -27,7 +25,7 @@ public class Scheduler extends UDPHelper {
     public Scheduler(int listenPort, int numFloors) throws SocketException {
         super(listenPort);
         this.numFloors = numFloors;
-        this.requestQueue = new ArrayList<>();
+        this.messageQueue = new ArrayList<>();
         this.elevators = new ArrayList<>();
         this.elevatorIDCounter = 1;
     }
@@ -53,20 +51,22 @@ public class Scheduler extends UDPHelper {
     			
     		  }
     		}
-    	}
+    	});
     }
     
 	public void startSchedulingThread() {
-    	schedulerThread = new Thread(new Runnable)
-    			{
-
-    		public void run
+    	schedulerThread = new Thread(new Runnable() {
+    		public void run()
     		{
     			synchronized(messageQueue) {
     				while(messageQueue.isEmpty())
     				{
-    					wait();
-    				}
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
     				ProtoBufMessage msg = messageQueue.remove(0);
     				if(msg.isElevatorRequestMessage())
     				{
@@ -75,9 +75,9 @@ public class Scheduler extends UDPHelper {
     					{
     						for(Elevator elevator:elevators)
     						{
-    							if(request.getelevatorID().equals(elevator.getElevatorID()))
+    							if(request.getElevatorID() == elevator.getElevatorID())
     							{
-    								elevator.add(new ElevatorRequest(request.getfloor(),request.getrequestID(), ))
+    								elevator.addDestination(new ElevatorRequest(request.getFloor(),request.getRequestID(), request.getDirection()));
     							}
     						}
     						//Insert into request array
@@ -90,17 +90,44 @@ public class Scheduler extends UDPHelper {
     				{
     					
     				}
-    				else if()
+    				else if(msg.isElevatorArrivedMessage())
+					{
+
+					}
+					else if(msg.isElevatorDepartureMessage())
+					{
+
+					}
+					else if(msg.isFloorSensorMessage())
+					{
+
+					}
     				//check what type
     				//If not empty then get the mesage check priority and send if appropriate?
+
 				}
     				
     		}
-    	}
+    	});
 
 	}
-    	
-    
+
+	//if we have an elevator departing then we need to set the lamp
+	private void sendLampMessage(int floor, int port, Direction direction, int elevatorID) throws IOException {
+		LampMessage lampMsg = LampMessage.newBuilder()
+				.setFloor(floor)
+				//.setElevatorID(elevatorID)
+				.setDirection(direction)
+				.build();
+
+		sendMessage(lampMsg,port);
+	}
+
+	//when an elevator arrives send another dispatch message, and another message is in queue
+	//If the button pressed has highest priority
+	private void sendDispatch()
+	{}
+
     public void assignBestElevator(ElevatorRequest req) {
     	if(elevators.size() == 1) {
     		elevators.get(0).addDestination(req);
