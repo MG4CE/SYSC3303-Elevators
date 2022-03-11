@@ -85,6 +85,16 @@ public class Elevator {
 	public ArrayList<ElevatorRequest> getFloorDestinations() {
 		return floorDestinations;
 	}
+	
+	public ElevatorRequest popTopRequest() {
+		ElevatorRequest r = floorDestinations.remove(0);
+		if(r.getFloor() < currentFloor) {
+			currentDirection = Direction.DOWN;
+		} else if (r.getFloor() > currentFloor) {
+			currentDirection = Direction.UP;
+		}
+		return r;
+	}
 
 	public void switchDirections() {
 		if (currentDirection == Direction.DOWN) {

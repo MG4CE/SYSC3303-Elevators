@@ -5,19 +5,22 @@ import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 public class Scheduler extends UDPHelper {
     private final Logger LOGGER = Logger.getLogger(Scheduler.class.getName());
     private int numFloors;
-    private ArrayList<ProtoBufMessage> messageQueue;
+    private ArrayList<DatagramPacket> messageQueue;
     private ArrayList<Elevator> elevators;
     private int elevatorIDCounter;
     private Thread schedulerThread, listenerThread;
-    
+    private Boolean isRunning;
     
     public Scheduler(int listenPort, int numFloors) throws SocketException {
         super(listenPort);
@@ -25,132 +28,115 @@ public class Scheduler extends UDPHelper {
         this.messageQueue = new ArrayList<>();
         this.elevators = new ArrayList<>();
         this.elevatorIDCounter = 1;
+        this.isRunning = true;
     }
     
-    public void startListenerThread() {
-    	
-    	listenerThread =  new Thread(new Runnable() {
-    		public void run() {
-    		
-    			while(true) {
- 
-    			try {
-    				ProtoBufMessage recvMessage = new ProtoBufMessage(receiveMessage());
-    				synchronized(recvMessage)
-    				{
-    					messageQueue.add(recvMessage);
-    				}
-    			} catch (IOException e1) {
-    				e1.printStackTrace();
-    				LOGGER.severe("Failed to receive data from socket!");
-    				System.exit(1);
-    			}
-    			
-    		  }
-    		}
-    	});
-    }
-    
+	public void startListenerThread() {
+		listenerThread = new Thread(new Runnable() {
+			public void run() {
+				while (isRunning) {
+					try {
+						DatagramPacket msg = receiveMessage();
+						synchronized (messageQueue) {
+							messageQueue.add(msg);
+						}
+					} catch (IOException e1) {
+						e1.printStackTrace();
+						LOGGER.severe("Failed to receive data from socket!");
+						System.exit(1);
+					}
+
+				}
+			}
+		});
+	}
+
 	public void startSchedulingThread() {
     	schedulerThread = new Thread(new Runnable() {
-    		public void run()
-    		{
-    			synchronized(messageQueue) {
-    				while(messageQueue.isEmpty())
-    				{
-						try {
-							wait();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-    				ProtoBufMessage msg = messageQueue.remove(0);
-    				if(msg.isElevatorRequestMessage())
-    				{
-    					ElevatorRequestMessage request = msg.toElevatorRequestMessage();
-    					if(request.getButton().equals(Button.INTERIOR))
-    					{
-    						for(Elevator elevator:elevators)
-    						{
-    							if(request.getElevatorID() == elevator.getElevatorID())
-    							{
-    								elevator.addDestination(new ElevatorRequest(request.getFloor(),request.getRequestID(), request.getDirection()));
-									if(elevator.getFloorDestinations().get(0).getFloor() == request.getFloor())
-									{
-										try {
-											sendSchedulerDispatchMessage(request.getFloor(),request.getRequestID(),request.getDirection(),request.getElevatorID(),request.getTimeStamp());
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-									}
-    							}
-    						}
-    					}
-    					else
-    					{
-							//Exterior button press means we need to add the floor to the queue
-							for(Elevator elevator:elevators)
-							{
-								if(request.getElevatorID() == elevator.getElevatorID())
-								{
-									elevator.addDestination(new ElevatorRequest(request.getFloor(),request.getRequestID(), request.getDirection()));
-								}
+    		public void run() {
+    			while(isRunning) {
+	    			synchronized(messageQueue) {
+	    				while(messageQueue.isEmpty())
+	    				{
+							try {
+								wait();
+							} catch (InterruptedException e) {
+								e.printStackTrace();
 							}
 						}
-    				}
-    				else if(msg.isElevatorRegisterMessage())
-    				{
-						ElevatorRegisterMessage request = msg.toElevatorRegisterMessage();
-    					elevators.add(new Elevator(request.hashCode(),request.getElevatorID(),request.getFloor()));
-    				}
-    				else if(msg.isElevatorArrivedMessage())
-					{
-						ElevatorArrivedMessage request = msg.toElevatorArrivedMessage();
-						for(Elevator elevator:elevators)
-						{
-							if(request.getElevatorID() == elevator.getElevatorID()) {
-								//TODO:have field saying the elevator is stopped?
-								//Have field saying
-								//elevator.
-								if (!elevator.getFloorDestinations().isEmpty()){
+	    				
+	    				DatagramPacket packet = messageQueue.remove(0);
+	    				ProtoBufMessage msg = null;
+						try {
+							msg = new ProtoBufMessage(packet);
+						} catch (InvalidProtocolBufferException e) {
+							LOGGER.info(e.getMessage());
+							continue;
+						}
+	    				
+	    				if(msg.isElevatorRequestMessage()) {
+	    					ElevatorRequestMessage request = msg.toElevatorRequestMessage();
+	    					if(request.getButton().equals(Button.INTERIOR)) {
+	    						for(Elevator elevator:elevators) {
+	    							if(request.getElevatorID() == elevator.getElevatorID()) {
+	    								elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection()));
+										if(elevator.popTopRequest().getFloor() == request.getFloor()) {
+											try {
+												sendSchedulerDispatchMessage(request.getFloor(), request.getRequestID(), request.getDirection(), request.getElevatorID(), request.getTimeStamp());
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
+										}
+	    							}
+	    						}
+	    					} else {
+								//Exterior button press means we need to add the floor to the queue
+								for(Elevator elevator:elevators) {
+									if(request.getElevatorID() == elevator.getElevatorID()) {
+										elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection()));
+									}
+								}
+							}
+	    				} else if(msg.isElevatorRegisterMessage()) {
+							ElevatorRegisterMessage request = msg.toElevatorRegisterMessage();
+	    					elevators.add(new Elevator(packet.getPort(), elevatorIDCounter, request.getFloor()));
+	    					elevatorIDCounter++;
+	    				} else if(msg.isElevatorArrivedMessage()) {
+							ElevatorArrivedMessage request = msg.toElevatorArrivedMessage();
+							//forward to floorsubsystem
+							for(Elevator elevator:elevators) {
+								if(request.getElevatorID() == elevator.getElevatorID()) {
 									try {
-										sendSchedulerDispatchMessage(elevator.getFloorDestinations().remove(0).getFloor(), elevator.getPort(), elevator.getlDirection(), elevator.getElevatorID(), request.getTimeStamp());
+										sendLampMessage(request.getFloor(), 0, elevator.getlDirection(), request.getElevatorID());
 									} catch (IOException e) {
 										e.printStackTrace();
 									}
+									if (!elevator.getFloorDestinations().isEmpty()) {
+										try {
+											sendSchedulerDispatchMessage(elevator.popTopRequest().getFloor(), elevator.getPort(), elevator.getlDirection(), elevator.getElevatorID(), request.getTimeStamp());
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+									} else {
+										break; 
+									}
 								}
-								else
-								{
-									break;
+							}
+						} else if(msg.isElevatorDepartureMessage()) {
+							ElevatorDepartureMessage request = msg.toElevatorDepartureMessage();
+							//TODO: just make a state variable tracking if moving or stopped at a floor for elevator update it for arrived up to as well
+						} else if(msg.isFloorSensorMessage()) {
+							FloorSensorMessage request = msg.toFloorSensorMessage();
+							for(Elevator elevator:elevators) {
+								if(request.getElevatorID() == elevator.getElevatorID()) {
+									elevator.setCurrentFloor(request.getFloor());
 								}
 							}
 						}
-					}
-					else if(msg.isElevatorDepartureMessage())
-					{
-						ElevatorDepartureMessage request = msg.toElevatorDepartureMessage();
-						try {
-							sendLampMessage(request.getInitialFloor(),request.hashCode(),Direction.forNumber(request.getDirectionValue()),request.getElevatorID());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-					else if(msg.isFloorSensorMessage())
-					{
-						FloorSensorMessage request = msg.toFloorSensorMessage();
-						for(Elevator elevator:elevators)
-						{
-							if(request.getElevatorID() == elevator.getElevatorID())
-							{
-								elevator.setCurrentFloor(request.getFloor());
-							}
-						}
-					}
-				}
-    				
+					}	
+	    		}
     		}
     	});
-
 	}
 
 	//if we have an elevator departing then we need to set the lamp
@@ -215,6 +201,11 @@ public class Scheduler extends UDPHelper {
     		score = (numFloors - Math.abs(score)) * -1;
     	}
     	return score;
+    }
+    
+    //this not a great way of stopping as it does not yet stop properly, come up with another way
+    public void stopScheduler() {
+    	isRunning = false;
     }
 
 	public static void main(String[] args) {
