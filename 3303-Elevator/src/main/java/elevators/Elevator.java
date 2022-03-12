@@ -36,10 +36,21 @@ public class Elevator extends UDPHelper implements Runnable {
 	/*
 	 * Constructor for elevator class, takes in the scheduler to send to, as well as the port it should listen to
 	 */
-	public Elevator(int schedulerPort, int receivePort) throws SocketException {
+	public Elevator(int schedulerPort, InetAddress schedulerAddress, int receivePort) throws SocketException {
 		super(receivePort); //takes in a receive port just for testing
 		this.schedulerPort = schedulerPort;
-		this.schedulerAddress = null;
+		this.schedulerAddress = schedulerAddress;
+		this.currentFloor = 0;
+		this.elevatorID = 0;
+		this.elevatorMotor = new Motor(this);
+		this.elevatorFSM = new StateMachine(new IdleState(this));
+		this.running = true;
+	}
+	
+	public Elevator(int schedulerPort, InetAddress schedulerAddress) throws SocketException {
+		super();
+		this.schedulerPort = schedulerPort;
+		this.schedulerAddress = schedulerAddress;
 		this.currentFloor = 0;
 		this.elevatorID = 0;
 		this.elevatorMotor = new Motor(this);
@@ -115,7 +126,6 @@ public class Elevator extends UDPHelper implements Runnable {
 		DatagramPacket resp = null;
 		try {
 			resp = sendElevatorRequestMessage();
-			schedulerAddress = resp.getAddress();
 		} catch (IOException e) {
 			e.printStackTrace();
 			LOGGER.severe("No message received, stopping elevator: " + e.getMessage());
