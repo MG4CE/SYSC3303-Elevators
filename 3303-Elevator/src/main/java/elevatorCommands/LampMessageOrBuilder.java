@@ -46,4 +46,10 @@ public interface LampMessageOrBuilder extends
    */
   com.google.protobuf.ByteString
       getTimeStampBytes();
+
+  /**
+   * <code>uint32 elevatorID = 5;</code>
+   * @return The elevatorID.
+   */
+  int getElevatorID();
 }

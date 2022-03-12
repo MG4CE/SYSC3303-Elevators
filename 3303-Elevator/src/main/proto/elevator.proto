@@ -13,8 +13,16 @@ message WrapperMessage{
 		ElevatorDepartureMessage elevatorDeparture = 4;
 		FloorSensorMessage floorSensor = 5;
 		LampMessage lampMessage = 6;
+		ElevatorRegisterMessage registerMessage = 7;
 	}
 }
+
+message ElevatorRegisterMessage{
+	uint32 elevatorID = 1;
+	uint32 floor = 2;
+	string timeStamp = 3;
+}
+
 
 // button clicks made by people in or out of elevator
 message ElevatorRequestMessage{
@@ -64,6 +72,7 @@ message LampMessage{
 	Direction direction = 2;
 	LampState state = 3;
 	string timeStamp = 4;
+	uint32 elevatorID = 5;
 }
 
 enum Direction{

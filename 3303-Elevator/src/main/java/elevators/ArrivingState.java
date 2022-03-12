@@ -1,7 +1,6 @@
 package elevators;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;

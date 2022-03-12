@@ -2,13 +2,17 @@ package elevators;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.logging.Logger;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import elevatorCommands.Button;
 import elevatorCommands.Direction;
 import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
+import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
 import protoBufHelpers.ProtoBufMessage;
@@ -19,35 +23,41 @@ public class Elevator extends UDPHelper implements Runnable {
 	protected final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
 	
 	private int schedulerPort;
+	private InetAddress schedulerAddress;
 	private int currentFloor;
 	private int destinationFloor;
 	private Direction currentDirection;
 	private int elevatorID;
-	private DoorState currentDoorState;
 	
 	protected Motor elevatorMotor;
 	protected StateMachine elevatorFSM;
 	protected Boolean running;
 
-	private enum DoorState{
-		OPEN,
-		CLOSE,
-	}
-
 	/*
 	 * Constructor for elevator class, takes in the scheduler to send to, as well as the port it should listen to
 	 */
-	public Elevator(int schedulerPort, int receivePort) throws SocketException {
+	public Elevator(int schedulerPort, InetAddress schedulerAddress, int receivePort) throws SocketException {
 		super(receivePort); //takes in a receive port just for testing
 		this.schedulerPort = schedulerPort;
+		this.schedulerAddress = schedulerAddress;
 		this.currentFloor = 0;
 		this.elevatorID = 0;
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
-		this.currentDoorState = DoorState.CLOSE;
 		this.running = true;
 	}
-
+	
+	public Elevator(int schedulerPort, InetAddress schedulerAddress) throws SocketException {
+		super();
+		this.schedulerPort = schedulerPort;
+		this.schedulerAddress = schedulerAddress;
+		this.currentFloor = 0;
+		this.elevatorID = 0;
+		this.elevatorMotor = new Motor(this);
+		this.elevatorFSM = new StateMachine(new IdleState(this));
+		this.running = true;
+	}
+	
 	/*
 	 * Send a UDP message indicating elevator had internal button pressed
 	 * @param floor number of button pressed
@@ -60,7 +70,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setDirection(Direction.STATIONARY)
 				//TODO ADD TIMESTAMP
 				.build();
-		sendMessage(msg, schedulerPort);
+		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
 	/*
@@ -72,7 +82,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setElevatorID(this.elevatorID)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg, schedulerPort);
+		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
 	/*
@@ -85,7 +95,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setElevatorID(this.elevatorID)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg, schedulerPort);
+		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
 	/*
@@ -97,7 +107,15 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setFloor(this.currentFloor)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg, schedulerPort);
+		sendMessage(msg, schedulerPort, schedulerAddress);
+	}
+	
+	protected DatagramPacket sendElevatorRegisterMessage() throws IOException {
+		ElevatorRegisterMessage msg = ElevatorRegisterMessage.newBuilder()
+				.setFloor(this.currentFloor)
+				//TODO: ADD TIMESTAMP
+				.build();
+		return rpcSendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
 	/*
@@ -105,6 +123,31 @@ public class Elevator extends UDPHelper implements Runnable {
 	 */
 	@Override
 	public void run() {
+		DatagramPacket resp = null;
+		try {
+			resp = sendElevatorRegisterMessage();
+		} catch (IOException e) {
+			e.printStackTrace();
+			LOGGER.severe("No message received, stopping elevator: " + e.getMessage());
+			return;
+		}
+		
+		ProtoBufMessage r = null;
+		try {
+			r = new ProtoBufMessage(resp);
+		} catch (InvalidProtocolBufferException e) {
+			LOGGER.severe(e.getMessage());
+			return;
+		}
+		
+		if (r.isElevatorRegisterMessage()) {
+			ElevatorRegisterMessage regResp = r.toElevatorRegisterMessage();
+			elevatorID = regResp.getElevatorID();
+		} else {
+			LOGGER.severe("Unkownn message type, stopping elevator!");
+			return;
+		}
+		
 		while(this.running){
 			try {
 				DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
@@ -191,7 +234,6 @@ public class Elevator extends UDPHelper implements Runnable {
 	 */
 	protected void openDoors() {
 		System.out.printf("Elevator %d: Doors opening\n",  this.elevatorID);
-		this.currentDoorState = DoorState.OPEN;
 	}
 
 	/*
@@ -199,7 +241,6 @@ public class Elevator extends UDPHelper implements Runnable {
 	 */
 	protected void closeDoors() {
 		System.out.printf("Elevator %d: Doors closing\n",  this.elevatorID);
-		this.currentDoorState = DoorState.OPEN;
 	}
 
 	/*
@@ -223,5 +264,13 @@ public class Elevator extends UDPHelper implements Runnable {
 			return true;
 		}
 		return false;
+	}
+	
+	public InetAddress getSchedulerAddress() {
+		return this.schedulerAddress;
+	}
+	
+	public void setSchedulerAddress(InetAddress address) {
+		this.schedulerAddress = address;
 	}
 }
