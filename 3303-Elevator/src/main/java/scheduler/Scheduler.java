@@ -163,7 +163,7 @@ public class Scheduler extends UDPHelper {
 							for(Elevator elevator : elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
 									try {
-										sendElevatorArrivedMessage(message, elevator.peekTopRequest().getRequestID(), elevator.getPort(), elevator.getAddress());
+										sendElevatorArrivedMessage(message, elevator.peekTopRequest().getRequestID(), floorSubsystemPort, floorSubsystemAddress);
 									} catch (IOException e) {
 										LOGGER.severe("Failed to forward elevator arrived message: " + e.getMessage());
 									}
