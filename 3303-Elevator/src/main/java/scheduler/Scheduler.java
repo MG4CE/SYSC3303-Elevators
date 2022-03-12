@@ -217,6 +217,7 @@ public class Scheduler extends UDPHelper {
 	 * @param address the InetAddress
 	 * @throws IOException an exception for UDP
 	 */
+	@SuppressWarnings("unused")
 	private void sendLampMessage(int floor, int port, Direction direction, int elevatorID, InetAddress address) throws IOException {
 		LampMessage lampMsg = LampMessage.newBuilder()
 				.setFloor(floor)
