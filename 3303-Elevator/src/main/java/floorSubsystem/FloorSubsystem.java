@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -32,6 +33,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     private String commandFile;
     private List<Integer> repliedMessages;
     private int schedulerPort;
+    private InetAddress schedulerAddress;
 
     /**
      * Create new instance of Floor Subsystem
@@ -39,9 +41,10 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param schedulerPort : The port where the scheduler will be listening for requests
      * @param commandFile : input text file containing the list of commands
      */
-    public FloorSubsystem(int schedulerPort, String commandFile) throws SocketException {
+    public FloorSubsystem(int schedulerPort, InetAddress schedulerAddress, String commandFile) throws SocketException {
         super();
         this.schedulerPort = schedulerPort;
+        this.schedulerAddress = schedulerAddress;
         this.commandFile = commandFile;
         this.elevatorRequestList = new ArrayList<>();
         this.repliedMessages = new ArrayList<>();
@@ -157,7 +160,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     private void sendElevatorRequestMessage(ElevatorRequestMessage requestMessage) throws IOException {
         LOGGER.info("External elevator button pressed on floor " + requestMessage.getFloor() + " with direction " +
                 requestMessage.getDirection() + ", REQUEST_ID=" + requestMessage.getRequestID() + "\n");
-        sendMessage(requestMessage, this.schedulerPort);
+        sendMessage(requestMessage, this.schedulerPort, schedulerAddress);
     }
 
     /**
@@ -238,7 +241,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
 	                    if (req.getRequestID() == reqID) {
 	                        repliedMessages.add(reqID);
 	                        try {
-								sendMessage(req, schedulerPort);
+								sendMessage(req, schedulerPort, schedulerAddress);
 							} catch (IOException e) {
 								e.printStackTrace();
 								LOGGER.severe("Failed to send button request!");
