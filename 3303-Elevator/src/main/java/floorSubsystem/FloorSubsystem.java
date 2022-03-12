@@ -157,8 +157,8 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param requestMessage Elevator Request Message to be sent
      */
     private void sendInteriorElevatorRequest(ElevatorRequestMessage requestMessage) throws IOException {
-        LOGGER.info("[Floor] [Send] INTERIOR Button request - floor " + requestMessage.getFloor() +
-                " REQUEST_ID=" + requestMessage.getRequestID() + "\n");
+        System.out.printf("Elevator %d: Interior button pressed for floor %d\n", requestMessage.getElevatorID(),
+                        requestMessage.getFloor());
         sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
     }
 
@@ -168,9 +168,8 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param requestMessage Elevator Request Message to be sent
      */
     private void sendExteriorElevatorRequest(ElevatorRequestMessage requestMessage) throws IOException {
-        LOGGER.info("[Floor] [SEND] EXTERIOR elevator button pressed on floor " + requestMessage.getFloor() + " with direction " +
-                requestMessage.getDirection() + ", REQUEST_ID=" + requestMessage.getRequestID() + "\n");
-
+        System.out.printf("Elevator %d: Exterior button pressed for floor %d\n", requestMessage.getElevatorID(),
+                requestMessage.getFloor());
         sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
     }
 
