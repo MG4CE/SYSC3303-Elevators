@@ -136,6 +136,20 @@ private static final long serialVersionUID = 0L;
             msgCase_ = 6;
             break;
           }
+          case 58: {
+            elevatorCommands.ElevatorRegisterMessage.Builder subBuilder = null;
+            if (msgCase_ == 7) {
+              subBuilder = ((elevatorCommands.ElevatorRegisterMessage) msg_).toBuilder();
+            }
+            msg_ =
+                input.readMessage(elevatorCommands.ElevatorRegisterMessage.parser(), extensionRegistry);
+            if (subBuilder != null) {
+              subBuilder.mergeFrom((elevatorCommands.ElevatorRegisterMessage) msg_);
+              msg_ = subBuilder.buildPartial();
+            }
+            msgCase_ = 7;
+            break;
+          }
           default: {
             if (!parseUnknownField(
                 input, unknownFields, extensionRegistry, tag)) {
@@ -179,6 +193,7 @@ private static final long serialVersionUID = 0L;
     ELEVATORDEPARTURE(4),
     FLOORSENSOR(5),
     LAMPMESSAGE(6),
+    REGISTERMESSAGE(7),
     MSG_NOT_SET(0);
     private final int value;
     private MsgCase(int value) {
@@ -202,6 +217,7 @@ private static final long serialVersionUID = 0L;
         case 4: return ELEVATORDEPARTURE;
         case 5: return FLOORSENSOR;
         case 6: return LAMPMESSAGE;
+        case 7: return REGISTERMESSAGE;
         case 0: return MSG_NOT_SET;
         default: return null;
       }
@@ -403,6 +419,37 @@ private static final long serialVersionUID = 0L;
     return elevatorCommands.LampMessage.getDefaultInstance();
   }
 
+  public static final int REGISTERMESSAGE_FIELD_NUMBER = 7;
+  /**
+   * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+   * @return Whether the registerMessage field is set.
+   */
+  @java.lang.Override
+  public boolean hasRegisterMessage() {
+    return msgCase_ == 7;
+  }
+  /**
+   * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+   * @return The registerMessage.
+   */
+  @java.lang.Override
+  public elevatorCommands.ElevatorRegisterMessage getRegisterMessage() {
+    if (msgCase_ == 7) {
+       return (elevatorCommands.ElevatorRegisterMessage) msg_;
+    }
+    return elevatorCommands.ElevatorRegisterMessage.getDefaultInstance();
+  }
+  /**
+   * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+   */
+  @java.lang.Override
+  public elevatorCommands.ElevatorRegisterMessageOrBuilder getRegisterMessageOrBuilder() {
+    if (msgCase_ == 7) {
+       return (elevatorCommands.ElevatorRegisterMessage) msg_;
+    }
+    return elevatorCommands.ElevatorRegisterMessage.getDefaultInstance();
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -434,6 +481,9 @@ private static final long serialVersionUID = 0L;
     }
     if (msgCase_ == 6) {
       output.writeMessage(6, (elevatorCommands.LampMessage) msg_);
+    }
+    if (msgCase_ == 7) {
+      output.writeMessage(7, (elevatorCommands.ElevatorRegisterMessage) msg_);
     }
     unknownFields.writeTo(output);
   }
@@ -467,6 +517,10 @@ private static final long serialVersionUID = 0L;
     if (msgCase_ == 6) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(6, (elevatorCommands.LampMessage) msg_);
+    }
+    if (msgCase_ == 7) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(7, (elevatorCommands.ElevatorRegisterMessage) msg_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -509,6 +563,10 @@ private static final long serialVersionUID = 0L;
         if (!getLampMessage()
             .equals(other.getLampMessage())) return false;
         break;
+      case 7:
+        if (!getRegisterMessage()
+            .equals(other.getRegisterMessage())) return false;
+        break;
       case 0:
       default:
     }
@@ -547,6 +605,10 @@ private static final long serialVersionUID = 0L;
       case 6:
         hash = (37 * hash) + LAMPMESSAGE_FIELD_NUMBER;
         hash = (53 * hash) + getLampMessage().hashCode();
+        break;
+      case 7:
+        hash = (37 * hash) + REGISTERMESSAGE_FIELD_NUMBER;
+        hash = (53 * hash) + getRegisterMessage().hashCode();
         break;
       case 0:
       default:
@@ -758,6 +820,13 @@ private static final long serialVersionUID = 0L;
           result.msg_ = lampMessageBuilder_.build();
         }
       }
+      if (msgCase_ == 7) {
+        if (registerMessageBuilder_ == null) {
+          result.msg_ = msg_;
+        } else {
+          result.msg_ = registerMessageBuilder_.build();
+        }
+      }
       result.msgCase_ = msgCase_;
       onBuilt();
       return result;
@@ -830,6 +899,10 @@ private static final long serialVersionUID = 0L;
         }
         case LAMPMESSAGE: {
           mergeLampMessage(other.getLampMessage());
+          break;
+        }
+        case REGISTERMESSAGE: {
+          mergeRegisterMessage(other.getRegisterMessage());
           break;
         }
         case MSG_NOT_SET: {
@@ -1724,6 +1797,147 @@ private static final long serialVersionUID = 0L;
       msgCase_ = 6;
       onChanged();;
       return lampMessageBuilder_;
+    }
+
+    private com.google.protobuf.SingleFieldBuilderV3<
+        elevatorCommands.ElevatorRegisterMessage, elevatorCommands.ElevatorRegisterMessage.Builder, elevatorCommands.ElevatorRegisterMessageOrBuilder> registerMessageBuilder_;
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     * @return Whether the registerMessage field is set.
+     */
+    @java.lang.Override
+    public boolean hasRegisterMessage() {
+      return msgCase_ == 7;
+    }
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     * @return The registerMessage.
+     */
+    @java.lang.Override
+    public elevatorCommands.ElevatorRegisterMessage getRegisterMessage() {
+      if (registerMessageBuilder_ == null) {
+        if (msgCase_ == 7) {
+          return (elevatorCommands.ElevatorRegisterMessage) msg_;
+        }
+        return elevatorCommands.ElevatorRegisterMessage.getDefaultInstance();
+      } else {
+        if (msgCase_ == 7) {
+          return registerMessageBuilder_.getMessage();
+        }
+        return elevatorCommands.ElevatorRegisterMessage.getDefaultInstance();
+      }
+    }
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     */
+    public Builder setRegisterMessage(elevatorCommands.ElevatorRegisterMessage value) {
+      if (registerMessageBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        msg_ = value;
+        onChanged();
+      } else {
+        registerMessageBuilder_.setMessage(value);
+      }
+      msgCase_ = 7;
+      return this;
+    }
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     */
+    public Builder setRegisterMessage(
+        elevatorCommands.ElevatorRegisterMessage.Builder builderForValue) {
+      if (registerMessageBuilder_ == null) {
+        msg_ = builderForValue.build();
+        onChanged();
+      } else {
+        registerMessageBuilder_.setMessage(builderForValue.build());
+      }
+      msgCase_ = 7;
+      return this;
+    }
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     */
+    public Builder mergeRegisterMessage(elevatorCommands.ElevatorRegisterMessage value) {
+      if (registerMessageBuilder_ == null) {
+        if (msgCase_ == 7 &&
+            msg_ != elevatorCommands.ElevatorRegisterMessage.getDefaultInstance()) {
+          msg_ = elevatorCommands.ElevatorRegisterMessage.newBuilder((elevatorCommands.ElevatorRegisterMessage) msg_)
+              .mergeFrom(value).buildPartial();
+        } else {
+          msg_ = value;
+        }
+        onChanged();
+      } else {
+        if (msgCase_ == 7) {
+          registerMessageBuilder_.mergeFrom(value);
+        }
+        registerMessageBuilder_.setMessage(value);
+      }
+      msgCase_ = 7;
+      return this;
+    }
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     */
+    public Builder clearRegisterMessage() {
+      if (registerMessageBuilder_ == null) {
+        if (msgCase_ == 7) {
+          msgCase_ = 0;
+          msg_ = null;
+          onChanged();
+        }
+      } else {
+        if (msgCase_ == 7) {
+          msgCase_ = 0;
+          msg_ = null;
+        }
+        registerMessageBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     */
+    public elevatorCommands.ElevatorRegisterMessage.Builder getRegisterMessageBuilder() {
+      return getRegisterMessageFieldBuilder().getBuilder();
+    }
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     */
+    @java.lang.Override
+    public elevatorCommands.ElevatorRegisterMessageOrBuilder getRegisterMessageOrBuilder() {
+      if ((msgCase_ == 7) && (registerMessageBuilder_ != null)) {
+        return registerMessageBuilder_.getMessageOrBuilder();
+      } else {
+        if (msgCase_ == 7) {
+          return (elevatorCommands.ElevatorRegisterMessage) msg_;
+        }
+        return elevatorCommands.ElevatorRegisterMessage.getDefaultInstance();
+      }
+    }
+    /**
+     * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+        elevatorCommands.ElevatorRegisterMessage, elevatorCommands.ElevatorRegisterMessage.Builder, elevatorCommands.ElevatorRegisterMessageOrBuilder> 
+        getRegisterMessageFieldBuilder() {
+      if (registerMessageBuilder_ == null) {
+        if (!(msgCase_ == 7)) {
+          msg_ = elevatorCommands.ElevatorRegisterMessage.getDefaultInstance();
+        }
+        registerMessageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            elevatorCommands.ElevatorRegisterMessage, elevatorCommands.ElevatorRegisterMessage.Builder, elevatorCommands.ElevatorRegisterMessageOrBuilder>(
+                (elevatorCommands.ElevatorRegisterMessage) msg_,
+                getParentForChildren(),
+                isClean());
+        msg_ = null;
+      }
+      msgCase_ = 7;
+      onChanged();;
+      return registerMessageBuilder_;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

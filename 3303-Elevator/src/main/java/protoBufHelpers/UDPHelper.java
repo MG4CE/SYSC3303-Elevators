@@ -41,14 +41,14 @@ public abstract class UDPHelper {
 	 * @param data byte array to be send via udp
 	 * @param port to send to
 	 */
-	public void sendByteArray(byte[] data, int sendPort) throws IOException {
-		DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), sendPort);
+	public void sendByteArray(byte[] data, int port, InetAddress address) throws IOException {
+		DatagramPacket sendPacket = new DatagramPacket(data, data.length, address, port);
 		DatagramSocket sendSocket = new DatagramSocket();
 		sendSocket.send(sendPacket);
 		sendSocket.close();
 	}
 	
-	public DatagramPacket rpcSend(byte[] sendData, Boolean useTimeout, int sendPort) throws IOException {
+	public DatagramPacket rpcSend(byte[] sendData, Boolean useTimeout, int port, InetAddress address) throws IOException {
 		byte data_buff[] = new byte[PACKET_SIZE];
 		DatagramPacket receivePacket = new DatagramPacket(data_buff, data_buff.length);
 		Boolean received = false;
@@ -73,7 +73,7 @@ public abstract class UDPHelper {
 		}
 		
 		while (!received && numRetries < MAX_NUM_RETRIES) {
-			sendByteArray(sendData, sendPort);
+			sendByteArray(sendData, port, address);
 			try {
 				recvSocket.receive(receivePacket);
 			} catch (SocketTimeoutException e) {
@@ -95,7 +95,7 @@ public abstract class UDPHelper {
 	}
 	
 	
-	public DatagramPacket rpcSendMessage(com.google.protobuf.GeneratedMessageV3 message, int sendPort) throws IOException {
+	public DatagramPacket rpcSendMessage(com.google.protobuf.GeneratedMessageV3 message, int port, InetAddress address) throws IOException {
 		LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
 		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
 		
@@ -115,7 +115,7 @@ public abstract class UDPHelper {
 		}
 		
 		WrapperMessage msg = msgBldr.build();
-		return rpcSend(msg.toByteArray(), true, sendPort);
+		return rpcSend(msg.toByteArray(), true, port, address);
 	}	
 	
 	/*
@@ -123,7 +123,7 @@ public abstract class UDPHelper {
 	 * @param Protobuf message to send
 	 * @param port to send message to
 	 */
-	public void sendMessage(com.google.protobuf.GeneratedMessageV3 message, int sendPort) throws IOException {
+	public void sendMessage(com.google.protobuf.GeneratedMessageV3 message, int port, InetAddress address) throws IOException {
 		LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
 		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
 		
@@ -140,10 +140,12 @@ public abstract class UDPHelper {
 			msgBldr.setFloorSensor((FloorSensorMessage) message);
 		}else if(message instanceof LampMessage){
 			msgBldr.setLampMessage((LampMessage) message);
+		}else if(message instanceof ElevatorRegisterMessage) {
+			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
 		}
 		
 		WrapperMessage msg = msgBldr.build();
-		sendByteArray(msg.toByteArray(), sendPort);
+		sendByteArray(msg.toByteArray(), port, address);
 	}	
 
 	/*

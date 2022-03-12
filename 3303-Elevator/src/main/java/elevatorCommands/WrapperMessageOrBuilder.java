@@ -97,5 +97,20 @@ public interface WrapperMessageOrBuilder extends
    */
   elevatorCommands.LampMessageOrBuilder getLampMessageOrBuilder();
 
+  /**
+   * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+   * @return Whether the registerMessage field is set.
+   */
+  boolean hasRegisterMessage();
+  /**
+   * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+   * @return The registerMessage.
+   */
+  elevatorCommands.ElevatorRegisterMessage getRegisterMessage();
+  /**
+   * <code>.elevatorCommands.ElevatorRegisterMessage registerMessage = 7;</code>
+   */
+  elevatorCommands.ElevatorRegisterMessageOrBuilder getRegisterMessageOrBuilder();
+
   public elevatorCommands.WrapperMessage.MsgCase getMsgCase();
 }

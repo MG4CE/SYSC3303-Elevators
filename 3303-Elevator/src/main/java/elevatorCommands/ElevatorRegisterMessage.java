@@ -4,24 +4,18 @@
 package elevatorCommands;
 
 /**
- * <pre>
- * tell a floor to turn on lamp
- * </pre>
- *
- * Protobuf type {@code elevatorCommands.LampMessage}
+ * Protobuf type {@code elevatorCommands.ElevatorRegisterMessage}
  */
-public final class LampMessage extends
+public final class ElevatorRegisterMessage extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:elevatorCommands.LampMessage)
-    LampMessageOrBuilder {
+    // @@protoc_insertion_point(message_implements:elevatorCommands.ElevatorRegisterMessage)
+    ElevatorRegisterMessageOrBuilder {
 private static final long serialVersionUID = 0L;
-  // Use LampMessage.newBuilder() to construct.
-  private LampMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+  // Use ElevatorRegisterMessage.newBuilder() to construct.
+  private ElevatorRegisterMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-  private LampMessage() {
-    direction_ = 0;
-    state_ = 0;
+  private ElevatorRegisterMessage() {
     timeStamp_ = "";
   }
 
@@ -29,7 +23,7 @@ private static final long serialVersionUID = 0L;
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(
       UnusedPrivateParameter unused) {
-    return new LampMessage();
+    return new ElevatorRegisterMessage();
   }
 
   @java.lang.Override
@@ -37,7 +31,7 @@ private static final long serialVersionUID = 0L;
   getUnknownFields() {
     return this.unknownFields;
   }
-  private LampMessage(
+  private ElevatorRegisterMessage(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -57,30 +51,18 @@ private static final long serialVersionUID = 0L;
             break;
           case 8: {
 
-            floor_ = input.readUInt32();
+            elevatorID_ = input.readUInt32();
             break;
           }
           case 16: {
-            int rawValue = input.readEnum();
 
-            direction_ = rawValue;
+            floor_ = input.readUInt32();
             break;
           }
-          case 24: {
-            int rawValue = input.readEnum();
-
-            state_ = rawValue;
-            break;
-          }
-          case 34: {
+          case 26: {
             java.lang.String s = input.readStringRequireUtf8();
 
             timeStamp_ = s;
-            break;
-          }
-          case 40: {
-
-            elevatorID_ = input.readUInt32();
             break;
           }
           default: {
@@ -104,21 +86,32 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_LampMessage_descriptor;
+    return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_ElevatorRegisterMessage_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_LampMessage_fieldAccessorTable
+    return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_ElevatorRegisterMessage_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            elevatorCommands.LampMessage.class, elevatorCommands.LampMessage.Builder.class);
+            elevatorCommands.ElevatorRegisterMessage.class, elevatorCommands.ElevatorRegisterMessage.Builder.class);
   }
 
-  public static final int FLOOR_FIELD_NUMBER = 1;
+  public static final int ELEVATORID_FIELD_NUMBER = 1;
+  private int elevatorID_;
+  /**
+   * <code>uint32 elevatorID = 1;</code>
+   * @return The elevatorID.
+   */
+  @java.lang.Override
+  public int getElevatorID() {
+    return elevatorID_;
+  }
+
+  public static final int FLOOR_FIELD_NUMBER = 2;
   private int floor_;
   /**
-   * <code>uint32 floor = 1;</code>
+   * <code>uint32 floor = 2;</code>
    * @return The floor.
    */
   @java.lang.Override
@@ -126,48 +119,10 @@ private static final long serialVersionUID = 0L;
     return floor_;
   }
 
-  public static final int DIRECTION_FIELD_NUMBER = 2;
-  private int direction_;
-  /**
-   * <code>.elevatorCommands.Direction direction = 2;</code>
-   * @return The enum numeric value on the wire for direction.
-   */
-  @java.lang.Override public int getDirectionValue() {
-    return direction_;
-  }
-  /**
-   * <code>.elevatorCommands.Direction direction = 2;</code>
-   * @return The direction.
-   */
-  @java.lang.Override public elevatorCommands.Direction getDirection() {
-    @SuppressWarnings("deprecation")
-    elevatorCommands.Direction result = elevatorCommands.Direction.valueOf(direction_);
-    return result == null ? elevatorCommands.Direction.UNRECOGNIZED : result;
-  }
-
-  public static final int STATE_FIELD_NUMBER = 3;
-  private int state_;
-  /**
-   * <code>.elevatorCommands.LampState state = 3;</code>
-   * @return The enum numeric value on the wire for state.
-   */
-  @java.lang.Override public int getStateValue() {
-    return state_;
-  }
-  /**
-   * <code>.elevatorCommands.LampState state = 3;</code>
-   * @return The state.
-   */
-  @java.lang.Override public elevatorCommands.LampState getState() {
-    @SuppressWarnings("deprecation")
-    elevatorCommands.LampState result = elevatorCommands.LampState.valueOf(state_);
-    return result == null ? elevatorCommands.LampState.UNRECOGNIZED : result;
-  }
-
-  public static final int TIMESTAMP_FIELD_NUMBER = 4;
+  public static final int TIMESTAMP_FIELD_NUMBER = 3;
   private volatile java.lang.Object timeStamp_;
   /**
-   * <code>string timeStamp = 4;</code>
+   * <code>string timeStamp = 3;</code>
    * @return The timeStamp.
    */
   @java.lang.Override
@@ -184,7 +139,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string timeStamp = 4;</code>
+   * <code>string timeStamp = 3;</code>
    * @return The bytes for timeStamp.
    */
   @java.lang.Override
@@ -202,17 +157,6 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int ELEVATORID_FIELD_NUMBER = 5;
-  private int elevatorID_;
-  /**
-   * <code>uint32 elevatorID = 5;</code>
-   * @return The elevatorID.
-   */
-  @java.lang.Override
-  public int getElevatorID() {
-    return elevatorID_;
-  }
-
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -227,20 +171,14 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
+    if (elevatorID_ != 0) {
+      output.writeUInt32(1, elevatorID_);
+    }
     if (floor_ != 0) {
-      output.writeUInt32(1, floor_);
-    }
-    if (direction_ != elevatorCommands.Direction.UP.getNumber()) {
-      output.writeEnum(2, direction_);
-    }
-    if (state_ != elevatorCommands.LampState.ON.getNumber()) {
-      output.writeEnum(3, state_);
+      output.writeUInt32(2, floor_);
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(timeStamp_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 4, timeStamp_);
-    }
-    if (elevatorID_ != 0) {
-      output.writeUInt32(5, elevatorID_);
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, timeStamp_);
     }
     unknownFields.writeTo(output);
   }
@@ -251,24 +189,16 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (floor_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeUInt32Size(1, floor_);
-    }
-    if (direction_ != elevatorCommands.Direction.UP.getNumber()) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeEnumSize(2, direction_);
-    }
-    if (state_ != elevatorCommands.LampState.ON.getNumber()) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeEnumSize(3, state_);
-    }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(timeStamp_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, timeStamp_);
-    }
     if (elevatorID_ != 0) {
       size += com.google.protobuf.CodedOutputStream
-        .computeUInt32Size(5, elevatorID_);
+        .computeUInt32Size(1, elevatorID_);
+    }
+    if (floor_ != 0) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeUInt32Size(2, floor_);
+    }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(timeStamp_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, timeStamp_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -280,19 +210,17 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof elevatorCommands.LampMessage)) {
+    if (!(obj instanceof elevatorCommands.ElevatorRegisterMessage)) {
       return super.equals(obj);
     }
-    elevatorCommands.LampMessage other = (elevatorCommands.LampMessage) obj;
+    elevatorCommands.ElevatorRegisterMessage other = (elevatorCommands.ElevatorRegisterMessage) obj;
 
-    if (getFloor()
-        != other.getFloor()) return false;
-    if (direction_ != other.direction_) return false;
-    if (state_ != other.state_) return false;
-    if (!getTimeStamp()
-        .equals(other.getTimeStamp())) return false;
     if (getElevatorID()
         != other.getElevatorID()) return false;
+    if (getFloor()
+        != other.getFloor()) return false;
+    if (!getTimeStamp()
+        .equals(other.getTimeStamp())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -304,84 +232,80 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + FLOOR_FIELD_NUMBER;
-    hash = (53 * hash) + getFloor();
-    hash = (37 * hash) + DIRECTION_FIELD_NUMBER;
-    hash = (53 * hash) + direction_;
-    hash = (37 * hash) + STATE_FIELD_NUMBER;
-    hash = (53 * hash) + state_;
-    hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
-    hash = (53 * hash) + getTimeStamp().hashCode();
     hash = (37 * hash) + ELEVATORID_FIELD_NUMBER;
     hash = (53 * hash) + getElevatorID();
+    hash = (37 * hash) + FLOOR_FIELD_NUMBER;
+    hash = (53 * hash) + getFloor();
+    hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
+    hash = (53 * hash) + getTimeStamp().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static elevatorCommands.LampMessage parseFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static elevatorCommands.LampMessage parseFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static elevatorCommands.LampMessage parseFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static elevatorCommands.LampMessage parseFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static elevatorCommands.LampMessage parseFrom(byte[] data)
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static elevatorCommands.LampMessage parseFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static elevatorCommands.LampMessage parseFrom(java.io.InputStream input)
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static elevatorCommands.LampMessage parseFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
-  public static elevatorCommands.LampMessage parseDelimitedFrom(java.io.InputStream input)
+  public static elevatorCommands.ElevatorRegisterMessage parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
-  public static elevatorCommands.LampMessage parseDelimitedFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static elevatorCommands.LampMessage parseFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input);
   }
-  public static elevatorCommands.LampMessage parseFrom(
+  public static elevatorCommands.ElevatorRegisterMessage parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -394,7 +318,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(elevatorCommands.LampMessage prototype) {
+  public static Builder newBuilder(elevatorCommands.ElevatorRegisterMessage prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -410,30 +334,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * <pre>
-   * tell a floor to turn on lamp
-   * </pre>
-   *
-   * Protobuf type {@code elevatorCommands.LampMessage}
+   * Protobuf type {@code elevatorCommands.ElevatorRegisterMessage}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:elevatorCommands.LampMessage)
-      elevatorCommands.LampMessageOrBuilder {
+      // @@protoc_insertion_point(builder_implements:elevatorCommands.ElevatorRegisterMessage)
+      elevatorCommands.ElevatorRegisterMessageOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_LampMessage_descriptor;
+      return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_ElevatorRegisterMessage_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_LampMessage_fieldAccessorTable
+      return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_ElevatorRegisterMessage_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              elevatorCommands.LampMessage.class, elevatorCommands.LampMessage.Builder.class);
+              elevatorCommands.ElevatorRegisterMessage.class, elevatorCommands.ElevatorRegisterMessage.Builder.class);
     }
 
-    // Construct using elevatorCommands.LampMessage.newBuilder()
+    // Construct using elevatorCommands.ElevatorRegisterMessage.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -451,15 +371,11 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      elevatorID_ = 0;
+
       floor_ = 0;
 
-      direction_ = 0;
-
-      state_ = 0;
-
       timeStamp_ = "";
-
-      elevatorID_ = 0;
 
       return this;
     }
@@ -467,17 +383,17 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_LampMessage_descriptor;
+      return elevatorCommands.ElevatorCommandProtos.internal_static_elevatorCommands_ElevatorRegisterMessage_descriptor;
     }
 
     @java.lang.Override
-    public elevatorCommands.LampMessage getDefaultInstanceForType() {
-      return elevatorCommands.LampMessage.getDefaultInstance();
+    public elevatorCommands.ElevatorRegisterMessage getDefaultInstanceForType() {
+      return elevatorCommands.ElevatorRegisterMessage.getDefaultInstance();
     }
 
     @java.lang.Override
-    public elevatorCommands.LampMessage build() {
-      elevatorCommands.LampMessage result = buildPartial();
+    public elevatorCommands.ElevatorRegisterMessage build() {
+      elevatorCommands.ElevatorRegisterMessage result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -485,13 +401,11 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public elevatorCommands.LampMessage buildPartial() {
-      elevatorCommands.LampMessage result = new elevatorCommands.LampMessage(this);
-      result.floor_ = floor_;
-      result.direction_ = direction_;
-      result.state_ = state_;
-      result.timeStamp_ = timeStamp_;
+    public elevatorCommands.ElevatorRegisterMessage buildPartial() {
+      elevatorCommands.ElevatorRegisterMessage result = new elevatorCommands.ElevatorRegisterMessage(this);
       result.elevatorID_ = elevatorID_;
+      result.floor_ = floor_;
+      result.timeStamp_ = timeStamp_;
       onBuilt();
       return result;
     }
@@ -530,31 +444,25 @@ private static final long serialVersionUID = 0L;
     }
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof elevatorCommands.LampMessage) {
-        return mergeFrom((elevatorCommands.LampMessage)other);
+      if (other instanceof elevatorCommands.ElevatorRegisterMessage) {
+        return mergeFrom((elevatorCommands.ElevatorRegisterMessage)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(elevatorCommands.LampMessage other) {
-      if (other == elevatorCommands.LampMessage.getDefaultInstance()) return this;
+    public Builder mergeFrom(elevatorCommands.ElevatorRegisterMessage other) {
+      if (other == elevatorCommands.ElevatorRegisterMessage.getDefaultInstance()) return this;
+      if (other.getElevatorID() != 0) {
+        setElevatorID(other.getElevatorID());
+      }
       if (other.getFloor() != 0) {
         setFloor(other.getFloor());
-      }
-      if (other.direction_ != 0) {
-        setDirectionValue(other.getDirectionValue());
-      }
-      if (other.state_ != 0) {
-        setStateValue(other.getStateValue());
       }
       if (!other.getTimeStamp().isEmpty()) {
         timeStamp_ = other.timeStamp_;
         onChanged();
-      }
-      if (other.getElevatorID() != 0) {
-        setElevatorID(other.getElevatorID());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -571,11 +479,11 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      elevatorCommands.LampMessage parsedMessage = null;
+      elevatorCommands.ElevatorRegisterMessage parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (elevatorCommands.LampMessage) e.getUnfinishedMessage();
+        parsedMessage = (elevatorCommands.ElevatorRegisterMessage) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
@@ -585,9 +493,40 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
+    private int elevatorID_ ;
+    /**
+     * <code>uint32 elevatorID = 1;</code>
+     * @return The elevatorID.
+     */
+    @java.lang.Override
+    public int getElevatorID() {
+      return elevatorID_;
+    }
+    /**
+     * <code>uint32 elevatorID = 1;</code>
+     * @param value The elevatorID to set.
+     * @return This builder for chaining.
+     */
+    public Builder setElevatorID(int value) {
+      
+      elevatorID_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>uint32 elevatorID = 1;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearElevatorID() {
+      
+      elevatorID_ = 0;
+      onChanged();
+      return this;
+    }
+
     private int floor_ ;
     /**
-     * <code>uint32 floor = 1;</code>
+     * <code>uint32 floor = 2;</code>
      * @return The floor.
      */
     @java.lang.Override
@@ -595,7 +534,7 @@ private static final long serialVersionUID = 0L;
       return floor_;
     }
     /**
-     * <code>uint32 floor = 1;</code>
+     * <code>uint32 floor = 2;</code>
      * @param value The floor to set.
      * @return This builder for chaining.
      */
@@ -606,7 +545,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>uint32 floor = 1;</code>
+     * <code>uint32 floor = 2;</code>
      * @return This builder for chaining.
      */
     public Builder clearFloor() {
@@ -616,117 +555,9 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private int direction_ = 0;
-    /**
-     * <code>.elevatorCommands.Direction direction = 2;</code>
-     * @return The enum numeric value on the wire for direction.
-     */
-    @java.lang.Override public int getDirectionValue() {
-      return direction_;
-    }
-    /**
-     * <code>.elevatorCommands.Direction direction = 2;</code>
-     * @param value The enum numeric value on the wire for direction to set.
-     * @return This builder for chaining.
-     */
-    public Builder setDirectionValue(int value) {
-      
-      direction_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.elevatorCommands.Direction direction = 2;</code>
-     * @return The direction.
-     */
-    @java.lang.Override
-    public elevatorCommands.Direction getDirection() {
-      @SuppressWarnings("deprecation")
-      elevatorCommands.Direction result = elevatorCommands.Direction.valueOf(direction_);
-      return result == null ? elevatorCommands.Direction.UNRECOGNIZED : result;
-    }
-    /**
-     * <code>.elevatorCommands.Direction direction = 2;</code>
-     * @param value The direction to set.
-     * @return This builder for chaining.
-     */
-    public Builder setDirection(elevatorCommands.Direction value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      
-      direction_ = value.getNumber();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.elevatorCommands.Direction direction = 2;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearDirection() {
-      
-      direction_ = 0;
-      onChanged();
-      return this;
-    }
-
-    private int state_ = 0;
-    /**
-     * <code>.elevatorCommands.LampState state = 3;</code>
-     * @return The enum numeric value on the wire for state.
-     */
-    @java.lang.Override public int getStateValue() {
-      return state_;
-    }
-    /**
-     * <code>.elevatorCommands.LampState state = 3;</code>
-     * @param value The enum numeric value on the wire for state to set.
-     * @return This builder for chaining.
-     */
-    public Builder setStateValue(int value) {
-      
-      state_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.elevatorCommands.LampState state = 3;</code>
-     * @return The state.
-     */
-    @java.lang.Override
-    public elevatorCommands.LampState getState() {
-      @SuppressWarnings("deprecation")
-      elevatorCommands.LampState result = elevatorCommands.LampState.valueOf(state_);
-      return result == null ? elevatorCommands.LampState.UNRECOGNIZED : result;
-    }
-    /**
-     * <code>.elevatorCommands.LampState state = 3;</code>
-     * @param value The state to set.
-     * @return This builder for chaining.
-     */
-    public Builder setState(elevatorCommands.LampState value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      
-      state_ = value.getNumber();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.elevatorCommands.LampState state = 3;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearState() {
-      
-      state_ = 0;
-      onChanged();
-      return this;
-    }
-
     private java.lang.Object timeStamp_ = "";
     /**
-     * <code>string timeStamp = 4;</code>
+     * <code>string timeStamp = 3;</code>
      * @return The timeStamp.
      */
     public java.lang.String getTimeStamp() {
@@ -742,7 +573,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string timeStamp = 4;</code>
+     * <code>string timeStamp = 3;</code>
      * @return The bytes for timeStamp.
      */
     public com.google.protobuf.ByteString
@@ -759,7 +590,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string timeStamp = 4;</code>
+     * <code>string timeStamp = 3;</code>
      * @param value The timeStamp to set.
      * @return This builder for chaining.
      */
@@ -774,7 +605,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string timeStamp = 4;</code>
+     * <code>string timeStamp = 3;</code>
      * @return This builder for chaining.
      */
     public Builder clearTimeStamp() {
@@ -784,7 +615,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string timeStamp = 4;</code>
+     * <code>string timeStamp = 3;</code>
      * @param value The bytes for timeStamp to set.
      * @return This builder for chaining.
      */
@@ -796,37 +627,6 @@ private static final long serialVersionUID = 0L;
   checkByteStringIsUtf8(value);
       
       timeStamp_ = value;
-      onChanged();
-      return this;
-    }
-
-    private int elevatorID_ ;
-    /**
-     * <code>uint32 elevatorID = 5;</code>
-     * @return The elevatorID.
-     */
-    @java.lang.Override
-    public int getElevatorID() {
-      return elevatorID_;
-    }
-    /**
-     * <code>uint32 elevatorID = 5;</code>
-     * @param value The elevatorID to set.
-     * @return This builder for chaining.
-     */
-    public Builder setElevatorID(int value) {
-      
-      elevatorID_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>uint32 elevatorID = 5;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearElevatorID() {
-      
-      elevatorID_ = 0;
       onChanged();
       return this;
     }
@@ -843,41 +643,41 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:elevatorCommands.LampMessage)
+    // @@protoc_insertion_point(builder_scope:elevatorCommands.ElevatorRegisterMessage)
   }
 
-  // @@protoc_insertion_point(class_scope:elevatorCommands.LampMessage)
-  private static final elevatorCommands.LampMessage DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:elevatorCommands.ElevatorRegisterMessage)
+  private static final elevatorCommands.ElevatorRegisterMessage DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new elevatorCommands.LampMessage();
+    DEFAULT_INSTANCE = new elevatorCommands.ElevatorRegisterMessage();
   }
 
-  public static elevatorCommands.LampMessage getDefaultInstance() {
+  public static elevatorCommands.ElevatorRegisterMessage getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<LampMessage>
-      PARSER = new com.google.protobuf.AbstractParser<LampMessage>() {
+  private static final com.google.protobuf.Parser<ElevatorRegisterMessage>
+      PARSER = new com.google.protobuf.AbstractParser<ElevatorRegisterMessage>() {
     @java.lang.Override
-    public LampMessage parsePartialFrom(
+    public ElevatorRegisterMessage parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new LampMessage(input, extensionRegistry);
+      return new ElevatorRegisterMessage(input, extensionRegistry);
     }
   };
 
-  public static com.google.protobuf.Parser<LampMessage> parser() {
+  public static com.google.protobuf.Parser<ElevatorRegisterMessage> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<LampMessage> getParserForType() {
+  public com.google.protobuf.Parser<ElevatorRegisterMessage> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public elevatorCommands.LampMessage getDefaultInstanceForType() {
+  public elevatorCommands.ElevatorRegisterMessage getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

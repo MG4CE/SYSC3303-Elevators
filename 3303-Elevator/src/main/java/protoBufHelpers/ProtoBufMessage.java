@@ -1,7 +1,6 @@
 package protoBufHelpers;
 
 import java.net.DatagramPacket;
-import java.sql.Wrapper;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -9,6 +8,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
+import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
 import elevatorCommands.LampMessage;
@@ -76,6 +76,7 @@ public class ProtoBufMessage {
 			case FLOORSENSOR -> this.message = msg.getFloorSensor();
 			case LAMPMESSAGE -> this.message = msg.getLampMessage();
 			case SCHEDULERDISPATCH -> this.message = msg.getSchedulerDispatch();
+			case REGISTERMESSAGE -> this.message = msg.getRegisterMessage();
 			default -> this.message = null;
 		}
 	}
@@ -127,6 +128,10 @@ public class ProtoBufMessage {
 	public Boolean isLampMessage() {
 		return this.message instanceof LampMessage;
 	}
+	
+	public Boolean isElevatorRegisterMessage() {
+		return this.message instanceof ElevatorRegisterMessage;
+	}
  
 	//TODO: ADD ERROR CHECKING TO CASTS!
 
@@ -176,5 +181,13 @@ public class ProtoBufMessage {
 	 */
 	public LampMessage toLampMessage() {
 		return (LampMessage)(this.message);
+	}
+
+	/*
+	 * Cast message to type to ElevatorRegisterMessage
+	 * @return message of type ElevatorRegisterMessage
+	 */
+	public ElevatorRegisterMessage toElevatorRegisterMessage() {
+		return (ElevatorRegisterMessage)(this.message);
 	}
 }
