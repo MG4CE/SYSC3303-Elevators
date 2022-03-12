@@ -114,7 +114,7 @@ public abstract class UDPHelper {
 	 * @throws IOException
 	 */
 	public DatagramPacket rpcSendMessage(com.google.protobuf.GeneratedMessageV3 message, int port, InetAddress address) throws IOException {
-		LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
+		//LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
 		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
 		
 		// find type of message
@@ -145,7 +145,7 @@ public abstract class UDPHelper {
 	 * @param port to send message to
 	 */
 	public void sendMessage(com.google.protobuf.GeneratedMessageV3 message, int port, InetAddress address) throws IOException {
-		LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
+		//LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
 		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
 		
 		// find type of message

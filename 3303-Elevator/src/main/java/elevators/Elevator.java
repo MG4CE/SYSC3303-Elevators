@@ -166,7 +166,7 @@ public class Elevator extends UDPHelper implements Runnable {
 			ElevatorRegisterMessage regResp = r.toElevatorRegisterMessage();
 			elevatorID = regResp.getElevatorID();
 		} else {
-			LOGGER.severe("Unkownn message type, stopping elevator!");
+			LOGGER.severe("Unknown message type, stopping elevator!");
 			return;
 		}
 		
