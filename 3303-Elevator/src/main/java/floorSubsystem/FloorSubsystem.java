@@ -217,6 +217,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         return ElevatorRequestMessage.newBuilder()
                 .setFloor(floor)
                 .setButton(Button.INTERIOR)
+                .setElevatorID(elevatorId)
                 .setTimeStamp("Monkey Moment")
                 .setRequestID(requestId)
                 .build();
