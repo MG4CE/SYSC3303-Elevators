@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -259,5 +260,20 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
 			}
         }
 		LOGGER.info("Floor Subsytem is complete!");
+    }
+    
+    public static void main(String[] args) {
+    	FloorSubsystem f = null;
+    	try {
+			f = new FloorSubsystem(6969, InetAddress.getLocalHost(), "src\\main\\java\\input\\input.txt");
+		} catch (SocketException e) {
+			e.printStackTrace();
+			return;
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return;
+		}
+    	Thread tF = new Thread(f);
+    	tF.start();
     }
 }
