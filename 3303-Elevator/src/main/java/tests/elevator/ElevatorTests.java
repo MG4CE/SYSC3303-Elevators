@@ -1,4 +1,4 @@
-package tests.elevator;
+package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +21,7 @@ import main.Main;
  * @author kevin
  *
  */
-class ElevatorTests {
+class ElevatorTest {
 	static Main main;
 	static Thread elevator;
 	
@@ -49,7 +49,6 @@ class ElevatorTests {
 	 * @throws InterruptedException
 	 */
 	@Test
-	@Order(1)
 	void testIntialState() throws InterruptedException {
 		Thread.sleep(200);
 		assertTrue(main.e.getEFSM().getCurrentState() instanceof IdleState);
@@ -61,7 +60,6 @@ class ElevatorTests {
 	 * @throws InterruptedException
 	 */
 	@Test
-	@Order(2)
 	void testElevatorRegister() throws IOException, InterruptedException {
 		Thread.sleep(200);
 		main.sendElevatorRegisterMessage(1);
@@ -75,7 +73,6 @@ class ElevatorTests {
 	 * @throws InterruptedException
 	 */
 	@Test
-	@Order(3)
 	void testInitialElevatorFloor() throws IOException, InterruptedException {
 		Thread.sleep(500);
 		assertEquals(0,main.e.getCurrentFloor());
@@ -87,7 +84,6 @@ class ElevatorTests {
 	 * @throws InterruptedException
 	 */
 	@Test
-	@Order(4)
 	void testGoingToNextFloor() throws IOException, InterruptedException {
 		Thread.sleep(700);
 		main.sendSchedulerDispatchMessage(1, 123);
