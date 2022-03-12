@@ -50,6 +50,7 @@ public class Main extends UDPHelper {
 		elevator.start();
 		Thread.sleep(1000);
 		m.sendElevatorRegisterMessage(1);
+		Thread.sleep(2000);
 		m.sendSchedulerDispatchMessage(0, 123);
 		Thread.sleep(5000);
 		m.sendSchedulerDispatchMessage(10, 123);

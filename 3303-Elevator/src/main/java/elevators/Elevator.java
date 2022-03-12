@@ -110,8 +110,8 @@ public class Elevator extends UDPHelper implements Runnable {
 		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 	
-	protected DatagramPacket sendElevatorRequestMessage() throws IOException {
- 		ElevatorArrivedMessage msg = ElevatorArrivedMessage.newBuilder()
+	protected DatagramPacket sendElevatorRegisterMessage() throws IOException {
+		ElevatorRegisterMessage msg = ElevatorRegisterMessage.newBuilder()
 				.setFloor(this.currentFloor)
 				//TODO: ADD TIMESTAMP
 				.build();
@@ -125,7 +125,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	public void run() {
 		DatagramPacket resp = null;
 		try {
-			resp = sendElevatorRequestMessage();
+			resp = sendElevatorRegisterMessage();
 		} catch (IOException e) {
 			e.printStackTrace();
 			LOGGER.severe("No message received, stopping elevator: " + e.getMessage());
