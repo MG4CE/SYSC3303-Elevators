@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -17,9 +15,7 @@ import java.util.logging.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import elevatorCommands.Button;
-import elevatorCommands.Direction;
-import elevatorCommands.ElevatorRequestMessage;
+import elevatorCommands.*;
 import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 
@@ -28,13 +24,12 @@ import protoBufHelpers.UDPHelper;
  * The scheduler will receive internal button commands, and the
  */
 public class FloorSubsystem extends UDPHelper implements Runnable{
-	
+
     private final Logger LOGGER = Logger.getLogger(FloorSubsystem.class.getName());
-    private ArrayList<ElevatorRequestMessage> elevatorRequestList;
+    private ArrayList<ElevatorRequestMessage> elevatorInteriorRequestList;
     private String commandFile;
-    private List<Integer> repliedMessages;
+    private List<Integer> repliedMessages; // request IDs for messages which have been replied to
     private int schedulerPort;
-    private InetAddress schedulerAddress;
 
     /**
      * Create new instance of Floor Subsystem
@@ -42,12 +37,11 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param schedulerPort : The port where the scheduler will be listening for requests
      * @param commandFile : input text file containing the list of commands
      */
-    public FloorSubsystem(int schedulerPort, InetAddress schedulerAddress, String commandFile) throws SocketException {
+    public FloorSubsystem(int schedulerPort, String commandFile, int numElevators) throws SocketException {
         super();
         this.schedulerPort = schedulerPort;
-        this.schedulerAddress = schedulerAddress;
         this.commandFile = commandFile;
-        this.elevatorRequestList = new ArrayList<>();
+        this.elevatorInteriorRequestList = new ArrayList<>();
         this.repliedMessages = new ArrayList<>();
     }
 
@@ -74,16 +68,16 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         Calendar firstLineFileTime = null;
         Calendar currentLineFileTime = null;
         Calendar currentLineAdjustedTime = Calendar.getInstance();
-        
+
         LOGGER.info("Reading commands for " + commandFile);
-        
+
         // Initiate scanner and read the file
         try {
             s = new Scanner(new File(commandFile));
         } catch (FileNotFoundException e) {
-			e.printStackTrace();
-           LOGGER.severe(e.getMessage());
-           System.exit(1);
+            e.printStackTrace();
+            LOGGER.severe(e.getMessage());
+            System.exit(1);
         }
 
         /* Parse each line in the input file
@@ -101,7 +95,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
 
                 // Save the first line of the input files time
                 if(firstLineFileTime == null) {
-                	//currentLineFileTime.add(Calendar.SECOND, 1);
+                    //currentLineFileTime.add(Calendar.SECOND, 1);
                     firstLineFileTime = currentLineFileTime;
                 }
 
@@ -121,7 +115,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 timer.schedule(task,currentLineAdjustedTime.getTime());
 
                 // Add Interior Button request to the list
-                this.elevatorRequestList.add(createInteriorElevatorRequestMessage(interiorFloorButton, requestId));
+                this.elevatorInteriorRequestList.add(createInteriorElevatorRequestMessage(interiorFloorButton, requestId));
                 requestId += 1; // Increment ID for next event
             } catch (Exception e) {
                 e.printStackTrace(System.out);
@@ -129,7 +123,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         }
         // Close the scanner
         s.close();
-        
+
         LOGGER.info("Command file read complete!");
     }
 
@@ -155,13 +149,14 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
 
     /**
      * Sends an elevator request message to the scheduler subsystem
+     * This simulates an exterior elevator button being pressed at any floor
      * @param requestMessage Elevator Request Message to be sent
-     * @throws IOException
      */
     private void sendElevatorRequestMessage(ElevatorRequestMessage requestMessage) throws IOException {
         LOGGER.info("External elevator button pressed on floor " + requestMessage.getFloor() + " with direction " +
                 requestMessage.getDirection() + ", REQUEST_ID=" + requestMessage.getRequestID() + "\n");
-        sendMessage(requestMessage, this.schedulerPort, schedulerAddress);
+
+        sendMessage(requestMessage, this.schedulerPort);
     }
 
     /**
@@ -217,63 +212,70 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         readCommandsFile(timer);
 
         while(true) {
-			DatagramPacket recvMessage = null;
-			try {
-				recvMessage = receiveMessage();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-				LOGGER.severe("Failed to receive data!");
-				System.exit(1);
-			}
-			
-			ProtoBufMessage msg = null;
-			try {
-				msg = new ProtoBufMessage(recvMessage);
-			} catch (InvalidProtocolBufferException e2) {
-				e2.printStackTrace();
-				LOGGER.severe("Failed to convert received to protobuf type!");
-				System.exit(1);
-			} 
-			
-			if (msg.isElevatorArrivedMessage()) {
-	            int reqID = msg.toElevatorArrivedMessage().getRequestID();
-	            if(!repliedMessages.contains(reqID)) {
-	                for(ElevatorRequestMessage req:elevatorRequestList) {
-	                    if (req.getRequestID() == reqID) {
-	                        repliedMessages.add(reqID);
-	                        try {
-								sendMessage(req, schedulerPort, schedulerAddress);
-							} catch (IOException e) {
-								e.printStackTrace();
-								LOGGER.severe("Failed to send button request!");
-								System.exit(1);
-							}
-	                    }
-	                }
-	            }
-			} else {
-				LOGGER.warning("Received unknown command!");
-			}
-			
-			if (elevatorRequestList.isEmpty()) {
-				break;
-			}
+            // Receive UPD message
+            DatagramPacket recvMessage = null;
+            try {
+                recvMessage = receiveMessage();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                LOGGER.severe("Failed to receive data!");
+                System.exit(1);
+            }
+            // Create Protobuf message
+            ProtoBufMessage msg = null;
+            try {
+                msg = new ProtoBufMessage(recvMessage);
+            } catch (InvalidProtocolBufferException e2) {
+                e2.printStackTrace();
+                LOGGER.severe("Failed to convert received to protobuf type!");
+                System.exit(1);
+            }
+
+            /*
+                Received Message Handling
+
+                1. Elevator arrival messages
+                -> trigger directional lamps OFF (for the elevator shaft no longer being used)
+                -> must be replied with an interior button press.
+
+                2. Elevator departure message
+                -> trigger directional lamps ON (for the elevator shaft being used)
+             */
+            if (msg.isElevatorArrivedMessage()) { // 1. Elevator arrival messages
+                ElevatorArrivedMessage arrivedMessage = msg.toElevatorArrivedMessage();
+                LOGGER.info("[Elevator "+ arrivedMessage.getElevatorID() + "] Elevator Lamps OFF");
+
+                int reqID = arrivedMessage.getRequestID();
+                if(!repliedMessages.contains(reqID)) {
+                    for(ElevatorRequestMessage req:elevatorInteriorRequestList) { // Find correct interior request
+                        if (req.getRequestID() == reqID) {
+                            repliedMessages.add(reqID);
+                            try {
+                                sendMessage(req, schedulerPort); // Send Interior button request
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                LOGGER.severe("Failed to send button request!");
+                                System.exit(1);
+                            }
+                        }
+                    }
+                }
+            } else if (msg.isElevatorDepartureMessage()) { // 2. Elevator departure messages
+                ElevatorDepartureMessage departureMessage = msg.toElevatorDepartureMessage();
+                if (departureMessage.getDirection() == Direction.UP){
+                    LOGGER.info("[Elevator "+ departureMessage.getElevatorID() + "] Up Lamp ON");
+                } else {
+                    LOGGER.info("[Elevator "+ departureMessage.getElevatorID() + "] Down Lamp ON");
+                }
+
+            } else {
+                LOGGER.warning("Received unknown command!");
+            }
+
+            if (elevatorInteriorRequestList.isEmpty()) {
+                break;
+            }
         }
-		LOGGER.info("Floor Subsytem is complete!");
-    }
-    
-    public static void main(String[] args) {
-    	FloorSubsystem f = null;
-    	try {
-			f = new FloorSubsystem(6969, InetAddress.getLocalHost(), "src\\main\\java\\input\\input.txt");
-		} catch (SocketException e) {
-			e.printStackTrace();
-			return;
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return;
-		}
-    	Thread tF = new Thread(f);
-    	tF.start();
+        LOGGER.info("Floor Subsystem is complete!");
     }
 }
