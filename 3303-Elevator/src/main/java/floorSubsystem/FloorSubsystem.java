@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -30,6 +32,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     private String commandFile;
     private List<Integer> repliedMessages; // request IDs for messages which have been replied to
     private int schedulerPort;
+    private InetAddress schedulerAddress;
 
     /**
      * Create new instance of Floor Subsystem
@@ -37,12 +40,13 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param schedulerPort : The port where the scheduler will be listening for requests
      * @param commandFile : input text file containing the list of commands
      */
-    public FloorSubsystem(int schedulerPort, String commandFile, int numElevators) throws SocketException {
+    public FloorSubsystem(int schedulerPort, String commandFile, InetAddress schedulerAddress) throws SocketException {
         super();
         this.schedulerPort = schedulerPort;
         this.commandFile = commandFile;
         this.elevatorInteriorRequestList = new ArrayList<>();
         this.repliedMessages = new ArrayList<>();
+        this.schedulerAddress = schedulerAddress;
     }
 
     /**
@@ -156,7 +160,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         LOGGER.info("External elevator button pressed on floor " + requestMessage.getFloor() + " with direction " +
                 requestMessage.getDirection() + ", REQUEST_ID=" + requestMessage.getRequestID() + "\n");
 
-        sendMessage(requestMessage, this.schedulerPort);
+        sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
     }
 
     /**
@@ -251,7 +255,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                         if (req.getRequestID() == reqID) {
                             repliedMessages.add(reqID);
                             try {
-                                sendMessage(req, schedulerPort); // Send Interior button request
+                                sendMessage(req, schedulerPort, this.schedulerAddress); // Send Interior button request
                             } catch (IOException e) {
                                 e.printStackTrace();
                                 LOGGER.severe("Failed to send button request!");
@@ -277,5 +281,15 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
             }
         }
         LOGGER.info("Floor Subsystem is complete!");
+    }
+
+    public static void main(String[] args) throws SocketException, UnknownHostException {
+        InetAddress schedulerAddress = InetAddress.getLocalHost();
+        int schedulerPort = 6969;
+        String commandFile = "src/main/java/input/input.txt";
+
+        Thread floorThread = new Thread (new FloorSubsystem(schedulerPort, commandFile, schedulerAddress));
+
+        floorThread.start();
     }
 }
