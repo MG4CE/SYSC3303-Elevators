@@ -35,15 +35,19 @@ public class Scheduler extends UDPHelper {
 		listenerThread = new Thread(new Runnable() {
 			public void run() {
 				while (isRunning) {
+					DatagramPacket msg = null;
 					try {
-						DatagramPacket msg = receiveMessage();
+						msg = receiveMessage();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+						LOGGER.severe("Failed to receive data from socket, stopping!");
+						isRunning = false;
+						schedulerThread.interrupt();
+					}
+					if(!listenerThread.isInterrupted() && msg != null) {
 						synchronized (messageQueue) {
 							messageQueue.add(msg);
 						}
-					} catch (IOException e1) {
-						e1.printStackTrace();
-						LOGGER.severe("Failed to receive data from socket!");
-						System.exit(1);
 					}
 
 				}
@@ -64,6 +68,10 @@ public class Scheduler extends UDPHelper {
 								e.printStackTrace();
 							}
 						}
+	    				
+	    				if(schedulerThread.isInterrupted() || !isRunning) {
+	    					break;
+	    				}
 	    				
 	    				DatagramPacket packet = messageQueue.remove(0);
 	    				ProtoBufMessage msg = null;
@@ -203,9 +211,11 @@ public class Scheduler extends UDPHelper {
     	return score;
     }
     
-    //this not a great way of stopping as it does not yet stop properly, come up with another way
     public void stopScheduler() {
     	isRunning = false;
+    	this.closePbSocket();
+    	listenerThread.interrupt();
+    	schedulerThread.interrupt();
     }
 
 	public static void main(String[] args) {
