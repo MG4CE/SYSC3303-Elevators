@@ -46,7 +46,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 		this.running = true;
 	}
-
+	
 	/*
 	 * Send a UDP message indicating elevator had internal button pressed
 	 * @param floor number of button pressed
@@ -254,5 +254,13 @@ public class Elevator extends UDPHelper implements Runnable {
 			return true;
 		}
 		return false;
+	}
+	
+	public InetAddress getSchedulerAddress() {
+		return this.schedulerAddress;
+	}
+	
+	public void setSchedulerAddress(InetAddress address) {
+		this.schedulerAddress = address;
 	}
 }

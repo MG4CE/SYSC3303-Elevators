@@ -80,6 +80,7 @@ public class Scheduler extends UDPHelper {
 	    				}
 	    				
 	    				DatagramPacket packet = messageQueue.remove(0);
+	    				
 	    				ProtoBufMessage msg = null;
 						try {
 							msg = new ProtoBufMessage(packet);
@@ -120,6 +121,12 @@ public class Scheduler extends UDPHelper {
 	    				} else if(msg.isElevatorRegisterMessage()) {
 							ElevatorRegisterMessage message = msg.toElevatorRegisterMessage();
 	    					elevators.add(new Elevator(packet.getPort(), elevatorIDCounter, message.getFloor(), packet.getAddress()));
+	    					try {
+								sendElevatorRegisterMessage(elevatorIDCounter, packet.getPort(), packet.getAddress());
+							} catch (IOException e) {
+								LOGGER.severe("Failed to send repsonse to elevator register message: " + e.getMessage());
+								stopScheduler();
+							}
 	    					elevatorIDCounter++;
 	    				} else if(msg.isElevatorArrivedMessage()) {
 							ElevatorArrivedMessage message = msg.toElevatorArrivedMessage();
@@ -191,7 +198,15 @@ public class Scheduler extends UDPHelper {
 
 		sendMessage(dispatchMsg, port, address);
 	}
+	
+	private void sendElevatorRegisterMessage(int elevatorID, int port, InetAddress address) throws IOException {
+		ElevatorRegisterMessage msg = ElevatorRegisterMessage.newBuilder()
+				.setElevatorID(elevatorID)
+				.build();
 
+		sendMessage(msg, port, address);
+	}
+	
     public void assignBestElevator(ElevatorRequest req) {
     	if(elevators.size() == 1) {
     		elevators.get(0).addDestination(req);

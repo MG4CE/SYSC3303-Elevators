@@ -5,6 +5,7 @@ import elevators.Elevator;
 import protoBufHelpers.UDPHelper;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.SocketException;
 
 public class Main extends UDPHelper {
@@ -20,11 +21,12 @@ public class Main extends UDPHelper {
 				// TODO: SET ELEVATOR ID
 				//TODO ADD TIMESTAMP
 				.build();
-		sendMessage(msg, 24);
+		sendMessage(msg, 24, InetAddress.getLocalHost());
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Main m = new Main(23);
+		m.e.setSchedulerAddress(InetAddress.getLocalHost());
 		Thread elevator = new Thread(m.e);
 		elevator.start();
 		m.sendSchedulerDispatchMessage(0, 123);
