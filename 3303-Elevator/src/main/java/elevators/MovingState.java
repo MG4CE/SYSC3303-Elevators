@@ -37,7 +37,6 @@ public class MovingState implements State{
 	public State nextState(ProtoBufMessage message) throws IOException {
 		if (message == null) { // internal motor triggering FSM (floor change!)
 			if(elevator.isElevatorArriving(true)) {
-				System.out.println("moving to arriving");
 				return new ArrivingState(elevator);
 			} else {
 				return this; // still moving to destination
