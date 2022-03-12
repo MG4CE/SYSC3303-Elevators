@@ -99,19 +99,16 @@ public class Scheduler extends UDPHelper {
 	    						floorSubsystemAddress = packet.getAddress();
 	    					}
 	    					
-	    					if(request.getButton().equals(Button.INTERIOR)) {
-	    						for(Elevator elevator:elevators) {
-	    							if(request.getElevatorID() == elevator.getElevatorID()) {
-	    								elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection()));
-										if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
-											try {
-												sendSchedulerDispatchMessage(elevator.popTopRequest().getFloor(), request.getRequestID(), request.getDirection(), request.getElevatorID(), elevator.getAddress());
-											} catch (IOException e) {
-												e.printStackTrace();
-											}
-										}
-	    							}
-	    						}
+	    					if(request.getButton().equals(Button.EXTERIOR)) {
+	    						ElevatorRequest eReq = new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(); 
+	    						Elevator elevator = assignBestElevator(eReq);
+								if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
+									try {
+										sendSchedulerDispatchMessage(elevator.popTopRequest().getFloor(), request.getRequestID(), request.getDirection(), request.getElevatorID(), elevator.getAddress());
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
 	    					} else {
 								//Exterior button press means we need to add the floor to the queue
 								for(Elevator elevator:elevators) {
@@ -211,9 +208,11 @@ public class Scheduler extends UDPHelper {
 		sendMessage(msg, port, address);
 	}
 	
-    public void assignBestElevator(ElevatorRequest req) {
+    public Elevator assignBestElevator(ElevatorRequest req) {
+    	Elevator selectedElevator = null;
     	if(elevators.size() == 1) {
     		elevators.get(0).addDestination(req);
+    		selectedElevator = elevators.get(0);
     	} else {
     		Elevator best = null;
     		Iterator<Elevator> iter = elevators.iterator();
@@ -223,7 +222,10 @@ public class Scheduler extends UDPHelper {
 	    			best = elevator;
 	    		}
     		}
+    		best.addDestination(req);
+    		selectedElevator = best;
     	}
+    	return selectedElevator;
     }
     
     //TODO: Incorporate the direction of the request as a factor in score
