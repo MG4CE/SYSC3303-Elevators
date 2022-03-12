@@ -3,6 +3,7 @@ package main;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import elevators.Elevator;
+import floorSubsystem.FloorSubsystem;
 import protoBufHelpers.UDPHelper;
 
 import java.io.IOException;
