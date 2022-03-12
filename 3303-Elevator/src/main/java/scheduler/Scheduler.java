@@ -3,6 +3,7 @@ package scheduler;
 import elevatorCommands.*;
 import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
+import scheduler.Elevator.ElevatorState;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -21,6 +22,7 @@ public class Scheduler extends UDPHelper {
     private int elevatorIDCounter;
     private Thread schedulerThread, listenerThread;
     private Boolean isRunning;
+    private int floorSubsystemPort;
     
     public Scheduler(int listenPort, int numFloors) throws SocketException {
         super(listenPort);
@@ -29,6 +31,7 @@ public class Scheduler extends UDPHelper {
         this.elevators = new ArrayList<>();
         this.elevatorIDCounter = 1;
         this.isRunning = true;
+        this.floorSubsystemPort = -1;
     }
     
 	public void startListenerThread() {
@@ -84,6 +87,11 @@ public class Scheduler extends UDPHelper {
 	    				
 	    				if(msg.isElevatorRequestMessage()) {
 	    					ElevatorRequestMessage request = msg.toElevatorRequestMessage();
+	    					
+	    					if (floorSubsystemPort == -1) {
+	    						floorSubsystemPort = packet.getPort();
+	    					}
+	    					
 	    					if(request.getButton().equals(Button.INTERIOR)) {
 	    						for(Elevator elevator:elevators) {
 	    							if(request.getElevatorID() == elevator.getElevatorID()) {
@@ -106,22 +114,27 @@ public class Scheduler extends UDPHelper {
 								}
 							}
 	    				} else if(msg.isElevatorRegisterMessage()) {
-							ElevatorRegisterMessage request = msg.toElevatorRegisterMessage();
-	    					elevators.add(new Elevator(packet.getPort(), elevatorIDCounter, request.getFloor()));
+							ElevatorRegisterMessage message = msg.toElevatorRegisterMessage();
+	    					elevators.add(new Elevator(packet.getPort(), elevatorIDCounter, message.getFloor()));
 	    					elevatorIDCounter++;
 	    				} else if(msg.isElevatorArrivedMessage()) {
-							ElevatorArrivedMessage request = msg.toElevatorArrivedMessage();
-							//forward to floorsubsystem
+							ElevatorArrivedMessage message = msg.toElevatorArrivedMessage();
+							try {
+								sendMessage(message, floorSubsystemPort);
+							} catch (IOException e) {
+								LOGGER.severe("Failed to forward elevator arrived message: " + e.getMessage());
+							}
 							for(Elevator elevator:elevators) {
-								if(request.getElevatorID() == elevator.getElevatorID()) {
+								if(message.getElevatorID() == elevator.getElevatorID()) {
 									try {
-										sendLampMessage(request.getFloor(), 0, elevator.getlDirection(), request.getElevatorID());
+										sendLampMessage(message.getFloor(), floorSubsystemPort, elevator.getlDirection(), message.getElevatorID());
 									} catch (IOException e) {
 										e.printStackTrace();
 									}
+									elevator.setState(ElevatorState.STOPPED);
 									if (!elevator.getFloorDestinations().isEmpty()) {
 										try {
-											sendSchedulerDispatchMessage(elevator.popTopRequest().getFloor(), elevator.getPort(), elevator.getlDirection(), elevator.getElevatorID(), request.getTimeStamp());
+											sendSchedulerDispatchMessage(elevator.popTopRequest().getFloor(), elevator.getPort(), elevator.getlDirection(), elevator.getElevatorID(), message.getTimeStamp());
 										} catch (IOException e) {
 											e.printStackTrace();
 										}
@@ -131,8 +144,12 @@ public class Scheduler extends UDPHelper {
 								}
 							}
 						} else if(msg.isElevatorDepartureMessage()) {
-							ElevatorDepartureMessage request = msg.toElevatorDepartureMessage();
-							//TODO: just make a state variable tracking if moving or stopped at a floor for elevator update it for arrived up to as well
+							ElevatorDepartureMessage message = msg.toElevatorDepartureMessage();
+							for(Elevator elevator:elevators) {
+								if(message.getElevatorID() == elevator.getElevatorID()) {
+									elevator.setState(ElevatorState.MOVING);
+								}
+							}
 						} else if(msg.isFloorSensorMessage()) {
 							FloorSensorMessage request = msg.toFloorSensorMessage();
 							for(Elevator elevator:elevators) {

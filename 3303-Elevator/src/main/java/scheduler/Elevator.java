@@ -6,11 +6,18 @@ import java.util.Collections;
 import elevatorCommands.Direction;
 
 public class Elevator {
+	
+	public enum ElevatorState {
+		MOVING,
+		STOPPED
+	}
+	
 	private int port;
 	private int currentFloor;
 	private int elevatorID;
 	private ArrayList<ElevatorRequest> floorDestinations;
 	private Direction currentDirection;
+	private ElevatorState state;
 	
 	public Elevator(int port, int elevatorID, int currentFloor) {
 		this.port = port;
@@ -18,6 +25,7 @@ public class Elevator {
 		this.currentFloor = currentFloor;
 		this.floorDestinations = new ArrayList<>();
 		this.currentDirection = Direction.UP;
+		this.state = ElevatorState.STOPPED;
 	}
 	
 	//TODO: Incorporate the direction of the request as a factor when scheduling destinations
@@ -60,6 +68,14 @@ public class Elevator {
 	        }
 	    }
 	    floorDestinations = seek_sequence;
+	}
+	
+	public ElevatorState getState() {
+		return this.state;
+	}
+	
+	public void setState(ElevatorState state) {
+		this.state = state;
 	}
 	
 	public int getPort() {
