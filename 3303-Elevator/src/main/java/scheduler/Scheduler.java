@@ -138,11 +138,6 @@ public class Scheduler extends UDPHelper {
 							}
 							for(Elevator elevator:elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
-									try {
-										sendLampMessage(message.getFloor(), floorSubsystemPort, elevator.getlDirection(), message.getElevatorID(), floorSubsystemAddress);
-									} catch (IOException e) {
-										e.printStackTrace();
-									}
 									elevator.setState(ElevatorState.STOPPED);
 									elevator.popTopRequest();
 									if (!elevator.getFloorDestinations().isEmpty()){
@@ -161,8 +156,7 @@ public class Scheduler extends UDPHelper {
 							ElevatorDepartureMessage message = msg.toElevatorDepartureMessage();
 							try {
 								sendMessage(message, floorSubsystemPort, floorSubsystemAddress);
-							}
-							catch (IOException e) {
+							} catch (IOException e) {
 								e.printStackTrace();
 							}
 							for(Elevator elevator:elevators) {
