@@ -15,17 +15,37 @@ import java.util.logging.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+/**
+ * The Scheduler class will be running one of the main threads in the system.
+ * It will be responsible for facilitating the sending of messages to and from the elevator
+ * and the floor subsystem
+ */
 public class Scheduler extends UDPHelper {
+	//A logger for all the message logs
     private final Logger LOGGER = Logger.getLogger(Scheduler.class.getName());
+	//The number of floors
     private int numFloors;
+	//A queue of the messages
     private ArrayList<DatagramPacket> messageQueue;
+	//The elevator control list which represents the changes to the actual elevators
     private ArrayList<Elevator> elevators;
+	//The counter for the elevator ids
     private int elevatorIDCounter;
+	//the threads that will be running
     private Thread schedulerThread, listenerThread;
+	//Make sure the threads are running
     private Boolean isRunning;
+	//The floor subsystem port
     private int floorSubsystemPort;
+	//The InetAddress for the floor subsystem
     private InetAddress floorSubsystemAddress;
-    
+
+	/**
+	 * The constructor for the Scheduler
+	 * @param listenPort the port to listen to
+	 * @param numFloors the number of floors
+	 * @throws SocketException an exception with UDP
+	 */
     public Scheduler(int listenPort, int numFloors) throws SocketException {
         super(listenPort);
         this.numFloors = numFloors;
@@ -36,7 +56,11 @@ public class Scheduler extends UDPHelper {
         this.floorSubsystemPort = -1;
         this.floorSubsystemAddress = null;
     }
-    
+
+	/**
+	 * The thread responsible for handling all incoming messages
+	 * and adding the to a queue of messages
+	 */
 	public void startListenerThread() {
 		listenerThread = new Thread(new Runnable() {
 			public void run() {
@@ -52,6 +76,7 @@ public class Scheduler extends UDPHelper {
 					}
 					if(!listenerThread.isInterrupted() && msg != null) {
 						synchronized (messageQueue) {
+							//Add the messages and notify that a message was added
 							messageQueue.add(msg);
 							messageQueue.notifyAll();
 						}
@@ -63,6 +88,10 @@ public class Scheduler extends UDPHelper {
 		listenerThread.start();
 	}
 
+	/**
+	 * The thread responsible for taking in all types of appropriate messages in the queue and dealing
+	 * with them accordingly.
+	 */
 	public void startSchedulingThread() {
     	schedulerThread = new Thread(new Runnable() {
     		public void run() {
@@ -112,7 +141,7 @@ public class Scheduler extends UDPHelper {
 								}
 	    					} else {
 								//Exterior button press means we need to add the floor to the queue
-								for(Elevator elevator:elevators) {
+								for(Elevator elevator : elevators) {
 									if(request.getElevatorID() == elevator.getElevatorID()) {
 										elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection()));
 									}
@@ -136,7 +165,7 @@ public class Scheduler extends UDPHelper {
 							} catch (IOException e) {
 								LOGGER.severe("Failed to forward elevator arrived message: " + e.getMessage());
 							}
-							for(Elevator elevator:elevators) {
+							for(Elevator elevator : elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
 									elevator.setState(ElevatorState.STOPPED);
 									elevator.popTopRequest();
@@ -159,14 +188,14 @@ public class Scheduler extends UDPHelper {
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
-							for(Elevator elevator:elevators) {
+							for(Elevator elevator : elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
 									elevator.setState(ElevatorState.MOVING);
 								}
 							}
 						} else if(msg.isFloorSensorMessage()) {
 							FloorSensorMessage request = msg.toFloorSensorMessage();
-							for(Elevator elevator:elevators) {
+							for(Elevator elevator : elevators) {
 								if(request.getElevatorID() == elevator.getElevatorID()) {
 									elevator.setCurrentFloor(request.getFloor());
 								}
@@ -179,7 +208,15 @@ public class Scheduler extends UDPHelper {
 		schedulerThread.start();
 	}
 
-	//if we have an elevator departing then we need to set the lamp
+	/**
+	 * if we have an elevator departing then we need to set the lamp
+	 * @param floor the floor the lamp is related to
+	 * @param port the port
+	 * @param direction the direction of the lamp messages
+	 * @param elevatorID the id of the elevator related to the lamp
+	 * @param address the InetAddress
+	 * @throws IOException an exception for UDP
+	 */
 	private void sendLampMessage(int floor, int port, Direction direction, int elevatorID, InetAddress address) throws IOException {
 		LampMessage lampMsg = LampMessage.newBuilder()
 				.setFloor(floor)
@@ -190,8 +227,16 @@ public class Scheduler extends UDPHelper {
 		sendMessage(lampMsg, port, address);
 	}
 
-	//when an elevator arrives send another dispatch message, and another message is in queue
-	//If the button pressed has highest priority
+	/**
+	 * when an elevator arrives send another dispatch message, and another message is in queue
+	 * 	If the button pressed has the highest priority send a dispatch
+	 * @param destFloor the destination floor
+	 * @param port the port to send to
+	 * @param direction the direction of the elevator
+	 * @param elevatorID the elevator to which to send the command
+	 * @param address The InetAddress
+	 * @throws IOException an exception with UDP
+	 */
 	private void sendSchedulerDispatchMessage(int destFloor, int port, Direction direction, int elevatorID, InetAddress address) throws IOException {
 		LOGGER.info("Dispatching elevator " + Integer.toString(elevatorID) + " to floor " +
 				Integer.toString(destFloor));
@@ -202,7 +247,14 @@ public class Scheduler extends UDPHelper {
 
 		sendMessage(dispatchMsg, port, address);
 	}
-	
+
+	/**
+	 * Send a message saying a that an elevator has been registered
+	 * @param elevatorID the id of the registered elevator
+	 * @param port the port of the elevator
+	 * @param address the InetAddress
+	 * @throws IOException an exception with UDP
+	 */
 	private void sendElevatorRegisterMessage(int elevatorID, int port, InetAddress address) throws IOException {
 		ElevatorRegisterMessage msg = ElevatorRegisterMessage.newBuilder()
 				.setElevatorID(elevatorID)
@@ -210,7 +262,12 @@ public class Scheduler extends UDPHelper {
 
 		sendMessage(msg, port, address);
 	}
-	
+
+	/**
+	 * Assign the best elevator for the a request
+	 * @param req the request
+	 * @return the best elevator
+	 */
     public Elevator assignBestElevator(ElevatorRequest req) {
     	Elevator selectedElevator = null;
     	if(elevators.size() == 1) {
@@ -230,9 +287,15 @@ public class Scheduler extends UDPHelper {
     	}
     	return selectedElevator;
     }
-    
-    //TODO: Incorporate the direction of the request as a factor in score
-    private Boolean compareElevator(Elevator e1, Elevator e2, ElevatorRequest request) {
+
+	/**
+	 * Compare the elevator requests and their score
+	 * @param e1 the first elevator
+	 * @param e2 the second elevator
+	 * @param request the request
+	 * @return whether elevator one preferred over two
+	 */
+	private Boolean compareElevator(Elevator e1, Elevator e2, ElevatorRequest request) {
     	int e1Score = evaluateDirectionalScore(e1, request) - e1.getNumDestinations();
     	int e2Score = evaluateDirectionalScore(e2, request) - e2.getNumDestinations();
     	if (e1Score > e2Score) {
@@ -240,9 +303,14 @@ public class Scheduler extends UDPHelper {
     	}
     	return false;
     }
-    
-    //TODO: Incorporate the direction of the request as a factor in score
-    private int evaluateDirectionalScore(Elevator e, ElevatorRequest request) {
+
+	/**
+	 * Evaluate the request priority using the direction as a factor
+	 * @param e the elevator
+	 * @param request the new request
+	 * @return the score returned
+	 */
+	private int evaluateDirectionalScore(Elevator e, ElevatorRequest request) {
     	int score = e.getCurrentFloor() - request.getFloor();
     	Direction direction = e.getlDirection();
     	if (score < 0 && direction == Direction.UP) {
@@ -254,14 +322,21 @@ public class Scheduler extends UDPHelper {
     	}
     	return score;
     }
-    
-    public void stopScheduler() {
+
+	/**
+	 * Stop all of the threads
+	 */
+	public void stopScheduler() {
     	isRunning = false;
     	this.closePbSocket();
     	listenerThread.interrupt();
     	schedulerThread.interrupt();
     }
 
+	/**
+	 * The main method for running the threads
+	 * @param args
+	 */
 	public static void main(String[] args) {
 	    Logger LOGGER = Logger.getLogger("Scheduler Main");
 		Scheduler s = null;

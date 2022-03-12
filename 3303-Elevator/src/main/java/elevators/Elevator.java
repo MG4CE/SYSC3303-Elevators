@@ -242,7 +242,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	/**
 	 * Simulates a button press from within the elevator
 	 * 
-	 * @param destination floor (i.e. button pressed)
+	 * @param floor (i.e. button pressed)
 	 */
 	public void pushElevatorButton(int floor) throws IOException {
 		System.out.printf("Elevator %d: Had button %d pressed\n", this.elevatorID, floor);
