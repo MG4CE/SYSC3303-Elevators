@@ -140,19 +140,22 @@ public class Scheduler extends UDPHelper {
 									elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 								}
 	    					} else {
-								System.out.println("Internal button received " + request.getRequestID() + " floor " + request.getFloor() + " elevator " + request.getElevatorID());
+								//System.out.println("Internal button received " + request.getRequestID() + " floor " + request.getFloor() + " elevator " + request.getElevatorID());
 								for(Elevator elevator : elevators) {
 									if(request.getElevatorID() == elevator.getElevatorID()) {
-										System.out.println("add internal button to elevator");
+										//System.out.println("add internal button to elevator");
 										elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection()));
 										if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
-											System.out.println("dispatch");
-											try {
-												sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
-											} catch (IOException e) {
-												e.printStackTrace();
+											if(elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
+												try {
+													sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
+												} catch (IOException e) {
+													e.printStackTrace();
+												}
+												elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
+											} else {
+												elevator.popTopRequest();
 											}
-											elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 										}
 									}
 								}
