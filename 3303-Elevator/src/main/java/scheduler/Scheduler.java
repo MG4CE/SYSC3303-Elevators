@@ -159,6 +159,12 @@ public class Scheduler extends UDPHelper {
 							}
 						} else if(msg.isElevatorDepartureMessage()) {
 							ElevatorDepartureMessage message = msg.toElevatorDepartureMessage();
+							try {
+								sendMessage(message, floorSubsystemPort, floorSubsystemAddress);
+							}
+							catch (IOException e) {
+								e.printStackTrace();
+							}
 							for(Elevator elevator:elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
 									elevator.setState(ElevatorState.MOVING);
