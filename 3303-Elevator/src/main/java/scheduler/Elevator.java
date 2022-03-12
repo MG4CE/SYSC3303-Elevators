@@ -1,5 +1,6 @@
 package scheduler;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -13,14 +14,16 @@ public class Elevator {
 	}
 	
 	private int port;
+	private InetAddress address;
 	private int currentFloor;
 	private int elevatorID;
 	private ArrayList<ElevatorRequest> floorDestinations;
 	private Direction currentDirection;
 	private ElevatorState state;
 	
-	public Elevator(int port, int elevatorID, int currentFloor) {
+	public Elevator(int port, int elevatorID, int currentFloor, InetAddress address) {
 		this.port = port;
+		this.address = address;
 		this.elevatorID = elevatorID;
 		this.currentFloor = currentFloor;
 		this.floorDestinations = new ArrayList<>();
@@ -124,8 +127,12 @@ public class Elevator {
 		return this.floorDestinations.size();
 	}
 	
+	public InetAddress getAddress() {
+		return this.address;
+	}
+	
 	public static void main(String[] args) {
-	    Elevator e = new Elevator(123, 1, 4);
+	    Elevator e = new Elevator(123, 1, 4, null);
 	    e.addDestination(new ElevatorRequest(1, 999, Direction.UP));
 	    e.addDestination(new ElevatorRequest(2, 999, Direction.DOWN));
 	    e.addDestination(new ElevatorRequest(3, 999, Direction.DOWN));

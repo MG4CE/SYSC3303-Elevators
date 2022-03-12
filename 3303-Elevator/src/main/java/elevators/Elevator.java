@@ -2,6 +2,7 @@ package elevators;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.logging.Logger;
 
@@ -22,6 +23,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	protected final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
 	
 	private int schedulerPort;
+	private InetAddress schedulerAddress;
 	private int currentFloor;
 	private int destinationFloor;
 	private Direction currentDirection;
@@ -37,6 +39,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	public Elevator(int schedulerPort, int receivePort) throws SocketException {
 		super(receivePort); //takes in a receive port just for testing
 		this.schedulerPort = schedulerPort;
+		this.schedulerAddress = null;
 		this.currentFloor = 0;
 		this.elevatorID = 0;
 		this.elevatorMotor = new Motor(this);
@@ -56,7 +59,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setDirection(Direction.STATIONARY)
 				//TODO ADD TIMESTAMP
 				.build();
-		sendMessage(msg, schedulerPort);
+		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
 	/*
@@ -68,7 +71,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setElevatorID(this.elevatorID)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg, schedulerPort);
+		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
 	/*
@@ -81,7 +84,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setElevatorID(this.elevatorID)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg, schedulerPort);
+		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
 	/*
@@ -93,7 +96,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setFloor(this.currentFloor)
 				//TODO: ADD TIMESTAMP
 				.build();
-		sendMessage(msg, schedulerPort);
+		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 	
 	protected DatagramPacket sendElevatorRequestMessage() throws IOException {
@@ -101,7 +104,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.setFloor(this.currentFloor)
 				//TODO: ADD TIMESTAMP
 				.build();
-		return rpcSendMessage(msg, schedulerPort);
+		return rpcSendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
 	/*
@@ -112,14 +115,10 @@ public class Elevator extends UDPHelper implements Runnable {
 		DatagramPacket resp = null;
 		try {
 			resp = sendElevatorRequestMessage();
+			schedulerAddress = resp.getAddress();
 		} catch (IOException e) {
 			e.printStackTrace();
-			LOGGER.severe(e.getMessage());
-			return;
-		}
-		
-		if (resp == null) {
-			LOGGER.severe("No message received, stopping elevator!!");
+			LOGGER.severe("No message received, stopping elevator: " + e.getMessage());
 			return;
 		}
 		
