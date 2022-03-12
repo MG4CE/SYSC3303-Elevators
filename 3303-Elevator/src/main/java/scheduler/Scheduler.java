@@ -102,12 +102,13 @@ public class Scheduler extends UDPHelper {
 	    					if(request.getButton().equals(Button.EXTERIOR)) {
 	    						ElevatorRequest eReq = new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection());
 	    						Elevator elevator = assignBestElevator(eReq);
-								if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
+								if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
 									try {
-										sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), request.getElevatorID(), elevator.getAddress());
+										sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.getElevatorID(), elevator.getAddress());
 									} catch (IOException e) {
 										e.printStackTrace();
 									}
+									elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 								}
 	    					} else {
 								//Exterior button press means we need to add the floor to the queue
@@ -150,6 +151,7 @@ public class Scheduler extends UDPHelper {
 										} catch (IOException e) {
 											e.printStackTrace();
 										}
+										elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 									} else {
 										break; 
 									}
@@ -191,7 +193,7 @@ public class Scheduler extends UDPHelper {
 	//when an elevator arrives send another dispatch message, and another message is in queue
 	//If the button pressed has highest priority
 	private void sendSchedulerDispatchMessage(int destFloor, int port, Direction direction, int elevatorID, InetAddress address) throws IOException {
-		LOGGER.info("Dispatching elevator " + Integer.toString(elevatorID) + "to floor " +
+		LOGGER.info("Dispatching elevator " + Integer.toString(elevatorID) + " to floor " +
 				Integer.toString(destFloor));
 		SchedulerDispatchMessage dispatchMsg = SchedulerDispatchMessage.newBuilder()
 				.setDestFloor(destFloor)

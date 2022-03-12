@@ -29,7 +29,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	private int currentFloor;
 	private int destinationFloor;
 	private Direction currentDirection;
-	private int elevatorID;
+	protected int elevatorID;
 	
 	protected Motor elevatorMotor;
 	protected StateMachine elevatorFSM;

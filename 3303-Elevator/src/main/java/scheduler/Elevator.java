@@ -20,6 +20,7 @@ public class Elevator {
 	private ArrayList<ElevatorRequest> floorDestinations;
 	private Direction currentDirection;
 	private ElevatorState state;
+	private int currentDestinationFloor;
 	
 	public Elevator(int port, int elevatorID, int currentFloor, InetAddress address) {
 		this.port = port;
@@ -29,6 +30,7 @@ public class Elevator {
 		this.floorDestinations = new ArrayList<>();
 		this.currentDirection = Direction.UP;
 		this.state = ElevatorState.STOPPED;
+		this.currentDestinationFloor = -1;
 	}
 	
 	//TODO: Incorporate the direction of the request as a factor when scheduling destinations
@@ -134,6 +136,14 @@ public class Elevator {
 
 	public ElevatorRequest peekTopRequest() {
 		return this.floorDestinations.get(0);
+	}
+	
+	public void setCurrentDestination(int destination) {
+		this.currentDestinationFloor = destination;
+	}
+	
+	public int getCurrentDestination() {
+		return this.currentDestinationFloor;
 	}
 	
 	public static void main(String[] args) {

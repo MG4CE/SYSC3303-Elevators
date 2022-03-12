@@ -47,6 +47,7 @@ public class BoardingState extends TimerTask implements State {
 		} else if(message.isSchedulerDispatchMessage()) { // if message from scheduler
 			SchedulerDispatchMessage msg = message.toSchedulerDispatchMessage();
 			if(msg.getDestFloor() == elevator.getCurrentFloor()) {
+				System.out.printf("Elevator %d: Dispatched to floor current floor %d\n", elevator.elevatorID, elevator.getCurrentFloor());
 				return this; // stay in current state
 			} else {
 				elevator.setDestinationFloor(msg.getDestFloor());
