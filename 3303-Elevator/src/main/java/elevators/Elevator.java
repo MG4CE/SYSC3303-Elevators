@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -15,6 +16,7 @@ import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
+import floorSubsystem.FloorSubsystem;
 import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 import stateMachine.StateMachine;
@@ -273,4 +275,19 @@ public class Elevator extends UDPHelper implements Runnable {
 	public void setSchedulerAddress(InetAddress address) {
 		this.schedulerAddress = address;
 	}
+	
+    public static void main(String[] args) {
+    	Elevator e = null;
+		try {
+			e = new Elevator(6969, InetAddress.getLocalHost());
+		} catch (SocketException e1) {
+			e1.printStackTrace();
+			return;
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+			return;
+		}
+    	Thread tE = new Thread(e);
+    	tE.start();
+    }
 }
