@@ -43,9 +43,7 @@ public abstract class UDPHelper {
 	 */
 	public void sendByteArray(byte[] data, int port, InetAddress address) throws IOException {
 		DatagramPacket sendPacket = new DatagramPacket(data, data.length, address, port);
-		DatagramSocket sendSocket = new DatagramSocket();
-		sendSocket.send(sendPacket);
-		sendSocket.close();
+		recvSocket.send(sendPacket);
 	}
 	
 	public DatagramPacket rpcSend(byte[] sendData, Boolean useTimeout, int port, InetAddress address) throws IOException {
