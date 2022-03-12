@@ -53,12 +53,14 @@ public class Scheduler extends UDPHelper {
 					if(!listenerThread.isInterrupted() && msg != null) {
 						synchronized (messageQueue) {
 							messageQueue.add(msg);
+							messageQueue.notifyAll();
 						}
 					}
 
 				}
 			}
 		});
+		listenerThread.start();
 	}
 
 	public void startSchedulingThread() {
@@ -69,7 +71,7 @@ public class Scheduler extends UDPHelper {
 	    				while(messageQueue.isEmpty())
 	    				{
 							try {
-								wait();
+								messageQueue.wait();
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
@@ -118,7 +120,8 @@ public class Scheduler extends UDPHelper {
 									}
 								}
 							}
-	    				} else if(msg.isElevatorRegisterMessage()) {
+	    				}
+						else if(msg.isElevatorRegisterMessage()) {
 							ElevatorRegisterMessage message = msg.toElevatorRegisterMessage();
 	    					elevators.add(new Elevator(packet.getPort(), elevatorIDCounter, message.getFloor(), packet.getAddress()));
 	    					try {
@@ -173,6 +176,7 @@ public class Scheduler extends UDPHelper {
 	    		}
     		}
     	});
+		schedulerThread.start();
 	}
 
 	//if we have an elevator departing then we need to set the lamp
@@ -263,7 +267,7 @@ public class Scheduler extends UDPHelper {
 			e.printStackTrace();
 			LOGGER.severe("Socket creation failed!");
 		}
-		
+
 		s.startListenerThread();
 		s.startSchedulingThread();
 	}

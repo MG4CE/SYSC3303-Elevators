@@ -31,7 +31,7 @@ public class Main extends UDPHelper {
 		SchedulerDispatchMessage msg = SchedulerDispatchMessage.newBuilder()
 				.setDestFloor(destFloor)
 				.setElevatorID(elevatorID)
-				// TODO: SET ELEVATOR ID
+				//TODO: SET ELEVATOR ID
 				//TODO ADD TIMESTAMP
 				.build();
 		sendMessage(msg, 24, InetAddress.getLocalHost());

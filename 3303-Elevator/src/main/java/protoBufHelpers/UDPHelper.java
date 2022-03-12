@@ -18,7 +18,7 @@ public abstract class UDPHelper {
 	private final Logger LOGGER = Logger.getLogger(UDPHelper.class.getName());
 	private final DatagramSocket recvSocket;
 	private final int PACKET_SIZE = 1024;
-	private final int TIMEOUT = 5;
+	private final int TIMEOUT = 10;
 	private final int MAX_NUM_RETRIES = 10;
 
 	/*
@@ -110,6 +110,9 @@ public abstract class UDPHelper {
 			msgBldr.setFloorSensor((FloorSensorMessage) message);
 		}else if(message instanceof LampMessage){
 			msgBldr.setLampMessage((LampMessage) message);
+		}else if(message instanceof ElevatorRegisterMessage)
+		{
+			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
 		}
 		
 		WrapperMessage msg = msgBldr.build();
