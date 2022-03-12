@@ -4,9 +4,13 @@ import java.util.Calendar;
 
 import elevatorCommands.Direction;
 
+/**
+ * Class holding static utility methods used through out the system
+ */
 public class Utils {
 	/**
 	 * Parse input time into Calendar object format
+	 * 
 	 * @param time the initial string time
 	 * @return the Calendar object with the correct time set
 	 * @throws NumberFormatException if time string contains non digits
@@ -34,6 +38,7 @@ public class Utils {
 	
 	/**
 	 * Setting the direction from string
+	 * 
 	 * @param direction string
 	 * @return Direction
 	 */
@@ -50,6 +55,7 @@ public class Utils {
 	
 	/**
 	 * Converting Calendar into string to be printed
+	 * 
 	 * @return string representation of the Calendar object
 	 */
 	public static String getTimeStamp(Calendar time) {

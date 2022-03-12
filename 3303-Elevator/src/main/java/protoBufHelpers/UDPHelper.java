@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 import elevatorCommands.*;
 
-/*
+/**
  * Helper class to be extended by any class that sends/receives messages
  */
 public abstract class UDPHelper {
@@ -21,23 +21,25 @@ public abstract class UDPHelper {
 	private final int TIMEOUT = 10;
 	private final int MAX_NUM_RETRIES = 10;
 
-	/*
+	/**
 	 * Constructor to be called with super(), will create a listen socket
 	 */
 	public UDPHelper() throws SocketException{
 		this.recvSocket = new DatagramSocket();
 	}
 
-	/*
+	/**
 	 * Constructor to be called with super(), will create a listen socket bound to recvPort
+	 * 
 	 * @param port to listen to
 	 */
 	public UDPHelper(int recvPort) throws SocketException{
 		this.recvSocket = new DatagramSocket(recvPort);
 	}
 
-	/*
+	/**
 	 * Send a raw byte array to a destination port
+	 * 
 	 * @param data byte array to be send via udp
 	 * @param port to send to
 	 */
@@ -46,6 +48,16 @@ public abstract class UDPHelper {
 		recvSocket.send(sendPacket);
 	}
 	
+	/**
+	 * RPC send, send data and wait for a response. Retry if useTimeout is true. 
+	 * 
+	 * @param sendData byte array to be send via UDP
+	 * @param useTimeout select if we need to use a timeout or not
+	 * @param port target port
+	 * @param address target address
+	 * @return response packet
+	 * @throws IOException
+	 */
 	public DatagramPacket rpcSend(byte[] sendData, Boolean useTimeout, int port, InetAddress address) throws IOException {
 		byte data_buff[] = new byte[PACKET_SIZE];
 		DatagramPacket receivePacket = new DatagramPacket(data_buff, data_buff.length);
@@ -92,7 +104,15 @@ public abstract class UDPHelper {
 		return receivePacket;
 	}
 	
-	
+	/**
+	 * RPC send a message of type protobuf message, will wrap message in WrapperMessage first
+	 * 
+	 * @param message protobuf message
+	 * @param port target port
+	 * @param address target address
+	 * @return response packet
+	 * @throws IOException
+	 */
 	public DatagramPacket rpcSendMessage(com.google.protobuf.GeneratedMessageV3 message, int port, InetAddress address) throws IOException {
 		LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
 		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
@@ -110,8 +130,7 @@ public abstract class UDPHelper {
 			msgBldr.setFloorSensor((FloorSensorMessage) message);
 		}else if(message instanceof LampMessage){
 			msgBldr.setLampMessage((LampMessage) message);
-		}else if(message instanceof ElevatorRegisterMessage)
-		{
+		}else if(message instanceof ElevatorRegisterMessage){
 			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
 		}
 		
@@ -119,8 +138,9 @@ public abstract class UDPHelper {
 		return rpcSend(msg.toByteArray(), true, port, address);
 	}	
 	
-	/*
-	 * Send a message of type protobufmessage (Any of defined messages) Will wrap message in WrapperMessage first
+	/**
+	 * Send a message of type protobuf message (Any of defined messages) Will wrap message in WrapperMessage first
+	 * 
 	 * @param Protobuf message to send
 	 * @param port to send message to
 	 */
@@ -149,9 +169,10 @@ public abstract class UDPHelper {
 		sendByteArray(msg.toByteArray(), port, address);
 	}	
 
-	/*
-	 * Blocking call to receive a message, returns it datagram packet
-	 * @return datagram packet received from listen socket
+	/**
+	 * Blocking call to receive a message, returns received packet
+	 * 
+	 * @return packet received from listen socket
 	 */
 	public DatagramPacket receiveMessage() throws IOException {
 		byte[] r = new byte[PACKET_SIZE];
@@ -161,8 +182,8 @@ public abstract class UDPHelper {
 		return rcv;
 	}
 
-	/*
-	 * Close listen socket
+	/**
+	 * Close socket
 	 */
 	public void closePbSocket(){
 		this.recvSocket.close();

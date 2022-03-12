@@ -16,11 +16,14 @@ import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
-import floorSubsystem.FloorSubsystem;
 import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 import stateMachine.StateMachine;
 
+/**
+ * Represents a moving elevator that functions using a state machine, which listens for control messages 
+ * from the scheduler.
+ */
 public class Elevator extends UDPHelper implements Runnable {
 	protected final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
 	
@@ -29,14 +32,18 @@ public class Elevator extends UDPHelper implements Runnable {
 	private int currentFloor;
 	private int destinationFloor;
 	private Direction currentDirection;
-	protected int elevatorID;
 	
+	protected int elevatorID;
 	protected Motor elevatorMotor;
 	protected StateMachine elevatorFSM;
 	protected Boolean running;
 
-	/*
-	 * Constructor for elevator class, takes in the scheduler to send to, as well as the port it should listen to
+	/**
+	 * Constructor takes in scheduler connection information and a set receive port for testing
+	 * 
+	 * @param schedulerPort scheduler send port
+	 * @param schedulerAddress target address to send packets to
+	 * @param receivePort sets the internal socket port
 	 */
 	public Elevator(int schedulerPort, InetAddress schedulerAddress, int receivePort) throws SocketException {
 		super(receivePort); //takes in a receive port just for testing
@@ -49,6 +56,12 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.running = true;
 	}
 	
+	/**
+	 * Constructor takes in scheduler connection information
+	 * 
+	 * @param schedulerPort scheduler send port
+	 * @param schedulerAddress target address to send packets to
+	 */
 	public Elevator(int schedulerPort, InetAddress schedulerAddress) throws SocketException {
 		super();
 		this.schedulerPort = schedulerPort;
@@ -60,8 +73,9 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.running = true;
 	}
 	
-	/*
+	/**
 	 * Send a UDP message indicating elevator had internal button pressed
+	 * 
 	 * @param floor number of button pressed
 	 */
 	protected void sendInternalButtonMessage(int floor) throws IOException {
@@ -75,7 +89,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
-	/*
+	/**
 	 * Send a UDP message indicating elevator is passing a floor
 	 */
 	protected void sendFloorSensorMessage() throws IOException {
@@ -87,7 +101,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
-	/*
+	/**
 	 * Send a UDP message indicating elevator is departing a floor towards a destination
 	 */
 	protected void sendDepartureMessage() throws IOException {
@@ -100,7 +114,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
-	/*
+	/**
 	 * Send a UDP message indicating elevator has arrived at a floor
 	 */
 	protected void sendElevatorArrivedMessage() throws IOException {
@@ -112,6 +126,9 @@ public class Elevator extends UDPHelper implements Runnable {
 		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
 	
+	/**
+	 * Send a UDP message to register the elevator with the scheduler
+	 */
 	protected DatagramPacket sendElevatorRegisterMessage() throws IOException {
 		ElevatorRegisterMessage msg = ElevatorRegisterMessage.newBuilder()
 				.setFloor(this.currentFloor)
@@ -120,11 +137,12 @@ public class Elevator extends UDPHelper implements Runnable {
 		return rpcSendMessage(msg, schedulerPort, schedulerAddress);
 	}
 
-	/*
-	 * Run method to start an elevator after creating a new instance of it
+	/**
+	 * Run method to start an elevator
 	 */
 	@Override
 	public void run() {
+		//Send a register message to the elevator and wait for a respone
 		DatagramPacket resp = null;
 		try {
 			resp = sendElevatorRegisterMessage();
@@ -134,6 +152,7 @@ public class Elevator extends UDPHelper implements Runnable {
 			return;
 		}
 		
+		//Convert data to protobuf
 		ProtoBufMessage r = null;
 		try {
 			r = new ProtoBufMessage(resp);
@@ -142,6 +161,7 @@ public class Elevator extends UDPHelper implements Runnable {
 			return;
 		}
 		
+		//If the data is of type ElevatorRegisterMessage fetch the assigned id and set it
 		if (r.isElevatorRegisterMessage()) {
 			ElevatorRegisterMessage regResp = r.toElevatorRegisterMessage();
 			elevatorID = regResp.getElevatorID();
@@ -150,10 +170,11 @@ public class Elevator extends UDPHelper implements Runnable {
 			return;
 		}
 		
+		//Forward any messages from the elevator into the state machine
 		while(this.running){
 			try {
-				DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
-				this.elevatorFSM.updateFSM(new ProtoBufMessage(recvMessage)); // update fsm
+				DatagramPacket recvMessage = receiveMessage(); //wait for message from scheduler
+				this.elevatorFSM.updateFSM(new ProtoBufMessage(recvMessage));
 			}catch (IOException e){
 				LOGGER.severe(e.getMessage());
 				this.running = false;
@@ -162,7 +183,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		}
 	}
 
-	/*
+	/**
 	 * To be called by elevator motor, updates floor after an interval has passed
 	 */
 	protected void motorUpdate() throws IOException {
@@ -176,8 +197,10 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.elevatorFSM.updateFSM(null); // poke with null message
 	}
 
-	/*
+	/**
 	 * Set the destination floor to a new floor
+	 * 
+	 * @param floor destination floor
 	 */
 	protected void setDestinationFloor(int floor) {
 		this.destinationFloor = floor;
@@ -185,23 +208,25 @@ public class Elevator extends UDPHelper implements Runnable {
 
 	}
 
-	/*
+	/**
 	 * Get the current destination floor of the elevator
+	 * 
 	 * @return destination floor
 	 */
 	protected int getDestinationFloor() {
 		return this.destinationFloor;
 	}
 
-	/*
+	/**
 	 * Get the current floor of the elevator
-	 * @return floor
+	 * 
+	 * @return current floor
 	 */
 	protected int getCurrentFloor() {
 		return this.currentFloor;
 	}
 
-	/*
+	/**
 	 * Update the direction of the elevator based on its new destination floor
 	 */
 	protected void updateCurrentDirection() {
@@ -214,8 +239,9 @@ public class Elevator extends UDPHelper implements Runnable {
 		}
 	}
 
-	/*
+	/**
 	 * Simulates a button press from within the elevator
+	 * 
 	 * @param destination floor (i.e. button pressed)
 	 */
 	public void pushElevatorButton(int floor) throws IOException {
@@ -223,30 +249,32 @@ public class Elevator extends UDPHelper implements Runnable {
 		sendInternalButtonMessage(floor);
 	}
 
-	/*
+	/**
 	 * Get current direction of elevator
+	 * 
 	 * @return Direction
 	 */
 	protected Direction getCurrentDirection() {
 		return this.currentDirection;
 	}
 
-	/*
+	/**
 	 * Open the doors
 	 */
 	protected void openDoors() {
 		System.out.printf("Elevator %d: Doors opening\n",  this.elevatorID);
 	}
 
-	/*
+	/**
 	 * Close the doors
 	 */
 	protected void closeDoors() {
 		System.out.printf("Elevator %d: Doors closing\n",  this.elevatorID);
 	}
 
-	/*
+	/**
 	 * Check if elevator is 1 floor away from its current destination
+	 * 
 	 * @return true or false
 	 */
 	protected Boolean isElevatorArriving(Boolean print) {
@@ -259,7 +287,12 @@ public class Elevator extends UDPHelper implements Runnable {
 		}
 		return false;
 	}
-
+	
+	/**
+	 * Check if elevator is at the destination floor
+	 * 
+	 * @return true or false
+	 */
 	protected Boolean isElevatorArrived() {
 		if (this.currentFloor == this.destinationFloor) {
 			System.out.printf("Elevator %d: Arrived at floor %d\n", this.elevatorID, this.destinationFloor);
@@ -268,14 +301,27 @@ public class Elevator extends UDPHelper implements Runnable {
 		return false;
 	}
 	
+	/**
+	 * Get the schedulers address
+	 * 
+	 * @return schedulers address
+	 */
 	public InetAddress getSchedulerAddress() {
 		return this.schedulerAddress;
 	}
 	
+	/**
+	 * Set the schedulers address
+	 * 
+	 * @param address schedulers address
+	 */
 	public void setSchedulerAddress(InetAddress address) {
 		this.schedulerAddress = address;
 	}
 	
+	/** 
+	 * Create an instance of elevator and start it.
+	 */
     public static void main(String[] args) {
     	Elevator e = null;
 		try {

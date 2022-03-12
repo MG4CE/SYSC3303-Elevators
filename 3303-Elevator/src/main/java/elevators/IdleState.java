@@ -6,9 +6,17 @@ import elevatorCommands.SchedulerDispatchMessage;
 import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
+/**
+ * Represents the idle state of an elevator
+ */
 public class IdleState implements State {
-	private Elevator elevator; // hold ref to elevator
+	private Elevator elevator;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param elevator instance of elevator
+	 */
 	protected IdleState(Elevator elevator){
 		this.elevator = elevator;
 	}

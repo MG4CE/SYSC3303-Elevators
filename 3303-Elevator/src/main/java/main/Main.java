@@ -3,15 +3,16 @@ package main;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import elevators.Elevator;
-import floorSubsystem.FloorSubsystem;
 import protoBufHelpers.UDPHelper;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+/**
+ * Do not run this, used for internal component testing early on (should be removed).
+ */
 public class Main extends UDPHelper {
 	private Elevator e;
 	public Main(int recvPort) throws SocketException {

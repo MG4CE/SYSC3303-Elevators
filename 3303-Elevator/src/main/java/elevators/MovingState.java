@@ -6,8 +6,11 @@ import elevatorCommands.SchedulerDispatchMessage;
 import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
+/**
+ * Represents the moving state of an elevator
+ */
 public class MovingState implements State{
-	private Elevator elevator; // hold ref to elevator
+	private Elevator elevator;
 	
 	protected MovingState(Elevator elevator){
 		this.elevator = elevator;
@@ -15,10 +18,10 @@ public class MovingState implements State{
 	
 	@Override
 	public void entryActions() {
-		// TODO Auto-generated method stub
-		if(elevator.isElevatorArriving(false)) {
+		if(elevator.isElevatorArriving(false)) { //if the dest floor is one away
 			try {
-				elevator.elevatorFSM.updateFSM(null);
+				//send null message to fsm to go to arriving state
+				elevator.elevatorFSM.updateFSM(null); 
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -35,16 +38,16 @@ public class MovingState implements State{
 	
 	@Override
 	public State nextState(ProtoBufMessage message) throws IOException {
-		if (message == null) { // internal motor triggering FSM (floor change!)
+		if (message == null) { //internal motor triggering FSM (floor change!)
 			if(elevator.isElevatorArriving(true)) {
 				return new ArrivingState(elevator);
 			} else {
-				return this; // still moving to destination
+				return this; //still moving to destination
 			}
-		} else if(message.isSchedulerDispatchMessage()) { // if message from scheduler
+		} else if(message.isSchedulerDispatchMessage()) { //if message from scheduler
 			SchedulerDispatchMessage msg = message.toSchedulerDispatchMessage();
 			elevator.setDestinationFloor(msg.getDestFloor());
-			elevator.updateCurrentDirection(); // get elevator moving towards new dest
+			elevator.updateCurrentDirection(); //get elevator moving towards new dest
 			return this;
 		}
 		throw new IOException("INVALID FSM STATE");
