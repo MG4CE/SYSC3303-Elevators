@@ -249,12 +249,12 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * Check if elevator is 1 floor away from its current destination
 	 * @return true or false
 	 */
-	protected Boolean isElevatorArriving() {
+	protected Boolean isElevatorArriving(Boolean print) {
 		if(this.currentDirection == Direction.UP && this.currentFloor == this.destinationFloor -1) {
-			System.out.printf("Elevator %d: Arriving at floor %d\n", this.elevatorID, this.destinationFloor);
+			if (print) { System.out.printf("Elevator %d: Arriving at floor %d\n", this.elevatorID, this.destinationFloor); }
 			return true;
 		}else if (this.currentDirection == Direction.DOWN && this.currentFloor == this.destinationFloor +1) {
-			System.out.printf("Elevator %d: Arriving at floor %d\n", this.elevatorID, this.destinationFloor);
+			if (print) { System.out.printf("Elevator %d: Arriving at floor %d\n", this.elevatorID, this.destinationFloor); }
 			return true;
 		}
 		return false;

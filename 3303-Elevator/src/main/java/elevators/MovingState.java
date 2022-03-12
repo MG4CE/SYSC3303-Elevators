@@ -16,8 +16,16 @@ public class MovingState implements State{
 	@Override
 	public void entryActions() {
 		// TODO Auto-generated method stub
-		elevator.elevatorMotor.startMotor();
-
+		if(elevator.isElevatorArriving(false)) {
+			try {
+				elevator.elevatorFSM.updateFSM(null);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			elevator.elevatorMotor.moveOneFloor();
+		} else {
+			elevator.elevatorMotor.startMotor();
+		}
 	}
 
 	@Override
@@ -28,7 +36,8 @@ public class MovingState implements State{
 	@Override
 	public State nextState(ProtoBufMessage message) throws IOException {
 		if (message == null) { // internal motor triggering FSM (floor change!)
-			if(elevator.isElevatorArriving()) {
+			if(elevator.isElevatorArriving(true)) {
+				System.out.println("moving to arriving");
 				return new ArrivingState(elevator);
 			} else {
 				return this; // still moving to destination
