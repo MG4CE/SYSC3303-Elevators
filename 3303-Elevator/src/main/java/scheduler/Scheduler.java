@@ -103,9 +103,9 @@ public class Scheduler extends UDPHelper {
 	    						for(Elevator elevator:elevators) {
 	    							if(request.getElevatorID() == elevator.getElevatorID()) {
 	    								elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection()));
-										if(elevator.popTopRequest().getFloor() == request.getFloor()) {
+										if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
 											try {
-												sendSchedulerDispatchMessage(request.getFloor(), request.getRequestID(), request.getDirection(), request.getElevatorID(), elevator.getAddress());
+												sendSchedulerDispatchMessage(elevator.popTopRequest().getFloor(), request.getRequestID(), request.getDirection(), request.getElevatorID(), elevator.getAddress());
 											} catch (IOException e) {
 												e.printStackTrace();
 											}

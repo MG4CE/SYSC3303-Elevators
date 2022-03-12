@@ -131,6 +131,11 @@ public class Elevator {
 		return this.address;
 	}
 	
+
+	public ElevatorRequest peekTopRequest() {
+		return this.floorDestinations.get(0);
+	}
+	
 	public static void main(String[] args) {
 	    Elevator e = new Elevator(123, 1, 4, null);
 	    e.addDestination(new ElevatorRequest(1, 999, Direction.UP));
