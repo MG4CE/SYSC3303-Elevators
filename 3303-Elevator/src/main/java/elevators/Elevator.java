@@ -222,7 +222,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * 
 	 * @return current floor
 	 */
-	protected int getCurrentFloor() {
+	public int getCurrentFloor() {
 		return this.currentFloor;
 	}
 
@@ -254,7 +254,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * 
 	 * @return Direction
 	 */
-	protected Direction getCurrentDirection() {
+	public Direction getCurrentDirection() {
 		return this.currentDirection;
 	}
 
@@ -318,6 +318,24 @@ public class Elevator extends UDPHelper implements Runnable {
 	public void setSchedulerAddress(InetAddress address) {
 		this.schedulerAddress = address;
 	}
+	
+
+	/**
+	 * Get the current elevator fsm
+	 * @return elevatorFSM
+	 */
+	public StateMachine getEFSM() {
+		return this.elevatorFSM;
+	}
+	
+	/**
+	 * Get the elevators ID
+	 * @return
+	 */
+	public int getElevatorId() {
+		return this.elevatorID;
+	}
+	
 	
 	/** 
 	 * Create an instance of elevator and start it.

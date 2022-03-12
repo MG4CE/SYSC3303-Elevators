@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
  * Do not run this, used for internal component testing early on (should be removed).
  */
 public class Main extends UDPHelper {
-	private Elevator e;
+	public Elevator e;
 	public Main(int recvPort) throws SocketException {
 		super(recvPort);
 		try {
@@ -28,7 +28,7 @@ public class Main extends UDPHelper {
 		}
 	}
 
-	void sendSchedulerDispatchMessage(int destFloor, int elevatorID) throws IOException {
+	public void sendSchedulerDispatchMessage(int destFloor, int elevatorID) throws IOException {
 		SchedulerDispatchMessage msg = SchedulerDispatchMessage.newBuilder()
 				.setDestFloor(destFloor)
 				.setElevatorID(elevatorID)
@@ -38,7 +38,7 @@ public class Main extends UDPHelper {
 		sendMessage(msg, 24, InetAddress.getLocalHost());
 	}
 	
-	private void sendElevatorRegisterMessage(int elevatorID) throws IOException {
+	public void sendElevatorRegisterMessage(int elevatorID) throws IOException {
 		ElevatorRegisterMessage msg = ElevatorRegisterMessage.newBuilder()
 				.setElevatorID(elevatorID)
 				.build();
