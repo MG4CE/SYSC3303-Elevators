@@ -140,10 +140,18 @@ public class Scheduler extends UDPHelper {
 									elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 								}
 	    					} else {
-								//Exterior button press means we need to add the floor to the queue
+								//System.out.println("Internal button received " + request.getRequestID() + " floor " + request.getFloor() + " elevator " + request.getElevatorID());
 								for(Elevator elevator : elevators) {
 									if(request.getElevatorID() == elevator.getElevatorID()) {
 										elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection()));
+										if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
+											try {
+												sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
+											elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
+										}
 									}
 								}
 							}
