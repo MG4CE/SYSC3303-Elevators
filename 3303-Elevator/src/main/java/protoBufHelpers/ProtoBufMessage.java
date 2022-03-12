@@ -76,6 +76,7 @@ public class ProtoBufMessage {
 			case FLOORSENSOR -> this.message = msg.getFloorSensor();
 			case LAMPMESSAGE -> this.message = msg.getLampMessage();
 			case SCHEDULERDISPATCH -> this.message = msg.getSchedulerDispatch();
+			case REGISTERMESSAGE -> this.message = msg.getRegisterMessage();
 			default -> this.message = null;
 		}
 	}

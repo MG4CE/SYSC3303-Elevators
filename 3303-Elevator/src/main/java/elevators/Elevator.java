@@ -132,7 +132,7 @@ public class Elevator extends UDPHelper implements Runnable {
 			return;
 		}
 		
-		ProtoBufMessage r;
+		ProtoBufMessage r = null;
 		try {
 			r = new ProtoBufMessage(resp);
 		} catch (InvalidProtocolBufferException e) {
