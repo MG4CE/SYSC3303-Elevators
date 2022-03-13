@@ -24,8 +24,16 @@
 
 
 ## Installation
+ Warning this project needs JDK 17
 
-Import the Iteration 3 project into your IDE.
+1. Export the Project into the destination of your workspace so that you can easily import as Maven
+2. Import Project using maven -> Exsiting maven projects
+3. Navigate to the exported project and select the 3303-project folder and make sure to select the pom.xml
+
+![](documents/images/maven1.png)
+![](documents/images/maven2.png)
+![](documents/images/maven3.png)
+
 
 or
 
@@ -35,9 +43,7 @@ Git Clone the Project
 git clone https://github.com/MG4CE/SYSC3303-Elevators.git
 ```
 
-The following image should show an example of the src files in the package view
 
-![](images/package_image.png)
 
 ## Usage
 
@@ -65,9 +71,7 @@ Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
  2. Run As -> JUnit Test
 ```
 
-#### Output
 
-![](images/test.png)
 
 ## Folders & File Description
 
