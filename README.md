@@ -1,19 +1,26 @@
-# Iteration 2 - SYSC 3303 - The Schedulators
+# Iteration 3 - SYSC 3303 - The Schedulators
+
+# ProtoBuf Success
 
 ## Issues to address
 - #### Iteration 1 issues
 - ~~How will we interface with the ElevatorButton's?~~  completed (External, Internal buttons)
-- ~~Scheduler will now need to handle a wider array of commands. Command will need to be broken down into multiple Class for each type of command.~~ Completed 
-- ~~How will movement be handled with the new Motor class?~~  Completed
+- ~~Scheduler will now need to handle a wider array of commands. Command will need to be broken down into multiple Classes for each type of command.~~ Completed 
+- ~~How will the movement be handled with the new Motor class?~~  Completed
 - ~~How will ElevatorFloorSensor detect the location of the elevator in the shaft?~~ Completed
-- ~~We might need a new type of class Message to notify other components  in the system of changes.~~ -Completed
+- ~~We might need a new type of class Message to notify other components in the system of changes.~~ -Completed
 
 <br />
 
 - #### Iteration 2 issues
-- How to smoothly transition between new commands
-- When trying internal button presses 1 floor below 
-- Issue it doesn't output properly 
+- ~~How to smoothly transition between new commands~~ complete
+- ~~When trying internal button presses 1 floor below~~ completed
+
+<br />
+
+- #### Iteration 3 issues
+- Dealing with nonsequential floors
+- Bug when scheduling with 1 elevator only (Overwrites current destination) 
 
 
 ## Installation
@@ -34,13 +41,21 @@ The following image should show an example of the src files in the package view
 
 ## Usage
 
-### Run Main Program
+### Run Maven Project Program From IDE
 
 ```java
- 1. Run the main method in Main.java
- 2. Right-click the Main.java file
- 3. Run As -> Java Application
+ 1. Right-click and Run Scheduler.java
+ 2. Right-click and Run # instances of Elevator.java
+ 3. Right-click and Run FloorSubsystem.java
  2. Profit
+```
+
+### Run Java Jar
+```java 
+Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
+1. Open the folder in a terminal
+2. Java -jar 3303-Iteration-2-jar-with-dependencies.jar
+
 ```
 
 ### Run Java Tests
@@ -52,34 +67,40 @@ The following image should show an example of the src files in the package view
 
 #### Output
 
-![](images/testsScheduler.png)
-![](images/testElevator.png)
+![](images/test.png)
 
-## Files & Description
+## Folders & File Description
 
-### Command.java
+### ElevatorCommands 
 
-- Holds Information about elevator commands that will be sent from the Floor to the Scheduler
-##### Subclasses
-
-  - ##### ElevatorArrivedMessage.java - 
-    - This is a message from elevator to scheduler for elevator arriving at destination floor
-   - ##### ElevatorDispatchCommand.java
-        - This is a command from the scheduler to elevator to command elevator to go to a floor  
-   - ##### ElevatorFloorSensorMessage.java
-        - This is a message from the floor sensor to tell the elevator it made it to a floor
-   - ##### ElevatorMovingMessage.java
-       - This is a message to tell the scheduler that the elevator started to move to a floor 
-   - ##### ExternalFloorBtnCommand.java
-        - This is a command from a floor to scheduler that the elevator is requested. It will   also be dispatched to the elevator    
-   - ##### FloorDirectionLampMessage.java
-        - This message is from elevator to scheduler to floor to show that the elevator is going in that direction 
-   - ##### InteriorElevatorBtnCommand.java
-        - This is a command from elevator to scheduler that will tell the scheduler that the floor was requested from someeone in the elevator. 
-        -  This will be simulated by the floor subsystem calling pushbutton in the Elevator 
-   - ##### MotorMessage.java
-        - This is a message from the motor to the elevator that it made it to the next floor by sending current floor height. Each floor is 4 metres difference.
- 
+- Folder holding all command types for sending information through the 3 components
+- All Commands were generated using Googles - Google protobuf
+- A skeleton file is compiled using Google Protobuf compiler which generated the following files
+##### Files
+  - #### Button.java -
+    - Generated enum that holds the type of button it is Exterior / Interior
+- #### Direction.java -
+    - Generated enum that holds the direction of an elevator request Up / Down / Idle
+- ##### LampState.java - 
+    - Generate Enum that holds the lamp state On / OFF
+   - ##### Google Protoc Compiled Message files
+     - ElevatorArrivedMessage.java
+     - ElevatorArrivedMessageOrBuilder.java
+     - ElevatorCommandProtos.java
+     - ElevatorDepartureMessage.java
+     - ElevatorDepartureMessageOrBuilder.java
+     - ElevatorRegisterMessage.java
+     - ElevatorRegisterMessageOrBuilder.java
+     - ElevatorRequestMessage.java
+     - ElevatorRequestMessageOrBuilder.java
+     - FloorSensorMessage.java
+     - FloorSensorMessageOrBuilder.java
+     - LampMessage.java
+     - LampMessageOrBuilder.java
+     - SchedulerDispatchMessage.java
+     - SchedulerDispatchMessageOrBuilder.java  
+     - WrapperMessage.java
+     - WrapperMessageOrBuilder.java
   <br />
   <br />
 
@@ -94,68 +115,6 @@ The following image should show an example of the src files in the package view
     - ARRIVING - The elevator is 1 floor before the destination and will slow down 
 
 - These States are to implement the FSM below
-
-![](images/elevatorFSM.png)
- 
-
-#### Elevator Components
-  - ##### ArrivalSensor.java - 
-    - This is used to determine which floor the motor has gone past
-   - ##### Door.java
-        - Elevator door that can open and close
-   - ##### ElevatorButton.java
-       - A button that is inside the elevator, the elevator holds a list of buttons * max floors
-   - ##### ElevatorButtonLamp.java
-        - THe light on each elevator button that will light up once it has been pressed 
-   - ##### Motor.java
-        - The motor that simulates moving the elevator. It sends MotorMessages to the elevator to tell that it past a floor
- 
-
-
-  <br />
-  <br />
-
-### FloorSubsystem.java
-
-- Reads input commands from input.txt
-- Parses the calling floor into an ExternalFloorBtnCommand send to the scheduler
-- Once that command is completed by the elevator then the system will call 
-```java-
-Elevator.PushButton(Destination floor)
-```
-- Once all commands are pushed to the Queue then a stop command will be added to the Queue
-  <br />
-
-```java
-//Stop command shown below
-"0:0:0.0", -1, "up", -1
-```
-
-#### FloorSubSystem Components
- - ##### Floor.java - 
-    - Each floor of the system
- - ##### FloorButton.java
-    - The buttons that will control calling an elevator
- - ##### FloorButtonLamo.java
-    - The light on each floor button that will light up once it has been pressed 
-
-<br />
-
-### Shared Componenents 
-##### Between Floor and Elevator
-- ##### DirectionLamp.java 
-    - The lamp that shows up or down on each floor and inside the elevator
- 
-  <br />
-
-### Main.java
-
-- Runs the main method
-- Creates
-  - FloorSubsytem thread
-  - Scheduler Thread
-  - Elevator Thread
-
 
 ### Scheduler.java
 
@@ -175,7 +134,25 @@ Elevator.PushButton(Destination floor)
 - FloorSubsystem will send ExternalFloorBtnCommands
 - Elevator will send InternalFloorBtnCommands
 
-<br />
+
+
+### FloorSubsystem.java
+
+- Reads input commands from input.txt
+- Parses the calling floor into an ExternalFloorBtnCommand send to the scheduler
+- Once that command is completed by the elevator then the system will call 
+```java-
+Elevator.PushButton(Destination floor)
+```
+- Once all commands are pushed to the Queue then a stop command will be added to the Queue
+  <br />
+
+```java
+//Stop command shown below
+"0:0:0.0", -1, "up", -1
+```
+ 
+
 
 ### input.txt
 
@@ -193,8 +170,8 @@ Elevator.PushButton(Destination floor)
 
 ## Team & Contributions
 
-1. Maged -  All Commands, Subcomponents, UML <3
-2. Ehvan - Elevator.java, Scheduler.java, Tests  
+1. Maged - Scheduler.java, Elevator.java ,UML 
+2. Ehvan - ProtoBuf Messages, Elevator.java, Scheduler.java, UML  
 3. Golan - Scheduler.java, Elevator.java
-4. Rodrigo - FloorSubsystem.java, Commands
-5. Kevin - Elevator.java, Scheduler.java, ReadMe
+4. Rodrigo - Subsystem.java, Scheduler.java
+5. Kevin - Test, Elevator.java, UML, ReadMe
