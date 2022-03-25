@@ -71,7 +71,7 @@ public class Elevator {
 	    
 	    for (int i = 0; i < floorDestinations.size(); i++) {
 	    	ElevatorRequest f = floorDestinations.get(i);
-	        if (f.getFloor() < currentFloor) {
+	        if (f.getFloor() <= currentFloor) {
 	            left.add(f);
 	        } else if (f.getFloor() > currentFloor) {
 	        	right.add(f);
