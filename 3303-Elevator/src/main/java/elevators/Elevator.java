@@ -20,6 +20,7 @@ import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 import stateMachine.StateMachine;
 
+
 /**
  * Represents a moving elevator that functions using a state machine, which listens for control messages 
  * from the scheduler.
@@ -32,6 +33,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	private int currentFloor;
 	private int destinationFloor;
 	private Direction currentDirection;
+	protected DoorStatus doorStatus;
 	
 	protected int elevatorID;
 	protected Motor elevatorMotor;
@@ -54,6 +56,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 		this.running = true;
+		this.doorStatus = DoorStatus.CLOSED;
 	}
 	
 	/**
@@ -71,6 +74,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 		this.running = true;
+		this.doorStatus = DoorStatus.CLOSED;
 	}
 	
 	/**
@@ -113,7 +117,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				.build();
 		sendMessage(msg, schedulerPort, schedulerAddress);
 	}
-
+	
 	/**
 	 * Send a UDP message indicating elevator has arrived at a floor
 	 */
@@ -124,6 +128,36 @@ public class Elevator extends UDPHelper implements Runnable {
 				//TODO: ADD TIMESTAMP
 				.build();
 		sendMessage(msg, schedulerPort, schedulerAddress);
+	}
+	
+	/**
+	 * This message is sent to the scheduler to confirm the elevator is attempting to correct itself
+	 * 
+	 * The scheduler will resume scheduling to this elevator, once elevator goes to idle state
+	 * Or 
+	 * The elevator moves to outOfService
+	 * @throws IOException
+	 */
+	protected void sendCorrectionMessage() throws IOException {
+		/*ElevatorFaultCorrectionMessage msg = ElevatorFaultCorrectionMessage.newBuilder()
+				.setElevatorID(this.elevatorID)
+				.setFloor(this.currentFloor)
+				//TODO: ADD TIMESTAMP
+				.build();
+		sendMessage(msg, schedulerPort, schedulerAddress);*/
+	}
+	
+	/**
+	 * Message to be sent to the scheduler to confirm the elevator is out of service
+	 * Out of service can be called in two ways
+	 * This will be caused by the FaultCorrectionState Failing
+	 * Or invoked by the scheduler
+	 * 
+	 * This message finishes the out of service protocol
+	 * @throws IOException
+	 */
+	protected void sendElevatorGoingOutOfService() throws IOException {
+		
 	}
 	
 	/**
@@ -262,13 +296,15 @@ public class Elevator extends UDPHelper implements Runnable {
 	 * Open the doors
 	 */
 	protected void openDoors() {
+		this.doorStatus = DoorStatus.OPEN;
 		System.out.printf("Elevator %d: Doors opening\n",  this.elevatorID);
 	}
-
+	
 	/**
 	 * Close the doors
 	 */
 	protected void closeDoors() {
+		this.doorStatus = DoorStatus.CLOSED;
 		System.out.printf("Elevator %d: Doors closing\n",  this.elevatorID);
 	}
 
