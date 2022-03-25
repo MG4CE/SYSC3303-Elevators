@@ -112,5 +112,20 @@ public interface WrapperMessageOrBuilder extends
    */
   elevatorCommands.ElevatorRegisterMessageOrBuilder getRegisterMessageOrBuilder();
 
+  /**
+   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   * @return Whether the faultMessage field is set.
+   */
+  boolean hasFaultMessage();
+  /**
+   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   * @return The faultMessage.
+   */
+  elevatorCommands.ElevatorFaultMessage getFaultMessage();
+  /**
+   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   */
+  elevatorCommands.ElevatorFaultMessageOrBuilder getFaultMessageOrBuilder();
+
   public elevatorCommands.WrapperMessage.MsgCase getMsgCase();
 }

@@ -208,7 +208,6 @@ public class Elevator extends UDPHelper implements Runnable {
 	protected void setDestinationFloor(int floor) {
 		this.destinationFloor = floor;
 		System.out.printf("Elevator %d: Dispatched to floor %d\n", this.elevatorID, this.destinationFloor);
-
 	}
 
 	/**

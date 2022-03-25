@@ -10,6 +10,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
+import elevatorCommands.ElevatorFaultMessage;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.FloorSensorMessage;
@@ -84,6 +85,7 @@ public class ProtoBufMessage {
 			case LAMPMESSAGE -> this.message = msg.getLampMessage();
 			case SCHEDULERDISPATCH -> this.message = msg.getSchedulerDispatch();
 			case REGISTERMESSAGE -> this.message = msg.getRegisterMessage();
+			case FAULTMESSAGE -> this.message = msg.getFaultMessage();
 			default -> this.message = null;
 		}
 	}
@@ -106,6 +108,15 @@ public class ProtoBufMessage {
 		return this.message instanceof SchedulerDispatchMessage;
 	}
 
+	/**
+	 * Check if message of type ElevatorFaultMessage
+	 * 
+	 * @return True if of type
+	 */
+	public Boolean isElevatorFaultMessage() {
+		return this.message instanceof ElevatorFaultMessage;
+	}
+	
 	/**
 	 * Check if message of type ElevatorArrivedMessage
 	 * 
@@ -169,6 +180,15 @@ public class ProtoBufMessage {
 	 */
 	public SchedulerDispatchMessage toSchedulerDispatchMessage() {
 		return (SchedulerDispatchMessage)(this.message);
+	}
+	
+	/**
+	 * Cast message to type ElevatorFaultMessage
+	 * 
+	 * @return message of type ElevatorFaultMessage
+	 */
+	public ElevatorFaultMessage toElevatorFaultMessage() {
+		return (ElevatorFaultMessage)(this.message);
 	}
 
 	/**

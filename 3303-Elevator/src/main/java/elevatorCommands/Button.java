@@ -85,7 +85,7 @@ public enum Button
   }
   public static final com.google.protobuf.Descriptors.EnumDescriptor
       getDescriptor() {
-    return elevatorCommands.ElevatorCommandProtos.getDescriptor().getEnumTypes().get(2);
+    return elevatorCommands.ElevatorCommandProtos.getDescriptor().getEnumTypes().get(3);
   }
 
   private static final Button[] VALUES = values();
