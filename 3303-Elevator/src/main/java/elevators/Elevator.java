@@ -5,7 +5,9 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -25,7 +27,7 @@ import stateMachine.StateMachine;
  * from the scheduler.
  */
 public class Elevator extends UDPHelper implements Runnable {
-	protected final Logger LOGGER = Logger.getLogger(Elevator.class.getName());
+	protected static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(Elevator.class);  
 	
 	private int schedulerPort;
 	private InetAddress schedulerAddress;
@@ -54,6 +56,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 		this.running = true;
+		
 	}
 	
 	/**
@@ -148,7 +151,7 @@ public class Elevator extends UDPHelper implements Runnable {
 			resp = sendElevatorRegisterMessage();
 		} catch (IOException e) {
 			e.printStackTrace();
-			LOGGER.severe("No message received, stopping elevator: " + e.getMessage());
+			LOGGER.info("No message received, stopping elevator: " + e.getMessage());
 			return;
 		}
 		
@@ -157,7 +160,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		try {
 			r = new ProtoBufMessage(resp);
 		} catch (InvalidProtocolBufferException e) {
-			LOGGER.severe(e.getMessage());
+			LOGGER.info(e.getMessage());
 			return;
 		}
 		
@@ -166,7 +169,7 @@ public class Elevator extends UDPHelper implements Runnable {
 			ElevatorRegisterMessage regResp = r.toElevatorRegisterMessage();
 			elevatorID = regResp.getElevatorID();
 		} else {
-			LOGGER.severe("Unknown message type, stopping elevator!");
+			LOGGER.info("Unknown message type, stopping elevator!");
 			return;
 		}
 		
@@ -176,7 +179,7 @@ public class Elevator extends UDPHelper implements Runnable {
 				DatagramPacket recvMessage = receiveMessage(); //wait for message from scheduler
 				this.elevatorFSM.updateFSM(new ProtoBufMessage(recvMessage));
 			}catch (IOException e){
-				LOGGER.severe(e.getMessage());
+				LOGGER.info(e.getMessage());
 				this.running = false;
 				break;
 			}

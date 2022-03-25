@@ -1,7 +1,9 @@
 package stateMachine;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 
 import protoBufHelpers.ProtoBufMessage;
 
@@ -11,7 +13,7 @@ import protoBufHelpers.ProtoBufMessage;
  */
 public class StateMachine {
 	private State currentState;
-	private final Logger LOGGER = Logger.getLogger(StateMachine.class.getName());
+	private final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(StateMachine.class);
 	
 	/**
 	 * Constructor to create the state machine
@@ -19,6 +21,7 @@ public class StateMachine {
 	 * @param initialState first state
 	 */
 	public StateMachine(State initialState){
+		
 		this.currentState = initialState;
 		LOGGER.info("Initializing State Machine at State: " + currentState.getClass().getName());
 		this.currentState.entryActions(); // invoke entry actions if any

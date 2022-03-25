@@ -2,7 +2,9 @@ package protoBufHelpers;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -21,7 +23,7 @@ import elevatorCommands.WrapperMessage;
  * as well as cast to specific type.
  */
 public class ProtoBufMessage {
-	private final Logger LOGGER = Logger.getLogger(ProtoBufMessage.class.getName());
+	private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(ProtoBufMessage.class);
 	WrapperMessage wrapper;
 	com.google.protobuf.GeneratedMessageV3 message;
 

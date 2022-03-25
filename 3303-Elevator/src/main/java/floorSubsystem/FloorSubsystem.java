@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -27,7 +29,7 @@ import protoBufHelpers.UDPHelper;
  */
 public class FloorSubsystem extends UDPHelper implements Runnable{
 
-    private final Logger LOGGER = Logger.getLogger(FloorSubsystem.class.getName());
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(FloorSubsystem.class);  
     private ArrayList<ElevatorRequestMessage> elevatorInteriorRequestList;
     private String commandFile;
     private List<Integer> repliedMessages; // request IDs for messages which have been replied to
@@ -80,7 +82,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
             s = new Scanner(new File(commandFile));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            LOGGER.severe(e.getMessage());
+            LOGGER.info(e.getMessage());
             System.exit(1);
         }
 
@@ -252,7 +254,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 recvMessage = receiveMessage();
             } catch (IOException e1) {
                 e1.printStackTrace();
-                LOGGER.severe("Failed to receive data!");
+                LOGGER.info("Failed to receive data!");
                 System.exit(1);
             }
             // Create Protobuf message
@@ -261,7 +263,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 msg = new ProtoBufMessage(recvMessage);
             } catch (InvalidProtocolBufferException e2) {
                 e2.printStackTrace();
-                LOGGER.severe("Failed to convert received to protobuf type!");
+                LOGGER.info("Failed to convert received to protobuf type!");
                 System.exit(1);
             }
 
@@ -301,7 +303,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                                 System.out.println("[Elevator "+ arrivedMessage.getElevatorID() + "] Lamps ON");
                             } catch (IOException e) {
                                 e.printStackTrace();
-                                LOGGER.severe("Failed to send button request!");
+                                LOGGER.info("Failed to send button request!");
                                 System.exit(1);
                             }
                         }
@@ -318,7 +320,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 }
 
             } else {
-                LOGGER.warning("Received unknown command!");
+                LOGGER.warn("Received unknown command!");
             }
 
             if (elevatorInteriorRequestList.isEmpty()) {

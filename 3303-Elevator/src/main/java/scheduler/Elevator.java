@@ -233,7 +233,7 @@ public class Elevator {
 	}
 
 	public static void main(String[] args) {
-	    Elevator e = new Elevator(123, 1, 4, null);
+	    Elevator e = new Elevator(123, 1, 1, null);
 	    e.addDestination(new ElevatorRequest(1, 999, Direction.UP));
 	    e.addDestination(new ElevatorRequest(2, 999, Direction.DOWN));
 	    e.addDestination(new ElevatorRequest(3, 999, Direction.DOWN));

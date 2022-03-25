@@ -31,7 +31,7 @@ public class BoardingState extends TimerTask implements State {
 		try {
 			elevator.elevatorFSM.updateFSM(null);
 		} catch (IOException e) {
-			elevator.LOGGER.severe(e.getMessage());
+			elevator.LOGGER.info(e.getMessage());
 			elevator.running = false;
 		}
 	}

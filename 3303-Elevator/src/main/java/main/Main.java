@@ -3,7 +3,9 @@ package main;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import elevators.Elevator;
+import floorSubsystem.FloorSubsystem;
 import protoBufHelpers.UDPHelper;
+import scheduler.Scheduler;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -47,6 +49,11 @@ public class Main extends UDPHelper {
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
+		Scheduler.main(args);
+		Elevator.main(args);
+		FloorSubsystem.main(args);
+		
+		/*
 		Main m = new Main(23);
 		Thread elevator = new Thread(m.e);
 		elevator.start();
@@ -58,6 +65,6 @@ public class Main extends UDPHelper {
 		m.sendSchedulerDispatchMessage(10, 123);
 		Thread.sleep(12000);
 		m.sendSchedulerDispatchMessage(0, 123);
-		Thread.sleep(50000);
+		Thread.sleep(50000);*/
 	}
 }
