@@ -82,36 +82,37 @@ public final class ElevatorCommandProtos {
       "ampMessageH\000\022D\n\017registerMessage\030\007 \001(\0132)." +
       "elevatorCommands.ElevatorRegisterMessage" +
       "H\000\022>\n\014faultMessage\030\010 \001(\0132&.elevatorComma" +
-      "nds.ElevatorFaultMessageH\000B\005\n\003msg\"i\n\024Ele" +
+      "nds.ElevatorFaultMessageH\000B\005\n\003msg\"z\n\024Ele" +
       "vatorFaultMessage\022\022\n\nelevatorID\030\001 \001(\r\022*\n" +
       "\005fault\030\002 \001(\0162\033.elevatorCommands.FaultTyp" +
-      "e\022\021\n\ttimeStamp\030\003 \001(\t\"O\n\027ElevatorRegister" +
-      "Message\022\022\n\nelevatorID\030\001 \001(\r\022\r\n\005floor\030\002 \001" +
-      "(\r\022\021\n\ttimeStamp\030\003 \001(\t\"\273\001\n\026ElevatorReques" +
-      "tMessage\022\022\n\nelevatorID\030\001 \001(\r\022.\n\tdirectio" +
-      "n\030\002 \001(\0162\033.elevatorCommands.Direction\022(\n\006" +
-      "button\030\003 \001(\0162\030.elevatorCommands.Button\022\r" +
-      "\n\005floor\030\004 \001(\r\022\021\n\ttimeStamp\030\005 \001(\t\022\021\n\trequ" +
-      "estID\030\006 \001(\r\"g\n\030SchedulerDispatchMessage\022" +
-      "\022\n\nelevatorID\030\001 \001(\r\022\021\n\tdestFloor\030\002 \001(\r\022\021" +
-      "\n\ttimeStamp\030\003 \001(\t\022\021\n\trequestID\030\004 \001(\r\"a\n\026" +
-      "ElevatorArrivedMessage\022\022\n\nelevatorID\030\001 \001" +
-      "(\r\022\r\n\005floor\030\002 \001(\r\022\021\n\ttimeStamp\030\003 \001(\t\022\021\n\t" +
-      "requestID\030\004 \001(\r\"\232\001\n\030ElevatorDepartureMes" +
-      "sage\022\022\n\nelevatorID\030\001 \001(\r\022.\n\tdirection\030\002 " +
-      "\001(\0162\033.elevatorCommands.Direction\022\024\n\014init" +
-      "ialFloor\030\003 \001(\r\022\021\n\ttimeStamp\030\004 \001(\t\022\021\n\treq" +
-      "uestID\030\005 \001(\r\"J\n\022FloorSensorMessage\022\022\n\nel" +
-      "evatorID\030\001 \001(\r\022\r\n\005floor\030\002 \001(\r\022\021\n\ttimeSta" +
-      "mp\030\003 \001(\t\"\237\001\n\013LampMessage\022\r\n\005floor\030\001 \001(\r\022" +
-      ".\n\tdirection\030\002 \001(\0162\033.elevatorCommands.Di" +
-      "rection\022*\n\005state\030\003 \001(\0162\033.elevatorCommand" +
-      "s.LampState\022\021\n\ttimeStamp\030\004 \001(\t\022\022\n\nelevat" +
-      "orID\030\005 \001(\r*\037\n\tFaultType\022\010\n\004SOFT\020\000\022\010\n\004HAR" +
-      "D\020\001*-\n\tDirection\022\006\n\002UP\020\000\022\010\n\004DOWN\020\001\022\016\n\nST" +
-      "ATIONARY\020\002*\034\n\tLampState\022\006\n\002ON\020\000\022\007\n\003OFF\020\001" +
-      "*$\n\006Button\022\014\n\010INTERIOR\020\000\022\014\n\010EXTERIOR\020\001B\031" +
-      "B\025ElevatorCommandProtosP\001b\006proto3"
+      "e\022\017\n\007timeout\030\003 \001(\005\022\021\n\ttimeStamp\030\004 \001(\t\"O\n" +
+      "\027ElevatorRegisterMessage\022\022\n\nelevatorID\030\001" +
+      " \001(\r\022\r\n\005floor\030\002 \001(\r\022\021\n\ttimeStamp\030\003 \001(\t\"\273" +
+      "\001\n\026ElevatorRequestMessage\022\022\n\nelevatorID\030" +
+      "\001 \001(\r\022.\n\tdirection\030\002 \001(\0162\033.elevatorComma" +
+      "nds.Direction\022(\n\006button\030\003 \001(\0162\030.elevator" +
+      "Commands.Button\022\r\n\005floor\030\004 \001(\r\022\021\n\ttimeSt" +
+      "amp\030\005 \001(\t\022\021\n\trequestID\030\006 \001(\r\"g\n\030Schedule" +
+      "rDispatchMessage\022\022\n\nelevatorID\030\001 \001(\r\022\021\n\t" +
+      "destFloor\030\002 \001(\r\022\021\n\ttimeStamp\030\003 \001(\t\022\021\n\tre" +
+      "questID\030\004 \001(\r\"a\n\026ElevatorArrivedMessage\022" +
+      "\022\n\nelevatorID\030\001 \001(\r\022\r\n\005floor\030\002 \001(\r\022\021\n\tti" +
+      "meStamp\030\003 \001(\t\022\021\n\trequestID\030\004 \001(\r\"\232\001\n\030Ele" +
+      "vatorDepartureMessage\022\022\n\nelevatorID\030\001 \001(" +
+      "\r\022.\n\tdirection\030\002 \001(\0162\033.elevatorCommands." +
+      "Direction\022\024\n\014initialFloor\030\003 \001(\r\022\021\n\ttimeS" +
+      "tamp\030\004 \001(\t\022\021\n\trequestID\030\005 \001(\r\"J\n\022FloorSe" +
+      "nsorMessage\022\022\n\nelevatorID\030\001 \001(\r\022\r\n\005floor" +
+      "\030\002 \001(\r\022\021\n\ttimeStamp\030\003 \001(\t\"\237\001\n\013LampMessag" +
+      "e\022\r\n\005floor\030\001 \001(\r\022.\n\tdirection\030\002 \001(\0162\033.el" +
+      "evatorCommands.Direction\022*\n\005state\030\003 \001(\0162" +
+      "\033.elevatorCommands.LampState\022\021\n\ttimeStam" +
+      "p\030\004 \001(\t\022\022\n\nelevatorID\030\005 \001(\r*\037\n\tFaultType" +
+      "\022\010\n\004SOFT\020\000\022\010\n\004HARD\020\001*-\n\tDirection\022\006\n\002UP\020" +
+      "\000\022\010\n\004DOWN\020\001\022\016\n\nSTATIONARY\020\002*\034\n\tLampState" +
+      "\022\006\n\002ON\020\000\022\007\n\003OFF\020\001*$\n\006Button\022\014\n\010INTERIOR\020" +
+      "\000\022\014\n\010EXTERIOR\020\001B\031B\025ElevatorCommandProtos" +
+      "P\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -128,7 +129,7 @@ public final class ElevatorCommandProtos {
     internal_static_elevatorCommands_ElevatorFaultMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_elevatorCommands_ElevatorFaultMessage_descriptor,
-        new java.lang.String[] { "ElevatorID", "Fault", "TimeStamp", });
+        new java.lang.String[] { "ElevatorID", "Fault", "Timeout", "TimeStamp", });
     internal_static_elevatorCommands_ElevatorRegisterMessage_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_elevatorCommands_ElevatorRegisterMessage_fieldAccessorTable = new

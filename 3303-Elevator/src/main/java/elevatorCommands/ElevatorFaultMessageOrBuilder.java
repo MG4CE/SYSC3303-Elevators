@@ -25,12 +25,18 @@ public interface ElevatorFaultMessageOrBuilder extends
   elevatorCommands.FaultType getFault();
 
   /**
-   * <code>string timeStamp = 3;</code>
+   * <code>int32 timeout = 3;</code>
+   * @return The timeout.
+   */
+  int getTimeout();
+
+  /**
+   * <code>string timeStamp = 4;</code>
    * @return The timeStamp.
    */
   java.lang.String getTimeStamp();
   /**
-   * <code>string timeStamp = 3;</code>
+   * <code>string timeStamp = 4;</code>
    * @return The bytes for timeStamp.
    */
   com.google.protobuf.ByteString

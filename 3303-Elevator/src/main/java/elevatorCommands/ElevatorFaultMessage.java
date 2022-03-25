@@ -61,7 +61,12 @@ private static final long serialVersionUID = 0L;
             fault_ = rawValue;
             break;
           }
-          case 26: {
+          case 24: {
+
+            timeout_ = input.readInt32();
+            break;
+          }
+          case 34: {
             java.lang.String s = input.readStringRequireUtf8();
 
             timeStamp_ = s;
@@ -129,10 +134,21 @@ private static final long serialVersionUID = 0L;
     return result == null ? elevatorCommands.FaultType.UNRECOGNIZED : result;
   }
 
-  public static final int TIMESTAMP_FIELD_NUMBER = 3;
+  public static final int TIMEOUT_FIELD_NUMBER = 3;
+  private int timeout_;
+  /**
+   * <code>int32 timeout = 3;</code>
+   * @return The timeout.
+   */
+  @java.lang.Override
+  public int getTimeout() {
+    return timeout_;
+  }
+
+  public static final int TIMESTAMP_FIELD_NUMBER = 4;
   private volatile java.lang.Object timeStamp_;
   /**
-   * <code>string timeStamp = 3;</code>
+   * <code>string timeStamp = 4;</code>
    * @return The timeStamp.
    */
   @java.lang.Override
@@ -149,7 +165,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string timeStamp = 3;</code>
+   * <code>string timeStamp = 4;</code>
    * @return The bytes for timeStamp.
    */
   @java.lang.Override
@@ -187,8 +203,11 @@ private static final long serialVersionUID = 0L;
     if (fault_ != elevatorCommands.FaultType.SOFT.getNumber()) {
       output.writeEnum(2, fault_);
     }
+    if (timeout_ != 0) {
+      output.writeInt32(3, timeout_);
+    }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(timeStamp_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 3, timeStamp_);
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 4, timeStamp_);
     }
     unknownFields.writeTo(output);
   }
@@ -207,8 +226,12 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeEnumSize(2, fault_);
     }
+    if (timeout_ != 0) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt32Size(3, timeout_);
+    }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(timeStamp_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, timeStamp_);
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, timeStamp_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -228,6 +251,8 @@ private static final long serialVersionUID = 0L;
     if (getElevatorID()
         != other.getElevatorID()) return false;
     if (fault_ != other.fault_) return false;
+    if (getTimeout()
+        != other.getTimeout()) return false;
     if (!getTimeStamp()
         .equals(other.getTimeStamp())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
@@ -245,6 +270,8 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getElevatorID();
     hash = (37 * hash) + FAULT_FIELD_NUMBER;
     hash = (53 * hash) + fault_;
+    hash = (37 * hash) + TIMEOUT_FIELD_NUMBER;
+    hash = (53 * hash) + getTimeout();
     hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
     hash = (53 * hash) + getTimeStamp().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
@@ -384,6 +411,8 @@ private static final long serialVersionUID = 0L;
 
       fault_ = 0;
 
+      timeout_ = 0;
+
       timeStamp_ = "";
 
       return this;
@@ -414,6 +443,7 @@ private static final long serialVersionUID = 0L;
       elevatorCommands.ElevatorFaultMessage result = new elevatorCommands.ElevatorFaultMessage(this);
       result.elevatorID_ = elevatorID_;
       result.fault_ = fault_;
+      result.timeout_ = timeout_;
       result.timeStamp_ = timeStamp_;
       onBuilt();
       return result;
@@ -468,6 +498,9 @@ private static final long serialVersionUID = 0L;
       }
       if (other.fault_ != 0) {
         setFaultValue(other.getFaultValue());
+      }
+      if (other.getTimeout() != 0) {
+        setTimeout(other.getTimeout());
       }
       if (!other.getTimeStamp().isEmpty()) {
         timeStamp_ = other.timeStamp_;
@@ -587,9 +620,40 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
+    private int timeout_ ;
+    /**
+     * <code>int32 timeout = 3;</code>
+     * @return The timeout.
+     */
+    @java.lang.Override
+    public int getTimeout() {
+      return timeout_;
+    }
+    /**
+     * <code>int32 timeout = 3;</code>
+     * @param value The timeout to set.
+     * @return This builder for chaining.
+     */
+    public Builder setTimeout(int value) {
+      
+      timeout_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>int32 timeout = 3;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearTimeout() {
+      
+      timeout_ = 0;
+      onChanged();
+      return this;
+    }
+
     private java.lang.Object timeStamp_ = "";
     /**
-     * <code>string timeStamp = 3;</code>
+     * <code>string timeStamp = 4;</code>
      * @return The timeStamp.
      */
     public java.lang.String getTimeStamp() {
@@ -605,7 +669,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string timeStamp = 3;</code>
+     * <code>string timeStamp = 4;</code>
      * @return The bytes for timeStamp.
      */
     public com.google.protobuf.ByteString
@@ -622,7 +686,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string timeStamp = 3;</code>
+     * <code>string timeStamp = 4;</code>
      * @param value The timeStamp to set.
      * @return This builder for chaining.
      */
@@ -637,7 +701,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string timeStamp = 3;</code>
+     * <code>string timeStamp = 4;</code>
      * @return This builder for chaining.
      */
     public Builder clearTimeStamp() {
@@ -647,7 +711,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string timeStamp = 3;</code>
+     * <code>string timeStamp = 4;</code>
      * @param value The bytes for timeStamp to set.
      * @return This builder for chaining.
      */

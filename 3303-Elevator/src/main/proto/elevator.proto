@@ -21,7 +21,8 @@ message WrapperMessage{
 message ElevatorFaultMessage{
 	uint32 elevatorID = 1;
 	FaultType fault = 2;
-	string timeStamp = 3;
+	int32 timeout = 3;
+	string timeStamp = 4;
 }
 
 
