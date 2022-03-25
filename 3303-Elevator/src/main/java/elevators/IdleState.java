@@ -38,6 +38,7 @@ public class IdleState implements State {
 			elevator.setDestinationFloor(msg.getDestFloor()); //update destination floor
 			
 			if(msg.getDestFloor() == elevator.getCurrentFloor()) {
+				elevator.sendElevatorArrivedMessage();
 				return new BoardingState(elevator); //return instance of next state
 			} else {
 				elevator.updateCurrentDirection(); //got a new floor to go to
