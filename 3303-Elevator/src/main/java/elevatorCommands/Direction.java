@@ -94,7 +94,7 @@ public enum Direction
   }
   public static final com.google.protobuf.Descriptors.EnumDescriptor
       getDescriptor() {
-    return elevatorCommands.ElevatorCommandProtos.getDescriptor().getEnumTypes().get(0);
+    return elevatorCommands.ElevatorCommandProtos.getDescriptor().getEnumTypes().get(1);
   }
 
   private static final Direction[] VALUES = values();

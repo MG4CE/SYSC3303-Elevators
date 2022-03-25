@@ -64,7 +64,7 @@ public class Motor {
         		try {
         			elevator.motorUpdate();
         		} catch (IOException e) {
-        			elevator.LOGGER.severe("Motor failed to update floor status, exiting [" + e.getMessage() +"]");
+        			elevator.LOGGER.info("Motor failed to update floor status, exiting [" + e.getMessage() +"]");
         			System.exit(1);
         		}
         	}

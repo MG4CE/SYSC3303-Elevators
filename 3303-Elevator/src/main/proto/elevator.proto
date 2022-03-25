@@ -14,8 +14,17 @@ message WrapperMessage{
 		FloorSensorMessage floorSensor = 5;
 		LampMessage lampMessage = 6;
 		ElevatorRegisterMessage registerMessage = 7;
+		ElevatorFaultMessage faultMessage = 8;
 	}
 }
+
+message ElevatorFaultMessage{
+	uint32 elevatorID = 1;
+	FaultType fault = 2;
+	int32 timeout = 3;
+	string timeStamp = 4;
+}
+
 
 message ElevatorRegisterMessage{
 	uint32 elevatorID = 1;
@@ -73,6 +82,11 @@ message LampMessage{
 	LampState state = 3;
 	string timeStamp = 4;
 	uint32 elevatorID = 5;
+}
+
+enum FaultType{
+	SOFT = 0;
+	HARD = 1;
 }
 
 enum Direction{

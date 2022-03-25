@@ -11,7 +11,9 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -22,7 +24,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
  */
 public class Scheduler extends UDPHelper {
 	//A logger for all the message logs
-    private final Logger LOGGER = Logger.getLogger(Scheduler.class.getName());
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(Scheduler.class);  
 	//The number of floors
     private int numFloors;
 	//A queue of the messages
@@ -70,7 +72,7 @@ public class Scheduler extends UDPHelper {
 						msg = receiveMessage();
 					} catch (IOException e1) {
 						e1.printStackTrace();
-						LOGGER.severe("Failed to receive data from socket, stopping!");
+						LOGGER.info("Failed to receive data from socket, stopping!");
 						isRunning = false;
 						schedulerThread.interrupt();
 					}
@@ -167,7 +169,7 @@ public class Scheduler extends UDPHelper {
 	    					try {
 								sendElevatorRegisterMessage(elevatorIDCounter, packet.getPort(), packet.getAddress());
 							} catch (IOException e) {
-								LOGGER.severe("Failed to send repsonse to elevator register message: " + e.getMessage());
+								LOGGER.info("Failed to send repsonse to elevator register message: " + e.getMessage());
 								stopScheduler();
 							}
 	    					elevatorIDCounter++;
@@ -178,7 +180,7 @@ public class Scheduler extends UDPHelper {
 									try {
 										sendElevatorArrivedMessage(message, elevator.peekTopRequest().getRequestID(), floorSubsystemPort, floorSubsystemAddress);
 									} catch (IOException e) {
-										LOGGER.severe("Failed to forward elevator arrived message: " + e.getMessage());
+										LOGGER.info("Failed to forward elevator arrived message: " + e.getMessage());
 									}
 									elevator.setState(ElevatorState.STOPPED);
 									elevator.popTopRequest();
@@ -368,14 +370,14 @@ public class Scheduler extends UDPHelper {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-	    Logger LOGGER = Logger.getLogger("Scheduler Main");
+	    //Logger LOGGER = Logger.getLogger("Scheduler Main");
 		Scheduler s = null;
 		
 		try {
 			s = new Scheduler(6969, 10);
 		} catch (SocketException e) {
 			e.printStackTrace();
-			LOGGER.severe("Socket creation failed!");
+			LOGGER.info("Socket creation failed!");
 		}
 
 		s.startListenerThread();

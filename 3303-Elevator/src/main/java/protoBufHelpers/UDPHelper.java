@@ -6,7 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
 
 
 import elevatorCommands.*;
@@ -15,7 +16,7 @@ import elevatorCommands.*;
  * Helper class to be extended by any class that sends/receives messages
  */
 public abstract class UDPHelper {
-	private final Logger LOGGER = Logger.getLogger(UDPHelper.class.getName());
+	private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(UDPHelper.class);
 	private final DatagramSocket recvSocket;
 	private final int PACKET_SIZE = 1024;
 	private final int TIMEOUT = 10;
@@ -69,7 +70,7 @@ public abstract class UDPHelper {
 				recvSocket.setSoTimeout(0);
 			} catch (SocketException e) {
 				e.printStackTrace();
-				LOGGER.severe("Failed to change port timeout!");
+				LOGGER.info("Failed to change port timeout!");
 				return null;
 			}
 		} else {
@@ -77,7 +78,7 @@ public abstract class UDPHelper {
 				recvSocket.setSoTimeout(TIMEOUT * 1000);
 			} catch (SocketException e) {
 				e.printStackTrace();
-				LOGGER.severe("Failed to change port timeout!");
+				LOGGER.info("Failed to change port timeout!");
 				return null;
 			}
 		}
@@ -87,7 +88,7 @@ public abstract class UDPHelper {
 			try {
 				recvSocket.receive(receivePacket);
 			} catch (SocketTimeoutException e) {
-				LOGGER.warning("Host did not respond, retrying!");
+				LOGGER.warn("Host did not respond, retrying!");
 				numRetries++;
 				continue;
 			}
@@ -96,7 +97,7 @@ public abstract class UDPHelper {
 		}
 		
 		if (numRetries >= MAX_NUM_RETRIES) {
-			LOGGER.warning("Retry limited reached!");
+			LOGGER.warn("Retry limited reached!");
 			return null;
 		}
 		

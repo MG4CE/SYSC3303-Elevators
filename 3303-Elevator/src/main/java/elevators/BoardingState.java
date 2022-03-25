@@ -31,7 +31,7 @@ public class BoardingState extends TimerTask implements State {
 		try {
 			elevator.elevatorFSM.updateFSM(null);
 		} catch (IOException e) {
-			elevator.LOGGER.severe(e.getMessage());
+			elevator.LOGGER.info(e.getMessage());
 			elevator.running = false;
 		}
 	}
@@ -60,6 +60,12 @@ public class BoardingState extends TimerTask implements State {
 			} else {
 				elevator.setDestinationFloor(msg.getDestFloor());
 				elevator.updateCurrentDirection();
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return new MovingState(elevator);
 			}
 		}
