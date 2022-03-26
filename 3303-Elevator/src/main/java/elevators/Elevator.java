@@ -338,6 +338,10 @@ public class Elevator extends UDPHelper implements Runnable {
 	public int getElevatorId() {
 		return this.elevatorID;
 	}
+	
+	public void killElevator() {
+		this.running = false;
+	}
 
 	/**
 	 * Create an instance of elevator and start it.
