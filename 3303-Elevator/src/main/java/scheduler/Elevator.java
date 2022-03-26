@@ -17,16 +17,19 @@ import elevatorCommands.Direction;
  */
 public class Elevator {
 	
-	private static final int TIMEOUT = 1000;
+	private static final int BUTTON_WAIT_TIMEOUT = 1000;
+	private static final int TIMEOUT = 10000;
 
 	/**
 	 * The enum for the different states the elevator could have
 	 */
 	public enum ElevatorState {
 		MOVING,
-		STOPPED
+		STOPPED,
+		DOOR_FAULT,
+		TIMEOUTED
 	}
-	
+		
 	//The port of the elevator
 	private int port;
 	//The address for our UDP communication
@@ -43,10 +46,15 @@ public class Elevator {
 	private ElevatorState state;
 	//The current destination of the floor
 	private int currentDestinationFloor;
-	private Timer timer;
 	private Scheduler scheduler;
 	private Boolean isTimerOff;
-	private TimerTask timerTask;
+	private Boolean isTimeoutTimerOff;
+	private Timer interiorButtonTimer;
+	private TimerTask interiorButtonTimerTask;
+	private Timer timeoutTimer;
+	private TimerTask timeoutTimerTask;
+	private Timer doorFaultSimTimer;
+	private TimerTask doorFaultSimTimerTask;
 
 	/**
 	 * The constructor for the elevator control class
@@ -66,8 +74,13 @@ public class Elevator {
 		this.currentDestinationFloor = -1;
 		this.scheduler = scheduler;
 		this.isTimerOff = true;
-		this.timer = null;
-		this.timerTask = null;
+		this.interiorButtonTimer = null;
+		this.interiorButtonTimerTask = null;
+		this.timeoutTimer = null;
+		this.timeoutTimerTask = null;
+		this.doorFaultSimTimer = null;
+		this.doorFaultSimTimerTask = null;
+		this.isTimeoutTimerOff = true;
 	}
 
 	/**
@@ -287,15 +300,15 @@ public class Elevator {
 	}
 	
 	public void startWaitTimer() {
-		timer = new Timer();
-		timerTask = makeTimerTask();
-		timer.schedule(timerTask, TIMEOUT);
+		interiorButtonTimer = new Timer();
+		interiorButtonTimerTask = makeTimerTask();
+		interiorButtonTimer.schedule(interiorButtonTimerTask, BUTTON_WAIT_TIMEOUT);
 		isTimerOff = false;
 	}
 	
 	public void stopWaitTimer() {
 		if (!isTimerOff) {
-			timer.cancel();
+			interiorButtonTimer.cancel();
 			isTimerOff = true;
 		}
 	}
@@ -304,16 +317,90 @@ public class Elevator {
 		return new TimerTask() {
 			@Override
 			public void run() {
-				try {
-					scheduler.sendSchedulerDispatchMessage(peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
-				} catch (IOException e) {
-					e.printStackTrace();
+				Scheduler.LOGGER.warn("Floorsubsystem failed to give internal button press!");
+				if (peekTopRequest() != null ) {
+					try {
+						scheduler.sendSchedulerDispatchMessage(peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					setCurrentDestination(peekTopRequest().getFloor());
+				} else {
+					stopTimeoutTimer();
 				}
-				setCurrentDestination(peekTopRequest().getFloor());
 			}
         };
 	}
-
+	
+	public void startTimeoutTimer() {
+		timeoutTimer = new Timer();
+		timeoutTimerTask = makeTimeoutTask();
+		timeoutTimer.schedule(timeoutTimerTask, TIMEOUT);
+		isTimeoutTimerOff = false;
+	}
+	
+	public void resetTimeoutTimer() {
+		interiorButtonTimer.cancel();
+		timeoutTimer = new Timer();
+		timeoutTimerTask = makeTimeoutTask();
+		timeoutTimer.schedule(timeoutTimerTask, TIMEOUT);
+	}
+	
+	public void stopTimeoutTimer() {
+		if (!isTimeoutTimerOff) {
+			interiorButtonTimer.cancel();
+			isTimeoutTimerOff = true;
+		}
+	}
+	
+	private TimerTask makeTimeoutTask() {
+		Elevator e = this;
+		return new TimerTask() {
+			@Override
+			public void run() {
+				state = ElevatorState.TIMEOUTED;
+				scheduler.hardFaultElevator(e);
+			}
+        };
+	}
+	
+	public void startDoorFaultSimTimer(int timeout) {
+		doorFaultSimTimer = new Timer();
+		doorFaultSimTimerTask = makeDoorFaultSimTask();
+		doorFaultSimTimer.schedule(doorFaultSimTimerTask, timeout);
+	}
+	
+	private TimerTask makeDoorFaultSimTask() {
+		return new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					scheduler.sendStopDoorFaultSimulateFaultMessage(elevatorID, port, address);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				scheduler.verifyElevatorTopRequests();
+			}
+        };
+	}
+	
+	public ArrayList<ElevatorRequest> getAllExternalRequest() {
+		ArrayList<ElevatorRequest> ret = new ArrayList<>();
+		for (ElevatorRequest r : floorDestinations) {
+			if (r.getRequestType() == Button.EXTERIOR) {
+				ret.add(r);
+			}
+		}
+		return ret;
+	}
+	
+	public Boolean isSchedulable() {
+		if (state == ElevatorState.MOVING || state == ElevatorState.STOPPED) {
+			return true;
+		}
+		return false;
+	}
+	
 	public static void main(String[] args) {
 	    Elevator e = new Elevator(123, 1, 1, null, null);
 	    e.addDestination(new ElevatorRequest(10, 999, Direction.UP, Button.EXTERIOR));

@@ -23,7 +23,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
  */
 public class Scheduler extends UDPHelper {
 	//A logger for all the message logs
-    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(Scheduler.class);  
+    protected static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(Scheduler.class);  
 	//The number of floors
     private int numFloors;
 	//A queue of the messages
@@ -136,30 +136,41 @@ public class Scheduler extends UDPHelper {
 	    						LOGGER.info("Exterior button pressed at floor " + request.getFloor() + " direction " + request.getDirection());
 	    						ElevatorRequest eReq = new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.EXTERIOR);
 	    						Elevator elevator = assignBestElevator(eReq);
-								if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
-									elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
-									try {
-										sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
-									} catch (IOException e) {
-										e.printStackTrace();
+	    						synchronized(elevator){
+		    						if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
+										if(elevator.getNumDestinations() == 0) {
+											elevator.startTimeoutTimer();
+										}
+		    							elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
+		    							if(elevator.isSchedulable()) {
+											try {
+												sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
+		    							}
 									}
-								}
+	    						}
 	    					} else {
 	    						LOGGER.info("Interior button pressed inside Elevator " + request.getElevatorID() + " requesting to go to floor " + request.getFloor());
 								for(Elevator elevator : elevators) {
 									if(request.getElevatorID() == elevator.getElevatorID()) {
-										elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.INTERIOR));
-										if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
-											if(elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
-												elevator.stopWaitTimer();
-												elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
-												try {
-													sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
-												} catch (IOException e) {
-													e.printStackTrace();
+										synchronized(elevator){
+											elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.INTERIOR));
+											if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
+												if(elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
+													elevator.stopWaitTimer();
+													elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
+													if(elevator.isSchedulable()) {
+														try {
+															sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
+														} catch (IOException e) {
+															e.printStackTrace();
+														}
+													}	
+												} else {
+													elevator.popTopRequest();
 												}
-											} else {
-												elevator.popTopRequest();
 											}
 										}
 									}
@@ -180,23 +191,30 @@ public class Scheduler extends UDPHelper {
 							ElevatorArrivedMessage message = msg.toElevatorArrivedMessage();
 	    					LOGGER.info("Elevator " + message.getElevatorID() + " has arrived at floor " + message.getFloor());
 							for(Elevator elevator : elevators) {
-								if(message.getElevatorID() == elevator.getElevatorID()) {
-									try {
-										sendElevatorArrivedMessage(message, elevator.peekTopRequest().getRequestID(), floorSubsystemPort, floorSubsystemAddress);
-									} catch (IOException e) {
-										LOGGER.error("Failed to forward elevator arrived message: " + e.getMessage());
-									}
-									elevator.setState(ElevatorState.STOPPED);
-									ElevatorRequest lastReq = elevator.popTopRequest();
-									if (!elevator.getFloorDestinations().isEmpty() && lastReq.getRequestType() == Button.INTERIOR){
-										elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
+								synchronized(elevator){
+									elevator.resetTimeoutTimer();
+									if(message.getElevatorID() == elevator.getElevatorID()) {
 										try {
-											sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), elevator.getlDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
+											sendElevatorArrivedMessage(message, elevator.peekTopRequest().getRequestID(), floorSubsystemPort, floorSubsystemAddress);
 										} catch (IOException e) {
-											e.printStackTrace();
+											LOGGER.error("Failed to forward elevator arrived message: " + e.getMessage());
 										}
-									} else if (lastReq.getRequestType() == Button.EXTERIOR) {
-										elevator.startWaitTimer();
+										elevator.setState(ElevatorState.STOPPED);
+										ElevatorRequest lastReq = elevator.popTopRequest();
+										if (!elevator.getFloorDestinations().isEmpty() && lastReq.getRequestType() == Button.INTERIOR){
+											elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
+											if(elevator.isSchedulable()) {
+												try {
+													sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), elevator.getlDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
+												} catch (IOException e) {
+													e.printStackTrace();
+												}
+											}
+										} else if (lastReq.getRequestType() == Button.EXTERIOR) {
+											elevator.startWaitTimer();
+										} else {
+											elevator.stopTimeoutTimer();
+										}
 									}
 								}
 							}
@@ -210,7 +228,10 @@ public class Scheduler extends UDPHelper {
 							}
 							for(Elevator elevator : elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
-									elevator.setState(ElevatorState.MOVING);
+									synchronized(elevator){
+										elevator.resetTimeoutTimer();
+										elevator.setState(ElevatorState.MOVING);
+									}
 								}
 							}
 						} else if(msg.isFloorSensorMessage()) {
@@ -218,7 +239,41 @@ public class Scheduler extends UDPHelper {
 							LOGGER.debug("Elevator " + request.getElevatorID() + " is currently at floor " + request.getFloor());
 							for(Elevator elevator : elevators) {
 								if(request.getElevatorID() == elevator.getElevatorID()) {
-									elevator.setCurrentFloor(request.getFloor());
+									synchronized(elevator){
+										elevator.resetTimeoutTimer();
+										elevator.setCurrentFloor(request.getFloor());
+									}
+								}
+							}
+						} else if(msg.isElevatorSimulateFaultMessage()) {
+							SimulateFaultMessage request = msg.toElevatorSimulateFaultMessage();
+							for(Elevator elevator : elevators) {
+								if(request.getElevatorID() == elevator.getElevatorID()) {
+									try {
+										sendMessage(request, elevator.getPort(), elevator.getAddress());
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						} else if(msg.isElevatorFaultMessage()) {
+							FaultMessage request = msg.toElevatorFaultMessage();
+							Elevator elevatorAtFault = null;
+							for(Elevator elevator : elevators) {
+								if(request.getElevatorID() == elevator.getElevatorID()) {
+									elevatorAtFault = elevator;
+								}
+							}
+							
+							if(elevatorAtFault != null) {
+								if(request.getFault() == FaultType.DOORFAULT) {
+									elevatorAtFault.stopTimeoutTimer();
+									elevatorAtFault.setState(ElevatorState.DOOR_FAULT);
+									elevatorAtFault.startDoorFaultSimTimer(request.getTimeout());
+								} else if(request.getFault() == FaultType.SCHEDULE_FAULT) {
+									elevatorAtFault.resetTimeoutTimer();
+									ElevatorRequest r = elevatorAtFault.popTopRequest();
+									elevatorAtFault.addDestination(r);
 								}
 							}
 						}
@@ -287,6 +342,16 @@ public class Scheduler extends UDPHelper {
 		sendMessage(msg, port, address);
 	}
 	
+	protected void sendStopDoorFaultSimulateFaultMessage(int elevatorID, int port, InetAddress address) throws IOException {
+		SimulateFaultMessage msg = SimulateFaultMessage.newBuilder()
+				.setFault(FaultType.DOORFAULT)
+				.setElevatorID(elevatorID)
+				.setTimeout(0)
+				//TODO: ADD TIMESTAMP
+				.build();
+		sendMessage(msg, port, address);
+	}
+	
 	/**
 	 * Send a message saying a that an elevator has been registered
 	 * 
@@ -311,18 +376,26 @@ public class Scheduler extends UDPHelper {
     public Elevator assignBestElevator(ElevatorRequest req) {
     	Elevator selectedElevator = null;
     	if(elevators.size() == 1) {
-    		elevators.get(0).addDestination(req);
+    		synchronized(elevators.get(0)){
+    			elevators.get(0).addDestination(req);
+    		}
     		selectedElevator = elevators.get(0);
     	} else {
     		Elevator best = null;
     		Iterator<Elevator> iter = elevators.iterator();
     		while (iter.hasNext()) {
 	    		Elevator elevator = iter.next();
-	    		if (best == null || compareElevator(elevator, best, req)) {
-	    			best = elevator;
+	    		synchronized(best){
+	    			synchronized(elevator){
+	    	    		if (best == null || compareElevator(elevator, best, req)) {
+	    	    			best = elevator;
+	    	    		}
+	    			}
 	    		}
     		}
-    		best.addDestination(req);
+    		synchronized(best){
+    			best.addDestination(req);
+    		}
     		selectedElevator = best;
     	}
     	return selectedElevator;
@@ -336,8 +409,8 @@ public class Scheduler extends UDPHelper {
 	 * @return whether elevator one preferred over two
 	 */
 	private Boolean compareElevator(Elevator e1, Elevator e2, ElevatorRequest request) {
-    	int e1Score = evaluateDirectionalScore(e1, request) - e1.getNumDestinations() + e1.isRequestInQueue(request)*2;
-    	int e2Score = evaluateDirectionalScore(e2, request) - e2.getNumDestinations() + e2.isRequestInQueue(request)*2;
+    	int e1Score = evaluateDirectionalScore(e1, request) - e1.getNumDestinations() + e1.isRequestInQueue(request)*2 + getSchedulableScore(e1);
+    	int e2Score = evaluateDirectionalScore(e2, request) - e2.getNumDestinations() + e2.isRequestInQueue(request)*2 + getSchedulableScore(e2);
     	if (e1Score > e2Score) {
         	return true;
     	}
@@ -355,7 +428,7 @@ public class Scheduler extends UDPHelper {
     	int score = e.getCurrentFloor() - request.getFloor();
     	Direction direction = e.getlDirection();
     	if (score == 0 && direction != Direction.STATIONARY) {
-    		return -99999 + e.getElevatorID();
+    		return -9999 + e.getElevatorID();
     	}
     	if (score < 0 && direction == Direction.UP) {
     		score *= -1;
@@ -368,6 +441,13 @@ public class Scheduler extends UDPHelper {
     	}
     	return score;
     }
+	
+	private int getSchedulableScore(Elevator e) {
+		if (!e.isSchedulable()) {
+			return -99999999;
+		}
+		return 0;
+	}
 
 	/**
 	 * Stop all of the threads
@@ -378,6 +458,38 @@ public class Scheduler extends UDPHelper {
     	listenerThread.interrupt();
     	schedulerThread.interrupt();
     }
+	
+	protected void hardFaultElevator(Elevator e) {
+		if(e.getState() != ElevatorState.TIMEOUTED) {
+			return;
+		}
+		
+		LOGGER.error("Elevator " + e.getElevatorID() + ": has timeouted out, remove elevator");
+		elevators.remove(e);
+		if(elevators.size() >= 1) {
+			LOGGER.info("Resceduling Elevator " + e.getElevatorID() + ": external button requests to other elevators");
+			ArrayList<ElevatorRequest> pending = e.getAllExternalRequest();
+			for (ElevatorRequest r : pending) {
+				assignBestElevator(r);
+			}
+		}
+		verifyElevatorTopRequests();
+	}
+	
+	protected void verifyElevatorTopRequests() {
+		for(Elevator elevator : elevators) {
+			synchronized(elevator){
+				if(elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
+					elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
+					try {
+						sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), elevator.peekTopRequest().getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * The main method for running the threads

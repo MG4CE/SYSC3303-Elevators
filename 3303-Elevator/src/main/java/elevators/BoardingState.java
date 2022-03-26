@@ -15,6 +15,7 @@ public class BoardingState extends TimerTask implements State {
 	private Elevator elevator;
 	private Timer timer;
 	private final static int TIMEOUT = 4;
+	private final static int DOOR_RETRY_TIMEOUT = 1;
 	
 	/**
 	 * Constructor
@@ -44,7 +45,22 @@ public class BoardingState extends TimerTask implements State {
 	
 	@Override
 	public void exitActions() {
-		elevator.closeDoors();
+		if (elevator.isDoorAtFault) {
+			new Thread(new Runnable() {
+				public void run() {
+					while(elevator.isDoorAtFault) {
+						try {
+							Thread.sleep(DOOR_RETRY_TIMEOUT * 1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					elevator.closeDoors();
+				}
+			});
+		} else {
+			elevator.closeDoors();
+		}
 		timer.cancel();
 	}
 	
