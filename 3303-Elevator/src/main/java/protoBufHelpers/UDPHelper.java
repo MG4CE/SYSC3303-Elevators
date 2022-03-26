@@ -133,6 +133,8 @@ public abstract class UDPHelper {
 			msgBldr.setLampMessage((LampMessage) message);
 		}else if(message instanceof ElevatorRegisterMessage){
 			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
+		}else if(message instanceof ElevatorFaultMessage) {
+			msgBldr.setFaultMessage((ElevatorFaultMessage)message);
 		}
 		
 		WrapperMessage msg = msgBldr.build();
@@ -164,6 +166,8 @@ public abstract class UDPHelper {
 			msgBldr.setLampMessage((LampMessage) message);
 		}else if(message instanceof ElevatorRegisterMessage) {
 			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
+		}else if(message instanceof ElevatorFaultMessage) {
+			msgBldr.setFaultMessage((ElevatorFaultMessage)message);
 		}
 		
 		WrapperMessage msg = msgBldr.build();
