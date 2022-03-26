@@ -80,13 +80,15 @@ public class Elevator {
 		ArrayList<ElevatorRequest> right = new ArrayList<>();
 		ArrayList<ElevatorRequest> seek_sequence = new ArrayList<>();
 	    
-		floorDestinations.add(req);
-		
-	    if (currentDestinationFloor > req.getFloor() && currentDirection == Direction.STATIONARY) {
-	    	this.currentDirection = Direction.DOWN;
-	    } else if (currentDestinationFloor < req.getFloor() && currentDirection == Direction.STATIONARY) {
-	    	this.currentDirection = Direction.UP;
-	    }
+		if (req != null) {
+			floorDestinations.add(req);
+			
+		    if (currentDestinationFloor > req.getFloor() && currentDirection == Direction.STATIONARY) {
+		    	this.currentDirection = Direction.DOWN;
+		    } else if (currentDestinationFloor <= req.getFloor() && currentDirection == Direction.STATIONARY) {
+		    	this.currentDirection = Direction.UP;
+		    }
+		}
 	    
 		Direction direction = currentDirection;
 	    
@@ -125,6 +127,16 @@ public class Elevator {
 	            direction = Direction.DOWN;
 	        }
 	    }
+	    
+	    int shift = 0;  
+	    for (int i = 0; i < seek_sequence.size(); i++) {
+	    	if (seek_sequence.get(i).getFloor() == currentDestinationFloor) {
+	    		ElevatorRequest r = seek_sequence.remove(i);
+	    		seek_sequence.add(shift, r);
+	    		shift++;
+	    	}
+	    }
+	    
 	    floorDestinations = seek_sequence;
 	}
 
@@ -216,6 +228,7 @@ public class Elevator {
 		} else if (currentDirection == Direction.UP) {
 			currentDirection = Direction.DOWN;
 		}
+		addDestination(null);
 	}
 
 	/**

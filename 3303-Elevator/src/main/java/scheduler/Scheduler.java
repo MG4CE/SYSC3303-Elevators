@@ -136,14 +136,13 @@ public class Scheduler extends UDPHelper {
 	    						LOGGER.info("Exterior button pressed at floor " + request.getFloor() + " direction " + request.getDirection());
 	    						ElevatorRequest eReq = new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.EXTERIOR);
 	    						Elevator elevator = assignBestElevator(eReq);
-	    						System.out.println(elevator.getElevatorID());
 								if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
+									elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 									try {
 										sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
 									} catch (IOException e) {
 										e.printStackTrace();
 									}
-									elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 								}
 	    					} else {
 	    						LOGGER.info("Interior button pressed inside Elevator " + request.getElevatorID() + " requesting to go to floor " + request.getFloor());
@@ -153,12 +152,12 @@ public class Scheduler extends UDPHelper {
 										if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
 											if(elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
 												elevator.stopWaitTimer();
+												elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 												try {
 													sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
 												} catch (IOException e) {
 													e.printStackTrace();
 												}
-												elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 											} else {
 												elevator.popTopRequest();
 											}
@@ -190,12 +189,12 @@ public class Scheduler extends UDPHelper {
 									elevator.setState(ElevatorState.STOPPED);
 									ElevatorRequest lastReq = elevator.popTopRequest();
 									if (!elevator.getFloorDestinations().isEmpty() && lastReq.getRequestType() == Button.INTERIOR){
+										elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 										try {
 											sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), elevator.getlDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
 										} catch (IOException e) {
 											e.printStackTrace();
 										}
-										elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 									} else if (lastReq.getRequestType() == Button.EXTERIOR) {
 										elevator.startWaitTimer();
 									}
@@ -231,7 +230,8 @@ public class Scheduler extends UDPHelper {
 	}
 
 	/**
-	 * if we have an elevator departing then we need to set the lamp
+	 * If we have an elevator departing then we need to set the lamp
+	 * 
 	 * @param floor the floor the lamp is related to
 	 * @param port the port
 	 * @param direction the direction of the lamp messages
@@ -251,8 +251,9 @@ public class Scheduler extends UDPHelper {
 	}
 
 	/**
-	 * when an elevator arrives send another dispatch message, and another message is in queue
-	 * 	If the button pressed has the highest priority send a dispatch
+	 * When an elevator arrives send another dispatch message, and another message is in queue.
+	 * If the button pressed has the highest priority send a dispatch
+	 * 
 	 * @param destFloor the destination floor
 	 * @param port the port to send to
 	 * @param direction the direction of the elevator
@@ -288,6 +289,7 @@ public class Scheduler extends UDPHelper {
 	
 	/**
 	 * Send a message saying a that an elevator has been registered
+	 * 
 	 * @param elevatorID the id of the registered elevator
 	 * @param port the port of the elevator
 	 * @param address the InetAddress
