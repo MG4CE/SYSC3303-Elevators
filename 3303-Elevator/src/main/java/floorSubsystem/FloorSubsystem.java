@@ -233,7 +233,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
     }
 
-    private void sendElevatorFaultMessage(ElevatorFaultMessage faultMessage) throws IOException {
+    private void sendElevatorFaultMessage(SimulateFaultMessage faultMessage) throws IOException {
         LOGGER.info("[FloorSubsystem] Sending elevator " + faultMessage.getFault() +
                 " fault to => [Elevator ID: "+ faultMessage.getElevatorID() + "]");
         System.out.println("Monkey Moment");
@@ -298,14 +298,14 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param timeout timeout for soft faults, will be ignored if hard fault
      * @return
      */
-    private ElevatorFaultMessage createElevatorFaultMessage(FaultType faultType, int elevatorID, int timeout){
+    private SimulateFaultMessage createSimulateFaultMessage(FaultType faultType, int elevatorID, int timeout){
         if (faultType == FaultType.ELEVATOR_UNRESPONSIVE){ // hard faults; timeout
-            return ElevatorFaultMessage.newBuilder()
+            return SimulateFaultMessage.newBuilder()
                     .setFault(faultType)
                     .setElevatorID(elevatorID)
                     .build();
         } // Soft fault ; YES timeout
-        return ElevatorFaultMessage.newBuilder()
+        return SimulateFaultMessage.newBuilder()
                 .setFault(faultType)
                 .setElevatorID(elevatorID)
                 .setTimeout(timeout)
