@@ -20,6 +20,10 @@ public enum FaultType
    * <code>SCHEDULE_FAULT = 2;</code>
    */
   SCHEDULE_FAULT(2),
+  /**
+   * <code>RESOLVED = 3;</code>
+   */
+  RESOLVED(3),
   UNRECOGNIZED(-1),
   ;
 
@@ -35,6 +39,10 @@ public enum FaultType
    * <code>SCHEDULE_FAULT = 2;</code>
    */
   public static final int SCHEDULE_FAULT_VALUE = 2;
+  /**
+   * <code>RESOLVED = 3;</code>
+   */
+  public static final int RESOLVED_VALUE = 3;
 
 
   public final int getNumber() {
@@ -64,6 +72,7 @@ public enum FaultType
       case 0: return DOORFAULT;
       case 1: return ELEVATOR_UNRESPONSIVE;
       case 2: return SCHEDULE_FAULT;
+      case 3: return RESOLVED;
       default: return null;
     }
   }

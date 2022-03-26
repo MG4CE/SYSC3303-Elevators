@@ -96,6 +96,7 @@ enum FaultType{
 	DOORFAULT = 0;
 	ELEVATOR_UNRESPONSIVE = 1;
 	SCHEDULE_FAULT = 2;
+	RESOLVED = 3;
 }
 
 enum Direction{

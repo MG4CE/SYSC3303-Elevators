@@ -117,13 +117,13 @@ public final class ElevatorCommandProtos {
       "r\030\001 \001(\r\022.\n\tdirection\030\002 \001(\0162\033.elevatorCom" +
       "mands.Direction\022*\n\005state\030\003 \001(\0162\033.elevato" +
       "rCommands.LampState\022\021\n\ttimeStamp\030\004 \001(\t\022\022" +
-      "\n\nelevatorID\030\005 \001(\r*I\n\tFaultType\022\r\n\tDOORF" +
+      "\n\nelevatorID\030\005 \001(\r*W\n\tFaultType\022\r\n\tDOORF" +
       "AULT\020\000\022\031\n\025ELEVATOR_UNRESPONSIVE\020\001\022\022\n\016SCH" +
-      "EDULE_FAULT\020\002*-\n\tDirection\022\006\n\002UP\020\000\022\010\n\004DO" +
-      "WN\020\001\022\016\n\nSTATIONARY\020\002*\034\n\tLampState\022\006\n\002ON\020" +
-      "\000\022\007\n\003OFF\020\001*$\n\006Button\022\014\n\010INTERIOR\020\000\022\014\n\010EX" +
-      "TERIOR\020\001B\031B\025ElevatorCommandProtosP\001b\006pro" +
-      "to3"
+      "EDULE_FAULT\020\002\022\014\n\010RESOLVED\020\003*-\n\tDirection" +
+      "\022\006\n\002UP\020\000\022\010\n\004DOWN\020\001\022\016\n\nSTATIONARY\020\002*\034\n\tLa" +
+      "mpState\022\006\n\002ON\020\000\022\007\n\003OFF\020\001*$\n\006Button\022\014\n\010IN" +
+      "TERIOR\020\000\022\014\n\010EXTERIOR\020\001B\031B\025ElevatorComman" +
+      "dProtosP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
