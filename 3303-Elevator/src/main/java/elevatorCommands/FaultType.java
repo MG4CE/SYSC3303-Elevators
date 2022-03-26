@@ -9,24 +9,32 @@ package elevatorCommands;
 public enum FaultType
     implements com.google.protobuf.ProtocolMessageEnum {
   /**
-   * <code>SOFT = 0;</code>
+   * <code>DOORFAULT = 0;</code>
    */
-  SOFT(0),
+  DOORFAULT(0),
   /**
-   * <code>HARD = 1;</code>
+   * <code>ELEVATOR_UNRESPONSIVE = 1;</code>
    */
-  HARD(1),
+  ELEVATOR_UNRESPONSIVE(1),
+  /**
+   * <code>SCHEDULE_FAULT = 2;</code>
+   */
+  SCHEDULE_FAULT(2),
   UNRECOGNIZED(-1),
   ;
 
   /**
-   * <code>SOFT = 0;</code>
+   * <code>DOORFAULT = 0;</code>
    */
-  public static final int SOFT_VALUE = 0;
+  public static final int DOORFAULT_VALUE = 0;
   /**
-   * <code>HARD = 1;</code>
+   * <code>ELEVATOR_UNRESPONSIVE = 1;</code>
    */
-  public static final int HARD_VALUE = 1;
+  public static final int ELEVATOR_UNRESPONSIVE_VALUE = 1;
+  /**
+   * <code>SCHEDULE_FAULT = 2;</code>
+   */
+  public static final int SCHEDULE_FAULT_VALUE = 2;
 
 
   public final int getNumber() {
@@ -53,8 +61,9 @@ public enum FaultType
    */
   public static FaultType forNumber(int value) {
     switch (value) {
-      case 0: return SOFT;
-      case 1: return HARD;
+      case 0: return DOORFAULT;
+      case 1: return ELEVATOR_UNRESPONSIVE;
+      case 2: return SCHEDULE_FAULT;
       default: return null;
     }
   }

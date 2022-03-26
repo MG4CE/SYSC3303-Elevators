@@ -9,12 +9,13 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
-import elevatorCommands.ElevatorFaultMessage;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
+import elevatorCommands.FaultMessage;
 import elevatorCommands.FloorSensorMessage;
 import elevatorCommands.LampMessage;
 import elevatorCommands.SchedulerDispatchMessage;
+import elevatorCommands.SimulateFaultMessage;
 import elevatorCommands.WrapperMessage;
 
 
@@ -113,7 +114,16 @@ public class ProtoBufMessage {
 	 * @return True if of type
 	 */
 	public Boolean isElevatorFaultMessage() {
-		return this.message instanceof ElevatorFaultMessage;
+		return this.message instanceof FaultMessage;
+	}
+	
+	/**
+	 * Check if message of type ElevatorSimulateFaultMessage
+	 * 
+	 * @return True if of type
+	 */
+	public Boolean isElevatorSimulateFaultMessage() {
+		return this.message instanceof SimulateFaultMessage;
 	}
 	
 	/**
@@ -186,10 +196,19 @@ public class ProtoBufMessage {
 	 * 
 	 * @return message of type ElevatorFaultMessage
 	 */
-	public ElevatorFaultMessage toElevatorFaultMessage() {
-		return (ElevatorFaultMessage)(this.message);
+	public FaultMessage toElevatorFaultMessage() {
+		return (FaultMessage)(this.message);
 	}
-
+	
+	/**
+	 * Cast message to type SimulateFaultMessage
+	 * 
+	 * @return message of type SimulateFaultMessage
+	 */
+	public SimulateFaultMessage toElevatorSimulateFaultMessage() {
+		return (SimulateFaultMessage)(this.message);
+	}
+	
 	/**
 	 * Cast message to type ElevatorRequestMessage
 	 * 

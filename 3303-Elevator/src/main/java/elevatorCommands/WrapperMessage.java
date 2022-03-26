@@ -151,17 +151,31 @@ private static final long serialVersionUID = 0L;
             break;
           }
           case 66: {
-            elevatorCommands.ElevatorFaultMessage.Builder subBuilder = null;
+            elevatorCommands.FaultMessage.Builder subBuilder = null;
             if (msgCase_ == 8) {
-              subBuilder = ((elevatorCommands.ElevatorFaultMessage) msg_).toBuilder();
+              subBuilder = ((elevatorCommands.FaultMessage) msg_).toBuilder();
             }
             msg_ =
-                input.readMessage(elevatorCommands.ElevatorFaultMessage.parser(), extensionRegistry);
+                input.readMessage(elevatorCommands.FaultMessage.parser(), extensionRegistry);
             if (subBuilder != null) {
-              subBuilder.mergeFrom((elevatorCommands.ElevatorFaultMessage) msg_);
+              subBuilder.mergeFrom((elevatorCommands.FaultMessage) msg_);
               msg_ = subBuilder.buildPartial();
             }
             msgCase_ = 8;
+            break;
+          }
+          case 74: {
+            elevatorCommands.SimulateFaultMessage.Builder subBuilder = null;
+            if (msgCase_ == 9) {
+              subBuilder = ((elevatorCommands.SimulateFaultMessage) msg_).toBuilder();
+            }
+            msg_ =
+                input.readMessage(elevatorCommands.SimulateFaultMessage.parser(), extensionRegistry);
+            if (subBuilder != null) {
+              subBuilder.mergeFrom((elevatorCommands.SimulateFaultMessage) msg_);
+              msg_ = subBuilder.buildPartial();
+            }
+            msgCase_ = 9;
             break;
           }
           default: {
@@ -209,6 +223,7 @@ private static final long serialVersionUID = 0L;
     LAMPMESSAGE(6),
     REGISTERMESSAGE(7),
     FAULTMESSAGE(8),
+    SIMFAULTMESSAGE(9),
     MSG_NOT_SET(0);
     private final int value;
     private MsgCase(int value) {
@@ -234,6 +249,7 @@ private static final long serialVersionUID = 0L;
         case 6: return LAMPMESSAGE;
         case 7: return REGISTERMESSAGE;
         case 8: return FAULTMESSAGE;
+        case 9: return SIMFAULTMESSAGE;
         case 0: return MSG_NOT_SET;
         default: return null;
       }
@@ -468,7 +484,7 @@ private static final long serialVersionUID = 0L;
 
   public static final int FAULTMESSAGE_FIELD_NUMBER = 8;
   /**
-   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
    * @return Whether the faultMessage field is set.
    */
   @java.lang.Override
@@ -476,25 +492,56 @@ private static final long serialVersionUID = 0L;
     return msgCase_ == 8;
   }
   /**
-   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
    * @return The faultMessage.
    */
   @java.lang.Override
-  public elevatorCommands.ElevatorFaultMessage getFaultMessage() {
+  public elevatorCommands.FaultMessage getFaultMessage() {
     if (msgCase_ == 8) {
-       return (elevatorCommands.ElevatorFaultMessage) msg_;
+       return (elevatorCommands.FaultMessage) msg_;
     }
-    return elevatorCommands.ElevatorFaultMessage.getDefaultInstance();
+    return elevatorCommands.FaultMessage.getDefaultInstance();
   }
   /**
-   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
    */
   @java.lang.Override
-  public elevatorCommands.ElevatorFaultMessageOrBuilder getFaultMessageOrBuilder() {
+  public elevatorCommands.FaultMessageOrBuilder getFaultMessageOrBuilder() {
     if (msgCase_ == 8) {
-       return (elevatorCommands.ElevatorFaultMessage) msg_;
+       return (elevatorCommands.FaultMessage) msg_;
     }
-    return elevatorCommands.ElevatorFaultMessage.getDefaultInstance();
+    return elevatorCommands.FaultMessage.getDefaultInstance();
+  }
+
+  public static final int SIMFAULTMESSAGE_FIELD_NUMBER = 9;
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   * @return Whether the simFaultMessage field is set.
+   */
+  @java.lang.Override
+  public boolean hasSimFaultMessage() {
+    return msgCase_ == 9;
+  }
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   * @return The simFaultMessage.
+   */
+  @java.lang.Override
+  public elevatorCommands.SimulateFaultMessage getSimFaultMessage() {
+    if (msgCase_ == 9) {
+       return (elevatorCommands.SimulateFaultMessage) msg_;
+    }
+    return elevatorCommands.SimulateFaultMessage.getDefaultInstance();
+  }
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   */
+  @java.lang.Override
+  public elevatorCommands.SimulateFaultMessageOrBuilder getSimFaultMessageOrBuilder() {
+    if (msgCase_ == 9) {
+       return (elevatorCommands.SimulateFaultMessage) msg_;
+    }
+    return elevatorCommands.SimulateFaultMessage.getDefaultInstance();
   }
 
   private byte memoizedIsInitialized = -1;
@@ -533,7 +580,10 @@ private static final long serialVersionUID = 0L;
       output.writeMessage(7, (elevatorCommands.ElevatorRegisterMessage) msg_);
     }
     if (msgCase_ == 8) {
-      output.writeMessage(8, (elevatorCommands.ElevatorFaultMessage) msg_);
+      output.writeMessage(8, (elevatorCommands.FaultMessage) msg_);
+    }
+    if (msgCase_ == 9) {
+      output.writeMessage(9, (elevatorCommands.SimulateFaultMessage) msg_);
     }
     unknownFields.writeTo(output);
   }
@@ -574,7 +624,11 @@ private static final long serialVersionUID = 0L;
     }
     if (msgCase_ == 8) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(8, (elevatorCommands.ElevatorFaultMessage) msg_);
+        .computeMessageSize(8, (elevatorCommands.FaultMessage) msg_);
+    }
+    if (msgCase_ == 9) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(9, (elevatorCommands.SimulateFaultMessage) msg_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -625,6 +679,10 @@ private static final long serialVersionUID = 0L;
         if (!getFaultMessage()
             .equals(other.getFaultMessage())) return false;
         break;
+      case 9:
+        if (!getSimFaultMessage()
+            .equals(other.getSimFaultMessage())) return false;
+        break;
       case 0:
       default:
     }
@@ -671,6 +729,10 @@ private static final long serialVersionUID = 0L;
       case 8:
         hash = (37 * hash) + FAULTMESSAGE_FIELD_NUMBER;
         hash = (53 * hash) + getFaultMessage().hashCode();
+        break;
+      case 9:
+        hash = (37 * hash) + SIMFAULTMESSAGE_FIELD_NUMBER;
+        hash = (53 * hash) + getSimFaultMessage().hashCode();
         break;
       case 0:
       default:
@@ -896,6 +958,13 @@ private static final long serialVersionUID = 0L;
           result.msg_ = faultMessageBuilder_.build();
         }
       }
+      if (msgCase_ == 9) {
+        if (simFaultMessageBuilder_ == null) {
+          result.msg_ = msg_;
+        } else {
+          result.msg_ = simFaultMessageBuilder_.build();
+        }
+      }
       result.msgCase_ = msgCase_;
       onBuilt();
       return result;
@@ -976,6 +1045,10 @@ private static final long serialVersionUID = 0L;
         }
         case FAULTMESSAGE: {
           mergeFaultMessage(other.getFaultMessage());
+          break;
+        }
+        case SIMFAULTMESSAGE: {
+          mergeSimFaultMessage(other.getSimFaultMessage());
           break;
         }
         case MSG_NOT_SET: {
@@ -2014,9 +2087,9 @@ private static final long serialVersionUID = 0L;
     }
 
     private com.google.protobuf.SingleFieldBuilderV3<
-        elevatorCommands.ElevatorFaultMessage, elevatorCommands.ElevatorFaultMessage.Builder, elevatorCommands.ElevatorFaultMessageOrBuilder> faultMessageBuilder_;
+        elevatorCommands.FaultMessage, elevatorCommands.FaultMessage.Builder, elevatorCommands.FaultMessageOrBuilder> faultMessageBuilder_;
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      * @return Whether the faultMessage field is set.
      */
     @java.lang.Override
@@ -2024,27 +2097,27 @@ private static final long serialVersionUID = 0L;
       return msgCase_ == 8;
     }
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      * @return The faultMessage.
      */
     @java.lang.Override
-    public elevatorCommands.ElevatorFaultMessage getFaultMessage() {
+    public elevatorCommands.FaultMessage getFaultMessage() {
       if (faultMessageBuilder_ == null) {
         if (msgCase_ == 8) {
-          return (elevatorCommands.ElevatorFaultMessage) msg_;
+          return (elevatorCommands.FaultMessage) msg_;
         }
-        return elevatorCommands.ElevatorFaultMessage.getDefaultInstance();
+        return elevatorCommands.FaultMessage.getDefaultInstance();
       } else {
         if (msgCase_ == 8) {
           return faultMessageBuilder_.getMessage();
         }
-        return elevatorCommands.ElevatorFaultMessage.getDefaultInstance();
+        return elevatorCommands.FaultMessage.getDefaultInstance();
       }
     }
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      */
-    public Builder setFaultMessage(elevatorCommands.ElevatorFaultMessage value) {
+    public Builder setFaultMessage(elevatorCommands.FaultMessage value) {
       if (faultMessageBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -2058,10 +2131,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      */
     public Builder setFaultMessage(
-        elevatorCommands.ElevatorFaultMessage.Builder builderForValue) {
+        elevatorCommands.FaultMessage.Builder builderForValue) {
       if (faultMessageBuilder_ == null) {
         msg_ = builderForValue.build();
         onChanged();
@@ -2072,13 +2145,13 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      */
-    public Builder mergeFaultMessage(elevatorCommands.ElevatorFaultMessage value) {
+    public Builder mergeFaultMessage(elevatorCommands.FaultMessage value) {
       if (faultMessageBuilder_ == null) {
         if (msgCase_ == 8 &&
-            msg_ != elevatorCommands.ElevatorFaultMessage.getDefaultInstance()) {
-          msg_ = elevatorCommands.ElevatorFaultMessage.newBuilder((elevatorCommands.ElevatorFaultMessage) msg_)
+            msg_ != elevatorCommands.FaultMessage.getDefaultInstance()) {
+          msg_ = elevatorCommands.FaultMessage.newBuilder((elevatorCommands.FaultMessage) msg_)
               .mergeFrom(value).buildPartial();
         } else {
           msg_ = value;
@@ -2094,7 +2167,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      */
     public Builder clearFaultMessage() {
       if (faultMessageBuilder_ == null) {
@@ -2113,38 +2186,38 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      */
-    public elevatorCommands.ElevatorFaultMessage.Builder getFaultMessageBuilder() {
+    public elevatorCommands.FaultMessage.Builder getFaultMessageBuilder() {
       return getFaultMessageFieldBuilder().getBuilder();
     }
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      */
     @java.lang.Override
-    public elevatorCommands.ElevatorFaultMessageOrBuilder getFaultMessageOrBuilder() {
+    public elevatorCommands.FaultMessageOrBuilder getFaultMessageOrBuilder() {
       if ((msgCase_ == 8) && (faultMessageBuilder_ != null)) {
         return faultMessageBuilder_.getMessageOrBuilder();
       } else {
         if (msgCase_ == 8) {
-          return (elevatorCommands.ElevatorFaultMessage) msg_;
+          return (elevatorCommands.FaultMessage) msg_;
         }
-        return elevatorCommands.ElevatorFaultMessage.getDefaultInstance();
+        return elevatorCommands.FaultMessage.getDefaultInstance();
       }
     }
     /**
-     * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+     * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-        elevatorCommands.ElevatorFaultMessage, elevatorCommands.ElevatorFaultMessage.Builder, elevatorCommands.ElevatorFaultMessageOrBuilder> 
+        elevatorCommands.FaultMessage, elevatorCommands.FaultMessage.Builder, elevatorCommands.FaultMessageOrBuilder> 
         getFaultMessageFieldBuilder() {
       if (faultMessageBuilder_ == null) {
         if (!(msgCase_ == 8)) {
-          msg_ = elevatorCommands.ElevatorFaultMessage.getDefaultInstance();
+          msg_ = elevatorCommands.FaultMessage.getDefaultInstance();
         }
         faultMessageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            elevatorCommands.ElevatorFaultMessage, elevatorCommands.ElevatorFaultMessage.Builder, elevatorCommands.ElevatorFaultMessageOrBuilder>(
-                (elevatorCommands.ElevatorFaultMessage) msg_,
+            elevatorCommands.FaultMessage, elevatorCommands.FaultMessage.Builder, elevatorCommands.FaultMessageOrBuilder>(
+                (elevatorCommands.FaultMessage) msg_,
                 getParentForChildren(),
                 isClean());
         msg_ = null;
@@ -2152,6 +2225,147 @@ private static final long serialVersionUID = 0L;
       msgCase_ = 8;
       onChanged();;
       return faultMessageBuilder_;
+    }
+
+    private com.google.protobuf.SingleFieldBuilderV3<
+        elevatorCommands.SimulateFaultMessage, elevatorCommands.SimulateFaultMessage.Builder, elevatorCommands.SimulateFaultMessageOrBuilder> simFaultMessageBuilder_;
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     * @return Whether the simFaultMessage field is set.
+     */
+    @java.lang.Override
+    public boolean hasSimFaultMessage() {
+      return msgCase_ == 9;
+    }
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     * @return The simFaultMessage.
+     */
+    @java.lang.Override
+    public elevatorCommands.SimulateFaultMessage getSimFaultMessage() {
+      if (simFaultMessageBuilder_ == null) {
+        if (msgCase_ == 9) {
+          return (elevatorCommands.SimulateFaultMessage) msg_;
+        }
+        return elevatorCommands.SimulateFaultMessage.getDefaultInstance();
+      } else {
+        if (msgCase_ == 9) {
+          return simFaultMessageBuilder_.getMessage();
+        }
+        return elevatorCommands.SimulateFaultMessage.getDefaultInstance();
+      }
+    }
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     */
+    public Builder setSimFaultMessage(elevatorCommands.SimulateFaultMessage value) {
+      if (simFaultMessageBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        msg_ = value;
+        onChanged();
+      } else {
+        simFaultMessageBuilder_.setMessage(value);
+      }
+      msgCase_ = 9;
+      return this;
+    }
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     */
+    public Builder setSimFaultMessage(
+        elevatorCommands.SimulateFaultMessage.Builder builderForValue) {
+      if (simFaultMessageBuilder_ == null) {
+        msg_ = builderForValue.build();
+        onChanged();
+      } else {
+        simFaultMessageBuilder_.setMessage(builderForValue.build());
+      }
+      msgCase_ = 9;
+      return this;
+    }
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     */
+    public Builder mergeSimFaultMessage(elevatorCommands.SimulateFaultMessage value) {
+      if (simFaultMessageBuilder_ == null) {
+        if (msgCase_ == 9 &&
+            msg_ != elevatorCommands.SimulateFaultMessage.getDefaultInstance()) {
+          msg_ = elevatorCommands.SimulateFaultMessage.newBuilder((elevatorCommands.SimulateFaultMessage) msg_)
+              .mergeFrom(value).buildPartial();
+        } else {
+          msg_ = value;
+        }
+        onChanged();
+      } else {
+        if (msgCase_ == 9) {
+          simFaultMessageBuilder_.mergeFrom(value);
+        }
+        simFaultMessageBuilder_.setMessage(value);
+      }
+      msgCase_ = 9;
+      return this;
+    }
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     */
+    public Builder clearSimFaultMessage() {
+      if (simFaultMessageBuilder_ == null) {
+        if (msgCase_ == 9) {
+          msgCase_ = 0;
+          msg_ = null;
+          onChanged();
+        }
+      } else {
+        if (msgCase_ == 9) {
+          msgCase_ = 0;
+          msg_ = null;
+        }
+        simFaultMessageBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     */
+    public elevatorCommands.SimulateFaultMessage.Builder getSimFaultMessageBuilder() {
+      return getSimFaultMessageFieldBuilder().getBuilder();
+    }
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     */
+    @java.lang.Override
+    public elevatorCommands.SimulateFaultMessageOrBuilder getSimFaultMessageOrBuilder() {
+      if ((msgCase_ == 9) && (simFaultMessageBuilder_ != null)) {
+        return simFaultMessageBuilder_.getMessageOrBuilder();
+      } else {
+        if (msgCase_ == 9) {
+          return (elevatorCommands.SimulateFaultMessage) msg_;
+        }
+        return elevatorCommands.SimulateFaultMessage.getDefaultInstance();
+      }
+    }
+    /**
+     * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+        elevatorCommands.SimulateFaultMessage, elevatorCommands.SimulateFaultMessage.Builder, elevatorCommands.SimulateFaultMessageOrBuilder> 
+        getSimFaultMessageFieldBuilder() {
+      if (simFaultMessageBuilder_ == null) {
+        if (!(msgCase_ == 9)) {
+          msg_ = elevatorCommands.SimulateFaultMessage.getDefaultInstance();
+        }
+        simFaultMessageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            elevatorCommands.SimulateFaultMessage, elevatorCommands.SimulateFaultMessage.Builder, elevatorCommands.SimulateFaultMessageOrBuilder>(
+                (elevatorCommands.SimulateFaultMessage) msg_,
+                getParentForChildren(),
+                isClean());
+        msg_ = null;
+      }
+      msgCase_ = 9;
+      onChanged();;
+      return simFaultMessageBuilder_;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

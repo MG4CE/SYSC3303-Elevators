@@ -116,28 +116,7 @@ public abstract class UDPHelper {
 	 */
 	public DatagramPacket rpcSendMessage(com.google.protobuf.GeneratedMessageV3 message, int port, InetAddress address) throws IOException {
 		//LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
-		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
-		
-		// find type of message
-		if(message instanceof ElevatorRequestMessage){
-			msgBldr.setElevatorRequest((ElevatorRequestMessage) message);
-		}else if(message instanceof SchedulerDispatchMessage){
-			msgBldr.setSchedulerDispatch((SchedulerDispatchMessage) message);
-		}else if(message instanceof ElevatorArrivedMessage){
-			msgBldr.setElevatorArrived((ElevatorArrivedMessage) message);
-		}else if(message instanceof ElevatorDepartureMessage){
-			msgBldr.setElevatorDeparture((ElevatorDepartureMessage) message);
-		}else if(message instanceof FloorSensorMessage){
-			msgBldr.setFloorSensor((FloorSensorMessage) message);
-		}else if(message instanceof LampMessage){
-			msgBldr.setLampMessage((LampMessage) message);
-		}else if(message instanceof ElevatorRegisterMessage){
-			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
-		}else if(message instanceof ElevatorFaultMessage) {
-			msgBldr.setFaultMessage((ElevatorFaultMessage)message);
-		}
-		
-		WrapperMessage msg = msgBldr.build();
+		WrapperMessage msg = createWrapperMessage(message);
 		return rpcSend(msg.toByteArray(), true, port, address);
 	}	
 	
@@ -149,8 +128,12 @@ public abstract class UDPHelper {
 	 */
 	public void sendMessage(com.google.protobuf.GeneratedMessageV3 message, int port, InetAddress address) throws IOException {
 		LOGGER.debug("Sending Protobuf of type " + message.getClass().getName());
-		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
-		
+		WrapperMessage msg = createWrapperMessage(message);
+		sendByteArray(msg.toByteArray(), port, address);
+	}	
+	
+	WrapperMessage createWrapperMessage(com.google.protobuf.GeneratedMessageV3 message) throws IOException {
+		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();		
 		// find type of message
 		if(message instanceof ElevatorRequestMessage){
 			msgBldr.setElevatorRequest((ElevatorRequestMessage) message);
@@ -166,14 +149,17 @@ public abstract class UDPHelper {
 			msgBldr.setLampMessage((LampMessage) message);
 		}else if(message instanceof ElevatorRegisterMessage) {
 			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
-		}else if(message instanceof ElevatorFaultMessage) {
-			msgBldr.setFaultMessage((ElevatorFaultMessage)message);
+		}else if(message instanceof FaultMessage) {
+			msgBldr.setFaultMessage((FaultMessage)message);
+		}else if(message instanceof SimulateFaultMessage) {
+			msgBldr.setSimFaultMessage((SimulateFaultMessage)message);
+		}else {
+			throw new IOException("Failed to cast proto msg to correct type");
 		}
-		
-		WrapperMessage msg = msgBldr.build();
-		sendByteArray(msg.toByteArray(), port, address);
-	}	
-
+		// build and return message
+		return msgBldr.build();
+	}
+	
 	/**
 	 * Blocking call to receive a message, returns received packet
 	 * 

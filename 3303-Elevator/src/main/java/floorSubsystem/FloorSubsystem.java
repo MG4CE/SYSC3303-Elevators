@@ -115,16 +115,16 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 // Soft fault command
                 if (lineParts[0].equals("SF") || lineParts[0].equals("HF")){
                     if (lineParts[0].equals("SF")){ // Soft fault
-                        faultType = FaultType.SOFT;
+                        faultType = FaultType.DOORFAULT;
                         timeout = Integer.parseInt(lineParts[3]); // timeout for soft fault
                     } else { // hard fault
-                        faultType = FaultType.HARD;
+                        faultType = FaultType.ELEVATOR_UNRESPONSIVE;
                     }
                     currentLineFileTime = utils.Utils.stringToCalendar(lineParts[1]);
                     elevatorId = Integer.parseInt(lineParts[2]);
 
                     // Create Fault Message - Internal Fault Message
-                    ElevatorFaultMessage faultMessage = createElevatorFaultMessage(faultType, elevatorId, timeout);
+                    SimulateFaultMessage faultMessage = createSimulateFaultMessage(faultType, elevatorId, timeout);
 
                     // Create Timer Event - for EXTERIOR elevator button request
                     TimerTask task = makeFaultRequestTimer(faultMessage);
@@ -195,7 +195,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param faultMessage Elevator fault  message to be sent
      * @return Timer Task event
      */
-    public TimerTask makeFaultRequestTimer(ElevatorFaultMessage faultMessage) {
+    public TimerTask makeFaultRequestTimer(SimulateFaultMessage faultMessage) {
         return new TimerTask() {
             @Override
             public void run() {
@@ -299,7 +299,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @return
      */
     private ElevatorFaultMessage createElevatorFaultMessage(FaultType faultType, int elevatorID, int timeout){
-        if (faultType == FaultType.HARD){ // hard faults; timeout
+        if (faultType == FaultType.ELEVATOR_UNRESPONSIVE){ // hard faults; timeout
             return ElevatorFaultMessage.newBuilder()
                     .setFault(faultType)
                     .setElevatorID(elevatorID)

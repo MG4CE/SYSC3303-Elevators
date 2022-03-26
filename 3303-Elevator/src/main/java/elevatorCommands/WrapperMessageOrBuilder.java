@@ -113,19 +113,34 @@ public interface WrapperMessageOrBuilder extends
   elevatorCommands.ElevatorRegisterMessageOrBuilder getRegisterMessageOrBuilder();
 
   /**
-   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
    * @return Whether the faultMessage field is set.
    */
   boolean hasFaultMessage();
   /**
-   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
    * @return The faultMessage.
    */
-  elevatorCommands.ElevatorFaultMessage getFaultMessage();
+  elevatorCommands.FaultMessage getFaultMessage();
   /**
-   * <code>.elevatorCommands.ElevatorFaultMessage faultMessage = 8;</code>
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
    */
-  elevatorCommands.ElevatorFaultMessageOrBuilder getFaultMessageOrBuilder();
+  elevatorCommands.FaultMessageOrBuilder getFaultMessageOrBuilder();
+
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   * @return Whether the simFaultMessage field is set.
+   */
+  boolean hasSimFaultMessage();
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   * @return The simFaultMessage.
+   */
+  elevatorCommands.SimulateFaultMessage getSimFaultMessage();
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   */
+  elevatorCommands.SimulateFaultMessageOrBuilder getSimFaultMessageOrBuilder();
 
   public elevatorCommands.WrapperMessage.MsgCase getMsgCase();
 }

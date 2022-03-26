@@ -3,8 +3,8 @@
 
 package elevatorCommands;
 
-public interface ElevatorFaultMessageOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:elevatorCommands.ElevatorFaultMessage)
+public interface SimulateFaultMessageOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:elevatorCommands.SimulateFaultMessage)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -25,12 +25,6 @@ public interface ElevatorFaultMessageOrBuilder extends
   elevatorCommands.FaultType getFault();
 
   /**
-   * <code>int32 timeout = 3;</code>
-   * @return The timeout.
-   */
-  int getTimeout();
-
-  /**
    * <code>string timeStamp = 4;</code>
    * @return The timeStamp.
    */
@@ -41,4 +35,10 @@ public interface ElevatorFaultMessageOrBuilder extends
    */
   com.google.protobuf.ByteString
       getTimeStampBytes();
+
+  /**
+   * <code>int32 timeout = 5;</code>
+   * @return The timeout.
+   */
+  int getTimeout();
 }
