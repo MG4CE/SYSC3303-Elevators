@@ -15,7 +15,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -61,8 +60,6 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param timer Timer Task events are scheduled with this timer instance
      */
     public void readCommandsFile(Timer timer){
-        System.out.println("opening file");
-
         Scanner s = null;
         Direction direction = null;
         int interiorFloorButton = 0;
@@ -75,7 +72,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         Calendar currentLineFileTime = null;
         Calendar currentLineAdjustedTime = Calendar.getInstance();
 
-        LOGGER.info("Reading commands for " + commandFile);
+        LOGGER.info("Reading commands from " + commandFile);
 
         // Initiate scanner and read the file
         try {
@@ -159,11 +156,11 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param requestMessage Elevator Request Message to be sent
      */
     private void sendInteriorElevatorRequest(ElevatorRequestMessage requestMessage) throws IOException {
-        LOGGER.info("[FloorSubsystem] Sending interior button request (ReqID: " + requestMessage.getRequestID() + ")");
-        System.out.printf("[Elevator " + requestMessage.getElevatorID() +"] Floor #%d button pressed inside Elevator #%d [Request ID: %d]\n",
-                requestMessage.getFloor(),
-                requestMessage.getElevatorID(),
-                requestMessage.getRequestID());
+        LOGGER.debug("[FloorSubsystem] Sending interior button request (ReqID: " + requestMessage.getRequestID() + ")");
+        LOGGER.info("[Elevator " + requestMessage.getElevatorID() 
+        			+ "] Floor " + requestMessage.getFloor() 
+        			+ " button pressed inside Elevator " + requestMessage.getElevatorID() 
+        			+ " [Request ID: " + requestMessage.getRequestID() + "]");
         sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
     }
     /**
@@ -172,8 +169,8 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param requestMessage Elevator Request Message to be sent
      */
     private void sendExteriorElevatorRequest(ElevatorRequestMessage requestMessage) throws IOException {
-        System.out.print("[Floor " + requestMessage.getFloor() + "] " + requestMessage.getDirection()
-                +" button pressed. [Request ID: " + requestMessage.getRequestID() + "]\n");
+        LOGGER.info("[Floor " + requestMessage.getFloor() + "] " + requestMessage.getDirection()
+                +" button pressed [Request ID: " + requestMessage.getRequestID() + "]");
         sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
     }
 
@@ -254,7 +251,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 recvMessage = receiveMessage();
             } catch (IOException e1) {
                 e1.printStackTrace();
-                LOGGER.info("Failed to receive data!");
+                LOGGER.error("Failed to receive data!");
                 System.exit(1);
             }
             // Create Protobuf message
@@ -263,7 +260,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 msg = new ProtoBufMessage(recvMessage);
             } catch (InvalidProtocolBufferException e2) {
                 e2.printStackTrace();
-                LOGGER.info("Failed to convert received to protobuf type!");
+                LOGGER.error("Failed to convert received to protobuf type!");
                 System.exit(1);
             }
 
@@ -281,11 +278,11 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
             if (msg.isElevatorArrivedMessage()) { // 1. Elevator arrival messages
                 ElevatorArrivedMessage arrivedMessage = msg.toElevatorArrivedMessage();
                 int reqID = arrivedMessage.getRequestID();
-                System.out.println("[Floor " + arrivedMessage.getFloor() + "] Elevator "
+                LOGGER.info("[Floor " + arrivedMessage.getFloor() + "] Elevator "
                         + arrivedMessage.getElevatorID () +" has arrived at floor  " +
                         " [ReqID: " + reqID + "]");
 
-                System.out.println("[Elevator "+ arrivedMessage.getElevatorID() + "] Lamps OFF");
+                LOGGER.info("[Elevator Shaft "+ arrivedMessage.getElevatorID() + "] Lamps OFF");
 
                 if(!repliedMessages.contains(reqID)) { // 2. Elevator departure message
                     for(ElevatorRequestMessage req:elevatorInteriorRequestList) {
@@ -300,10 +297,10 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                                         arrivedMessage.getElevatorID());
 
                                 sendInteriorElevatorRequest(newInteriorRequest);
-                                System.out.println("[Elevator "+ arrivedMessage.getElevatorID() + "] Lamps ON");
+                                LOGGER.info("[Elevator Shaft "+ arrivedMessage.getElevatorID() + "] Lamps ON");
                             } catch (IOException e) {
                                 e.printStackTrace();
-                                LOGGER.info("Failed to send button request!");
+                                LOGGER.error("Failed to send button request!");
                                 System.exit(1);
                             }
                         }
@@ -311,12 +308,12 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 }
             } else if (msg.isElevatorDepartureMessage()) { // 2. Elevator departure messages
                 ElevatorDepartureMessage departureMessage = msg.toElevatorDepartureMessage();
-                LOGGER.info("[FloorSubsystem] Elevator departure message arrived (elevator ID "+ departureMessage.getElevatorID() + ")" );
+                LOGGER.debug("[FloorSubsystem] Elevator departure message arrived (elevator ID "+ departureMessage.getElevatorID() + ")" );
 
                 if (departureMessage.getDirection() == Direction.UP){
-                    System.out.println("[Elevator "+ departureMessage.getElevatorID() + "] Up Lamp ON");
+                    LOGGER.debug("[Elevator Shaft "+ departureMessage.getElevatorID() + "] Up Lamp ON");
                 } else {
-                    System.out.println("[Elevator "+ departureMessage.getElevatorID() + "] Down Lamp ON");
+                	LOGGER.debug("[Elevator Shaft "+ departureMessage.getElevatorID() + "] Down Lamp ON");
                 }
 
             } else {

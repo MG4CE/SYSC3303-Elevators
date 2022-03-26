@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -72,10 +71,11 @@ public class Scheduler extends UDPHelper {
 						msg = receiveMessage();
 					} catch (IOException e1) {
 						e1.printStackTrace();
-						LOGGER.info("Failed to receive data from socket, stopping!");
+						LOGGER.error("Failed to receive data from socket, stopping!");
 						isRunning = false;
 						schedulerThread.interrupt();
 					}
+					
 					if(!listenerThread.isInterrupted() && msg != null) {
 						synchronized (messageQueue) {
 							//Add the messages and notify that a message was added
@@ -118,7 +118,7 @@ public class Scheduler extends UDPHelper {
 						try {
 							msg = new ProtoBufMessage(packet);
 						} catch (InvalidProtocolBufferException e) {
-							LOGGER.info(e.getMessage());
+							LOGGER.error("Failed to convert received packet into protobuf message, skipping: " + e.getMessage());
 							continue;
 						}
 	    				
@@ -131,7 +131,8 @@ public class Scheduler extends UDPHelper {
 	    					}
 	    					
 	    					if(request.getButton().equals(Button.EXTERIOR)) {
-	    						ElevatorRequest eReq = new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection());
+	    						LOGGER.info("Exterior button pressed at floor " + request.getFloor() + " direction " + request.getDirection());
+	    						ElevatorRequest eReq = new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.EXTERIOR);
 	    						Elevator elevator = assignBestElevator(eReq);
 								if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
 									try {
@@ -142,11 +143,10 @@ public class Scheduler extends UDPHelper {
 									elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 								}
 	    					} else {
-								//System.out.println("Internal button received " + request.getRequestID() + " floor " + request.getFloor() + " elevator " + request.getElevatorID());
+	    						LOGGER.info("Interior button pressed inside Elevator " + request.getElevatorID() + " requesting to go to floor " + request.getFloor());
 								for(Elevator elevator : elevators) {
 									if(request.getElevatorID() == elevator.getElevatorID()) {
-										//System.out.println("add internal button to elevator");
-										elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection()));
+										elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.INTERIOR));
 										if(elevator.peekTopRequest().getFloor() == request.getFloor()) {
 											if(elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
 												try {
@@ -162,25 +162,26 @@ public class Scheduler extends UDPHelper {
 									}
 								}
 							}
-	    				}
-						else if(msg.isElevatorRegisterMessage()) {
+	    				} else if(msg.isElevatorRegisterMessage()) {
 							ElevatorRegisterMessage message = msg.toElevatorRegisterMessage();
 	    					elevators.add(new Elevator(packet.getPort(), elevatorIDCounter, message.getFloor(), packet.getAddress()));
 	    					try {
 								sendElevatorRegisterMessage(elevatorIDCounter, packet.getPort(), packet.getAddress());
 							} catch (IOException e) {
-								LOGGER.info("Failed to send repsonse to elevator register message: " + e.getMessage());
+								LOGGER.error("Failed to send repsonse to elevator register message: " + e.getMessage());
 								stopScheduler();
 							}
+	    					LOGGER.info("Registered an new elevator with ID " + elevatorIDCounter);
 	    					elevatorIDCounter++;
 	    				} else if(msg.isElevatorArrivedMessage()) {
 							ElevatorArrivedMessage message = msg.toElevatorArrivedMessage();
+	    					LOGGER.info("Elevator " + message.getElevatorID() + " has arrived at floor " + message.getFloor());
 							for(Elevator elevator : elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
 									try {
 										sendElevatorArrivedMessage(message, elevator.peekTopRequest().getRequestID(), floorSubsystemPort, floorSubsystemAddress);
 									} catch (IOException e) {
-										LOGGER.info("Failed to forward elevator arrived message: " + e.getMessage());
+										LOGGER.error("Failed to forward elevator arrived message: " + e.getMessage());
 									}
 									elevator.setState(ElevatorState.STOPPED);
 									elevator.popTopRequest();
@@ -198,6 +199,7 @@ public class Scheduler extends UDPHelper {
 							}
 						} else if(msg.isElevatorDepartureMessage()) {
 							ElevatorDepartureMessage message = msg.toElevatorDepartureMessage();
+							LOGGER.debug("Elevator " + message.getElevatorID() + " is now moving");
 							try {
 								sendMessage(message, floorSubsystemPort, floorSubsystemAddress);
 							} catch (IOException e) {
@@ -210,6 +212,7 @@ public class Scheduler extends UDPHelper {
 							}
 						} else if(msg.isFloorSensorMessage()) {
 							FloorSensorMessage request = msg.toFloorSensorMessage();
+							LOGGER.debug("Elevator " + request.getElevatorID() + " is currently at floor " + request.getFloor());
 							for(Elevator elevator : elevators) {
 								if(request.getElevatorID() == elevator.getElevatorID()) {
 									elevator.setCurrentFloor(request.getFloor());
@@ -254,8 +257,7 @@ public class Scheduler extends UDPHelper {
 	 * @throws IOException an exception with UDP
 	 */
 	private void sendSchedulerDispatchMessage(int destFloor, int port, Direction direction, int requestID, int elevatorID, InetAddress address) throws IOException {
-		LOGGER.info("Dispatching elevator " + Integer.toString(elevatorID) + " to floor " +
-				Integer.toString(destFloor));
+		LOGGER.info("Dispatching elevator " + Integer.toString(elevatorID) + " to floor " + Integer.toString(destFloor));
 		SchedulerDispatchMessage dispatchMsg = SchedulerDispatchMessage.newBuilder()
 				.setDestFloor(destFloor)
 				.setElevatorID(elevatorID)
@@ -338,6 +340,9 @@ public class Scheduler extends UDPHelper {
 
 	/**
 	 * Evaluate the request priority using the direction as a factor
+	 * 
+	 * TODO: add stationary check
+	 * 
 	 * @param e the elevator
 	 * @param request the new request
 	 * @return the score returned
@@ -370,14 +375,13 @@ public class Scheduler extends UDPHelper {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-	    //Logger LOGGER = Logger.getLogger("Scheduler Main");
 		Scheduler s = null;
 		
 		try {
 			s = new Scheduler(6969, 10);
 		} catch (SocketException e) {
 			e.printStackTrace();
-			LOGGER.info("Socket creation failed!");
+			LOGGER.error("Socket creation failed!");
 		}
 
 		s.startListenerThread();

@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import elevatorCommands.Button;
 import elevatorCommands.Direction;
 
 /**
@@ -234,13 +235,13 @@ public class Elevator {
 
 	public static void main(String[] args) {
 	    Elevator e = new Elevator(123, 1, 1, null);
-	    e.addDestination(new ElevatorRequest(1, 999, Direction.UP));
-	    e.addDestination(new ElevatorRequest(2, 999, Direction.DOWN));
-	    e.addDestination(new ElevatorRequest(3, 999, Direction.DOWN));
-	    e.addDestination(new ElevatorRequest(5, 999, Direction.UP));
-	    e.addDestination(new ElevatorRequest(6, 999, Direction.UP));
-	    e.addDestination(new ElevatorRequest(7, 999, Direction.DOWN));
-	    e.addDestination(new ElevatorRequest(8, 999, Direction.DOWN));
+	    e.addDestination(new ElevatorRequest(1, 999, Direction.UP, Button.EXTERIOR));
+	    e.addDestination(new ElevatorRequest(2, 999, Direction.DOWN, Button.EXTERIOR));
+	    e.addDestination(new ElevatorRequest(3, 999, Direction.DOWN, Button.EXTERIOR));
+	    e.addDestination(new ElevatorRequest(5, 999, Direction.UP, Button.EXTERIOR));
+	    e.addDestination(new ElevatorRequest(6, 999, Direction.UP, Button.EXTERIOR));
+	    e.addDestination(new ElevatorRequest(7, 999, Direction.DOWN, Button.EXTERIOR));
+	    e.addDestination(new ElevatorRequest(8, 999, Direction.DOWN, Button.EXTERIOR));
 	    System.out.print("Sequence is" + "\n");
 	    for (int i = 0; i < e.floorDestinations.size(); i++) {
 	        System.out.print(e.floorDestinations.get(i).getFloor() + "\n");

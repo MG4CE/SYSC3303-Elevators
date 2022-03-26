@@ -31,7 +31,7 @@ public class BoardingState extends TimerTask implements State {
 		try {
 			elevator.elevatorFSM.updateFSM(null);
 		} catch (IOException e) {
-			elevator.LOGGER.info(e.getMessage());
+			Elevator.LOGGER.error("Failed to send update FSM message, stopping elevator:" + e.getMessage());
 			elevator.running = false;
 		}
 	}
