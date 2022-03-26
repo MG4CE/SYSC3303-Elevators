@@ -1,8 +1,12 @@
 package scheduler;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import elevatorCommands.Button;
 import elevatorCommands.Direction;
 
@@ -12,6 +16,8 @@ import elevatorCommands.Direction;
  * the elevator.
  */
 public class Elevator {
+	
+	private static final int TIMEOUT = 1000;
 
 	/**
 	 * The enum for the different states the elevator could have
@@ -37,6 +43,10 @@ public class Elevator {
 	private ElevatorState state;
 	//The current destination of the floor
 	private int currentDestinationFloor;
+	private Timer timer;
+	private Scheduler scheduler;
+	private Boolean isTimerOff;
+	private TimerTask timerTask;
 
 	/**
 	 * The constructor for the elevator control class
@@ -45,7 +55,7 @@ public class Elevator {
 	 * @param currentFloor The current floor the elevator is on
 	 * @param address The internet address
 	 */
-	public Elevator(int port, int elevatorID, int currentFloor, InetAddress address) {
+	public Elevator(int port, int elevatorID, int currentFloor, InetAddress address, Scheduler scheduler) {
 		this.port = port;
 		this.address = address;
 		this.elevatorID = elevatorID;
@@ -54,6 +64,10 @@ public class Elevator {
 		this.currentDirection = Direction.STATIONARY;
 		this.state = ElevatorState.STOPPED;
 		this.currentDestinationFloor = -1;
+		this.scheduler = scheduler;
+		this.isTimerOff = true;
+		this.timer = null;
+		this.timerTask = null;
 	}
 
 	/**
@@ -61,31 +75,38 @@ public class Elevator {
 	 * @param req the ElevatorRequest that will hold the destination
 	 */
 	public void addDestination(ElevatorRequest req) {		
-		Direction direction = currentDirection;
 		ElevatorRequest cur_track;
 		ArrayList<ElevatorRequest> left = new ArrayList<>();
 		ArrayList<ElevatorRequest> right = new ArrayList<>();
 		ArrayList<ElevatorRequest> seek_sequence = new ArrayList<>();
 	    
 		floorDestinations.add(req);
+		
+	    if (currentDestinationFloor > req.getFloor() && currentDirection == Direction.STATIONARY) {
+	    	this.currentDirection = Direction.DOWN;
+	    } else if (currentDestinationFloor < req.getFloor() && currentDirection == Direction.STATIONARY) {
+	    	this.currentDirection = Direction.UP;
+	    }
+	    
+		Direction direction = currentDirection;
 	    
 	    for (int i = 0; i < floorDestinations.size(); i++) {
 	    	ElevatorRequest f = floorDestinations.get(i);
-	        if (f.getFloor() < currentFloor) {
+	        if (f.getFloor() < currentFloor && direction == Direction.DOWN) {
 	            left.add(f);
-	        } else if (f.getFloor() >= currentFloor) {
+	        } else if (f.getFloor() > currentFloor && direction == Direction.UP) {
+	        	right.add(f);
+	        } else if (f.getFloor() > currentFloor && direction == Direction.DOWN) {
+	        	left.add(f);
+	    	} else if (f.getFloor() < currentFloor && direction == Direction.UP) {
+	    		right.add(f);
+	    	} else if (f.getFloor() == currentFloor) {
 	        	right.add(f);
 	        }
 	    }
 	 
 	    Collections.sort(left);
 	    Collections.sort(right);
-	    
-	    if (currentDestinationFloor > req.getFloor() && direction == Direction.STATIONARY) {
-	    	direction = Direction.DOWN;
-	    } else if (currentDestinationFloor < req.getFloor() && direction == Direction.STATIONARY) {
-	    	direction = Direction.UP;
-	    }
 	 
 	    int run = 2;
 	    while (run-- > 0) {
@@ -251,11 +272,39 @@ public class Elevator {
 		}
 		return 0;
 	}
+	
+	public void startWaitTimer() {
+		timer = new Timer();
+		timerTask = makeTimerTask();
+		timer.schedule(timerTask, TIMEOUT);
+		isTimerOff = false;
+	}
+	
+	public void stopWaitTimer() {
+		if (!isTimerOff) {
+			timer.cancel();
+			isTimerOff = true;
+		}
+	}
+	
+	private TimerTask makeTimerTask() {
+		return new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					scheduler.sendSchedulerDispatchMessage(peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				setCurrentDestination(peekTopRequest().getFloor());
+			}
+        };
+	}
 
 	public static void main(String[] args) {
-	    Elevator e = new Elevator(123, 1, 1, null);
-	    e.addDestination(new ElevatorRequest(1, 999, Direction.UP, Button.EXTERIOR));
-	    e.addDestination(new ElevatorRequest(2, 999, Direction.DOWN, Button.EXTERIOR));
+	    Elevator e = new Elevator(123, 1, 1, null, null);
+	    e.addDestination(new ElevatorRequest(10, 999, Direction.UP, Button.EXTERIOR));
+	    e.addDestination(new ElevatorRequest(10, 999, Direction.UP, Button.EXTERIOR));
 	    e.addDestination(new ElevatorRequest(3, 999, Direction.DOWN, Button.EXTERIOR));
 	    e.addDestination(new ElevatorRequest(5, 999, Direction.UP, Button.EXTERIOR));
 	    e.addDestination(new ElevatorRequest(6, 999, Direction.UP, Button.EXTERIOR));
