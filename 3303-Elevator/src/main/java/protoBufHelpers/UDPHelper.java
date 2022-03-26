@@ -70,7 +70,7 @@ public abstract class UDPHelper {
 				recvSocket.setSoTimeout(0);
 			} catch (SocketException e) {
 				e.printStackTrace();
-				LOGGER.info("Failed to change port timeout!");
+				LOGGER.error("Failed to change port timeout!");
 				return null;
 			}
 		} else {
@@ -78,7 +78,7 @@ public abstract class UDPHelper {
 				recvSocket.setSoTimeout(TIMEOUT * 1000);
 			} catch (SocketException e) {
 				e.printStackTrace();
-				LOGGER.info("Failed to change port timeout!");
+				LOGGER.error("Failed to change port timeout!");
 				return null;
 			}
 		}
@@ -92,12 +92,12 @@ public abstract class UDPHelper {
 				numRetries++;
 				continue;
 			}
-			LOGGER.info("Receiving message from " + Integer.toString(receivePacket.getPort()));
+			LOGGER.debug("Receiving message from " + Integer.toString(receivePacket.getPort()));
 			received = true;
 		}
 		
 		if (numRetries >= MAX_NUM_RETRIES) {
-			LOGGER.warn("Retry limited reached!");
+			LOGGER.error("Retry limited reached!");
 			return null;
 		}
 		
@@ -133,6 +133,8 @@ public abstract class UDPHelper {
 			msgBldr.setLampMessage((LampMessage) message);
 		}else if(message instanceof ElevatorRegisterMessage){
 			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
+		}else if(message instanceof ElevatorFaultMessage) {
+			msgBldr.setFaultMessage((ElevatorFaultMessage)message);
 		}
 		
 		WrapperMessage msg = msgBldr.build();
@@ -146,7 +148,7 @@ public abstract class UDPHelper {
 	 * @param port to send message to
 	 */
 	public void sendMessage(com.google.protobuf.GeneratedMessageV3 message, int port, InetAddress address) throws IOException {
-		//LOGGER.info("Sending Protobuf of type " + message.getClass().getName());
+		LOGGER.debug("Sending Protobuf of type " + message.getClass().getName());
 		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();
 		
 		// find type of message
@@ -164,6 +166,8 @@ public abstract class UDPHelper {
 			msgBldr.setLampMessage((LampMessage) message);
 		}else if(message instanceof ElevatorRegisterMessage) {
 			msgBldr.setRegisterMessage((ElevatorRegisterMessage)message);
+		}else if(message instanceof ElevatorFaultMessage) {
+			msgBldr.setFaultMessage((ElevatorFaultMessage)message);
 		}
 		
 		WrapperMessage msg = msgBldr.build();
@@ -179,7 +183,7 @@ public abstract class UDPHelper {
 		byte[] r = new byte[PACKET_SIZE];
 		DatagramPacket rcv = new DatagramPacket(r, PACKET_SIZE);
 		this.recvSocket.receive(rcv);
-		LOGGER.info("Receiving message from " + Integer.toString(rcv.getPort()));
+		LOGGER.debug("Receiving message from " + Integer.toString(rcv.getPort()));
 		return rcv;
 	}
 

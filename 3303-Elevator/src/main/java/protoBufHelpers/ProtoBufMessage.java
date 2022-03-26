@@ -4,7 +4,6 @@ import java.net.DatagramPacket;
 import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -76,7 +75,7 @@ public class ProtoBufMessage {
 	 * @param WrapperMessage to unpack
 	 */
 	private void unpackMessage(WrapperMessage msg) {
-		LOGGER.info("Unpacking message of type " + msg.getMsgCase().toString());
+		LOGGER.debug("Unpacking message of type " + msg.getMsgCase().toString());
 		switch (msg.getMsgCase()) {
 			case ELEVATORARRIVED -> this.message = msg.getElevatorArrived();
 			case ELEVATORDEPARTURE -> this.message = msg.getElevatorDeparture();

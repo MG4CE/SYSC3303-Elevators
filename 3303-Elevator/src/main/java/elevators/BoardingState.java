@@ -31,7 +31,7 @@ public class BoardingState extends TimerTask implements State {
 		try {
 			elevator.elevatorFSM.updateFSM(null);
 		} catch (IOException e) {
-			elevator.LOGGER.info(e.getMessage());
+			Elevator.LOGGER.error("Failed to send update FSM message, stopping elevator:" + e.getMessage());
 			elevator.running = false;
 		}
 	}
@@ -55,7 +55,8 @@ public class BoardingState extends TimerTask implements State {
 		} else if(message.isSchedulerDispatchMessage()) { //if message from scheduler
 			SchedulerDispatchMessage msg = message.toSchedulerDispatchMessage();
 			if(msg.getDestFloor() == elevator.getCurrentFloor()) {
-				System.out.printf("Elevator %d: Dispatched to floor current floor %d\n", elevator.elevatorID, elevator.getCurrentFloor());
+				Elevator.LOGGER.info("Elevator " + elevator.elevatorID + ": Dispatched to floor current floor " + elevator.getCurrentFloor());
+				elevator.sendElevatorArrivedMessage();
 				return this; //stay in current state
 			} else {
 				elevator.setDestinationFloor(msg.getDestFloor());

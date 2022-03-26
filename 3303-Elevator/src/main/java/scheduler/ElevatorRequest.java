@@ -1,5 +1,6 @@
 package scheduler;
 
+import elevatorCommands.Button;
 import elevatorCommands.Direction;
 
 /**
@@ -9,16 +10,18 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 	private int destinationFloor;
 	private int requestID;
 	private Direction direction;
+	private Button requestType;
 
 	/**
 	 * The constructor for the ElevatorRequest class
 	 * @param destinationFloor The destination floor
 	 * @param requestID The id of the request
 	 */
-	public ElevatorRequest(int destinationFloor, int requestID) {
+	public ElevatorRequest(int destinationFloor, int requestID, Button requestType) {
 		this.destinationFloor = destinationFloor;
 		this.direction = null;
 		this.requestID = requestID;
+		this.requestType = requestType;
 	}
 
 	/**
@@ -27,10 +30,11 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 	 * @param requestID the id of the request
 	 * @param direction the direction of the elevator
 	 */
-	public ElevatorRequest(int destinationFloor, int requestID, Direction direction) {
+	public ElevatorRequest(int destinationFloor, int requestID, Direction direction, Button requestType) {
 		this.destinationFloor = destinationFloor;
 		this.direction = direction;
 		this.requestID = requestID;
+		this.requestType = requestType;
 	}
 
 	/**
@@ -56,6 +60,14 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 	 */
 	public Direction getDirection() {
 		return this.direction;
+	}
+	
+	/**
+	 * Get the request type of the elevator request
+	 * @return ButtonType
+	 */
+	public Button getRequestType() {
+		return this.requestType;
 	}
 
 	/**

@@ -23,7 +23,8 @@ public class MovingState implements State{
 				//send null message to fsm to go to arriving state
 				elevator.elevatorFSM.updateFSM(null); 
 			} catch (IOException e) {
-				e.printStackTrace();
+				Elevator.LOGGER.error("Failed to send update FSM message, stopping elevator:" + e.getMessage());
+				elevator.running = false;
 			}
 			elevator.elevatorMotor.moveOneFloor();
 		} else {

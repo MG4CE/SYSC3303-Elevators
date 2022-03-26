@@ -28,7 +28,7 @@ public class ArrivingState implements State {
 	@Override
 	public void exitActions() {
 		this.elevator.elevatorMotor.stopMotor();
-		elevator.LOGGER.info("Elevator has arrived at floor " + elevator.getCurrentFloor());
+		Elevator.LOGGER.info("Elevator has arrived at floor " + elevator.getCurrentFloor());
 	}
 	
 	@Override

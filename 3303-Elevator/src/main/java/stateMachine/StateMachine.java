@@ -3,7 +3,6 @@ package stateMachine;
 import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
 
 import protoBufHelpers.ProtoBufMessage;
 
@@ -23,7 +22,7 @@ public class StateMachine {
 	public StateMachine(State initialState){
 		
 		this.currentState = initialState;
-		LOGGER.info("Initializing State Machine at State: " + currentState.getClass().getName());
+		LOGGER.debug("Initializing State Machine at State: " + currentState.getClass().getName());
 		this.currentState.entryActions(); // invoke entry actions if any
 	}
 	
