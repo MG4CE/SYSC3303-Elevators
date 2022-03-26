@@ -3,7 +3,6 @@ package scheduler;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-
 import elevatorCommands.Button;
 import elevatorCommands.Direction;
 
@@ -21,7 +20,7 @@ public class Elevator {
 		MOVING,
 		STOPPED
 	}
-
+	
 	//The port of the elevator
 	private int port;
 	//The address for our UDP communication
@@ -52,7 +51,7 @@ public class Elevator {
 		this.elevatorID = elevatorID;
 		this.currentFloor = currentFloor;
 		this.floorDestinations = new ArrayList<>();
-		this.currentDirection = Direction.UP;
+		this.currentDirection = Direction.STATIONARY;
 		this.state = ElevatorState.STOPPED;
 		this.currentDestinationFloor = -1;
 	}
@@ -81,6 +80,12 @@ public class Elevator {
 	 
 	    Collections.sort(left);
 	    Collections.sort(right);
+	    
+	    if (currentDestinationFloor > req.getFloor() && direction == Direction.STATIONARY) {
+	    	direction = Direction.DOWN;
+	    } else if (currentDestinationFloor < req.getFloor() && direction == Direction.STATIONARY) {
+	    	direction = Direction.UP;
+	    }
 	 
 	    int run = 2;
 	    while (run-- > 0) {
@@ -91,7 +96,7 @@ public class Elevator {
 	            }
 	            direction = Direction.UP;
 	        }
-	        else if (direction == Direction.UP) {
+	        else if (direction == Direction.UP || currentDestinationFloor < req.getFloor()) {
 	            for (int i = 0; i < right.size(); i++) {
 	                cur_track = right.get(i);
 	                seek_sequence.add(cur_track);
@@ -173,7 +178,7 @@ public class Elevator {
 	 */
 	public ElevatorRequest popTopRequest() {
 		ElevatorRequest r = floorDestinations.remove(0);
-		if(r.getFloor() < currentFloor) {
+		if (r.getFloor() < currentFloor) {
 			currentDirection = Direction.DOWN;
 		} else if (r.getFloor() > currentFloor) {
 			currentDirection = Direction.UP;
@@ -222,6 +227,11 @@ public class Elevator {
 	 * @param destination the elevator control destination
 	 */
 	public void setCurrentDestination(int destination) {
+		if (currentDestinationFloor > destination && currentDirection == Direction.UP) {
+			switchDirections();
+		} else if (currentDestinationFloor < destination && currentDirection == Direction.DOWN) {
+			switchDirections();
+		}
 		this.currentDestinationFloor = destination;
 	}
 
@@ -231,6 +241,15 @@ public class Elevator {
 	 */
 	public int getCurrentDestination() {
 		return this.currentDestinationFloor;
+	}
+	
+	public int isRequestInQueue(ElevatorRequest request) {
+		for (ElevatorRequest r : floorDestinations) {
+			if (request.getFloor() == r.getFloor()) {
+				return 1;
+			}
+		}
+		return 0;
 	}
 
 	public static void main(String[] args) {

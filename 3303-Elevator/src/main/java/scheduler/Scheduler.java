@@ -93,6 +93,8 @@ public class Scheduler extends UDPHelper {
 	/**
 	 * The thread responsible for taking in all types of appropriate messages in the queue and dealing
 	 * with them accordingly.
+	 * 
+	 * TODO: add IdleMessage to system and handle it
 	 */
 	public void startSchedulingThread() {
     	schedulerThread = new Thread(new Runnable() {
@@ -134,6 +136,7 @@ public class Scheduler extends UDPHelper {
 	    						LOGGER.info("Exterior button pressed at floor " + request.getFloor() + " direction " + request.getDirection());
 	    						ElevatorRequest eReq = new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.EXTERIOR);
 	    						Elevator elevator = assignBestElevator(eReq);
+	    						
 								if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
 									try {
 										sendSchedulerDispatchMessage(elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
@@ -330,8 +333,8 @@ public class Scheduler extends UDPHelper {
 	 * @return whether elevator one preferred over two
 	 */
 	private Boolean compareElevator(Elevator e1, Elevator e2, ElevatorRequest request) {
-    	int e1Score = evaluateDirectionalScore(e1, request) - e1.getNumDestinations();
-    	int e2Score = evaluateDirectionalScore(e2, request) - e2.getNumDestinations();
+    	int e1Score = evaluateDirectionalScore(e1, request) - e1.getNumDestinations() + e1.isRequestInQueue(request)*2;
+    	int e2Score = evaluateDirectionalScore(e2, request) - e2.getNumDestinations() + e2.isRequestInQueue(request)*2;
     	if (e1Score > e2Score) {
         	return true;
     	}
@@ -340,8 +343,6 @@ public class Scheduler extends UDPHelper {
 
 	/**
 	 * Evaluate the request priority using the direction as a factor
-	 * 
-	 * TODO: add stationary check
 	 * 
 	 * @param e the elevator
 	 * @param request the new request
@@ -356,6 +357,8 @@ public class Scheduler extends UDPHelper {
     		score = (numFloors - Math.abs(score)) * -1;
     	} else if (score > 0 && direction == Direction.UP) {
     		score = (numFloors - Math.abs(score)) * -1;
+    	} else if (direction == Direction.STATIONARY) {
+    		return Math.abs(score);
     	}
     	return score;
     }
