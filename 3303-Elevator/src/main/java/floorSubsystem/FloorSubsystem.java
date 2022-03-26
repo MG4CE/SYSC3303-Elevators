@@ -69,6 +69,10 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         int exteriorFloorButton = 0;
         String line = null;
         int requestId = 0;
+        int elevatorId = 0;
+        int timeout = 0;
+        FaultType faultType = null;
+        boolean isFaultMessage = false;
 
         Calendar programStartTime = Calendar.getInstance();
         Calendar firstLineFileTime = null;
@@ -95,34 +99,69 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
             try {
                 line = s.nextLine();
                 String[] lineParts = line.split(" ");
-
-                // Get calendar time object for current input file line
-                currentLineFileTime = utils.Utils.stringToCalendar(lineParts[0]);
+                // check if line is a fault command
+                if (lineParts[0].equals("SF") || lineParts[0].equals("HF")){
+                    isFaultMessage = true;
+                }
 
                 // Save the first line of the input files time
                 if(firstLineFileTime == null) {
-                    //currentLineFileTime.add(Calendar.SECOND, 1);
+                    // Fault messages have time stamp at index 1, regular command have at index 0
+                    if(isFaultMessage){
+                        currentLineFileTime = utils.Utils.stringToCalendar(lineParts[1]);
+                    } else {
+                    currentLineFileTime = utils.Utils.stringToCalendar(lineParts[0]);
+                    }
                     firstLineFileTime = currentLineFileTime;
                 }
 
-                exteriorFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
-                direction = utils.Utils.stringToDirection(lineParts[2]);// Get Floor Direction Enum
-                interiorFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button
+                // Soft fault command
+                if (lineParts[0].equals("SF") || lineParts[0].equals("HF")){
+                    if (lineParts[0].equals("SF")){ // Soft fault
+                        faultType = FaultType.SOFT;
+                        timeout = Integer.parseInt(lineParts[3]); // timeout for soft fault
+                    } else { // hard fault
+                        faultType = FaultType.HARD;
+                    }
+                    currentLineFileTime = utils.Utils.stringToCalendar(lineParts[1]);
+                    elevatorId = Integer.parseInt(lineParts[2]);
 
-                // Create Request - EXTERIOR elevator request message
-                ElevatorRequestMessage exteriorRequestMessage = createExteriorElevatorRequestMessage(exteriorFloorButton,requestId,direction);
+                    // Create Fault Message - Internal Fault Message
+                    ElevatorFaultMessage faultMessage = createElevatorFaultMessage(faultType, elevatorId, timeout);
 
-                // Create Timer Event - for EXTERIOR elevator button request
-                TimerTask task = makeMessageRequestTimer(exteriorRequestMessage);
+                    // Create Timer Event - for EXTERIOR elevator button request
+                    TimerTask task = makeFaultRequestTimer(faultMessage);
 
-                // Schedule Timer Event task in the future
-                long offset = getCalDifferenceMillis(firstLineFileTime, currentLineFileTime);
-                currentLineAdjustedTime.setTimeInMillis(programStartTime.getTimeInMillis() + offset);
-                timer.schedule(task,currentLineAdjustedTime.getTime());
+                    // Schedule Timer Event task in the future
+                    long offset = getCalDifferenceMillis(firstLineFileTime, currentLineFileTime);
+                    currentLineAdjustedTime.setTimeInMillis(programStartTime.getTimeInMillis() + offset);
+                    timer.schedule(task,currentLineAdjustedTime.getTime());
 
-                // Add Interior Button request to the list
-                this.elevatorInteriorRequestList.add(createInteriorElevatorRequestMessage(interiorFloorButton, requestId));
-                requestId += 1; // Increment ID for next event
+                } else { // Normal command
+
+                    // Get calendar time object for current input file line
+                    currentLineFileTime = utils.Utils.stringToCalendar(lineParts[0]);
+                    exteriorFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
+                    direction = utils.Utils.stringToDirection(lineParts[2]);// Get Floor Direction Enum
+                    interiorFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button
+
+                    // Create Request - EXTERIOR elevator request message
+                    ElevatorRequestMessage exteriorRequestMessage = createExteriorElevatorRequestMessage(exteriorFloorButton,requestId,direction);
+
+                    // Create Timer Event - for EXTERIOR elevator button request
+                    TimerTask task = makeMessageRequestTimer(exteriorRequestMessage);
+
+                    // Schedule Timer Event task in the future
+                    long offset = getCalDifferenceMillis(firstLineFileTime, currentLineFileTime);
+                    currentLineAdjustedTime.setTimeInMillis(programStartTime.getTimeInMillis() + offset);
+                    timer.schedule(task,currentLineAdjustedTime.getTime());
+
+                    // Add Interior Button request to the list
+                    this.elevatorInteriorRequestList.add(createInteriorElevatorRequestMessage(interiorFloorButton, requestId));
+
+                    requestId += 1; // Increment ID for next event
+                }
+
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
@@ -154,6 +193,26 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     }
 
     /**
+     * Creates timer that sends a request in the future
+     * The Code inside the run() method is what will execute when the timer executes
+     * @param faultMessage Elevator fault  message to be sent
+     * @return Timer Task event
+     */
+    public TimerTask makeFaultRequestTimer(ElevatorFaultMessage faultMessage) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    sendElevatorFaultMessage(faultMessage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+    }
+
+    /**
      * Sends an INTERIOR elevator request message to the scheduler subsystem
      * This simulates an INTERIOR  elevator button being pressed OF ANY FLOOR
      * @param requestMessage Elevator Request Message to be sent
@@ -172,9 +231,16 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param requestMessage Elevator Request Message to be sent
      */
     private void sendExteriorElevatorRequest(ElevatorRequestMessage requestMessage) throws IOException {
-        System.out.print("[Floor " + requestMessage.getFloor() + "] " + requestMessage.getDirection()
+        LOGGER.info("[Floor " + requestMessage.getFloor() + "] " + requestMessage.getDirection()
                 +" button pressed. [Request ID: " + requestMessage.getRequestID() + "]\n");
         sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
+    }
+
+    private void sendElevatorFaultMessage(ElevatorFaultMessage faultMessage) throws IOException {
+        LOGGER.info("[FloorSubsystem] Sending elevator " + faultMessage.getFault() +
+                " fault to => [Elevator ID: "+ faultMessage.getElevatorID() + "]");
+        System.out.println("Monkey Moment");
+        sendMessage(faultMessage, this.schedulerPort, this.schedulerAddress);
     }
 
     /**
@@ -223,6 +289,29 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 .setElevatorID(elevatorId)
                 .setTimeStamp("Monkey Moment")
                 .setRequestID(requestId)
+                .build();
+    }
+
+    /**
+     * Creates a hard or soft fault message.
+     * Soft faults will utilize the timeout field
+     * hard faults set timeout to 0
+     * @param faultType The type of fault
+     * @param elevatorID elevator that will receive the fault
+     * @param timeout timeout for soft faults, will be ignored if hard fault
+     * @return
+     */
+    private ElevatorFaultMessage createElevatorFaultMessage(FaultType faultType, int elevatorID, int timeout){
+        if (faultType == FaultType.HARD){ // hard faults; timeout
+            return ElevatorFaultMessage.newBuilder()
+                    .setFault(faultType)
+                    .setElevatorID(elevatorID)
+                    .build();
+        } // Soft fault ; YES timeout
+        return ElevatorFaultMessage.newBuilder()
+                .setFault(faultType)
+                .setElevatorID(elevatorID)
+                .setTimeout(timeout)
                 .build();
     }
 
