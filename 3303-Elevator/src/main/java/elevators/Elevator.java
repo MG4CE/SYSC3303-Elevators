@@ -193,6 +193,9 @@ public class Elevator extends UDPHelper implements Runnable {
 					if(eFault.getFault() == FaultType.DOORFAULT && eFault.getTimeout() != 0) {
 						LOGGER.info("Setting door fault to trigger!");
 						isDoorAtFault = true;
+					} else if(eFault.getFault() == FaultType.DOORFAULT && eFault.getTimeout() == 0) {
+						LOGGER.info("Disabling door fault to trigger!");
+						isDoorAtFault = false;
 					} else if (eFault.getFault() == FaultType.ELEVATOR_UNRESPONSIVE) {
 						LOGGER.warn("Elevator UNRESPONSIVE simulation condition received, stopping elevator!");
 						System.exit(1);

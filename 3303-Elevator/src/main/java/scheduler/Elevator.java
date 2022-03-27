@@ -6,6 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+
+import static java.util.concurrent.TimeUnit.*;
 
 import elevatorCommands.Button;
 import elevatorCommands.Direction;
@@ -47,17 +52,14 @@ public class Elevator {
 	//The current destination of the floor
 	private int currentDestinationFloor;
 	private Scheduler scheduler;
-	private Boolean isTimerOff;
-	private Boolean isTimeoutTimerOff;
-	private Timer interiorButtonTimer;
-	private TimerTask interiorButtonTimerTask;
-	private Timer timeoutTimer;
-	private TimerTask timeoutTimerTask;
+	private ScheduledExecutorService interiorButtonWaitScheduler;
+	private ScheduledExecutorService timeoutScheduler;
+	private ScheduledFuture<?> timeoutHandler;
+	private ScheduledFuture<?> interiorButtonWaitHandler;
 	private Timer doorFaultSimTimer;
 	private TimerTask doorFaultSimTimerTask;
 	private int doorFaultSimTimeout;
-	private int timeoutTimerCancelCounter; 
-	private int interiorButtonTimerCancelCounter; 
+	private Boolean isTimeoutTimerOff;
 
 	/**
 	 * The constructor for the elevator control class
@@ -76,16 +78,11 @@ public class Elevator {
 		this.state = ElevatorState.STOPPED;
 		this.currentDestinationFloor = -1;
 		this.scheduler = scheduler;
-		this.isTimerOff = true;
-		this.interiorButtonTimer = null;
-		this.interiorButtonTimerTask = null;
-		this.timeoutTimer = null;
-		this.timeoutTimerTask = null;
 		this.doorFaultSimTimer = null;
 		this.doorFaultSimTimerTask = null;
+		this.interiorButtonWaitScheduler = Executors.newScheduledThreadPool(1);
+		this.timeoutScheduler = Executors.newScheduledThreadPool(1);
 		this.isTimeoutTimerOff = true;
-		this.timeoutTimerCancelCounter = 0;
-		this.interiorButtonTimerCancelCounter = 0;
 	}
 
 	/**
@@ -97,8 +94,13 @@ public class Elevator {
 		ArrayList<ElevatorRequest> left = new ArrayList<>();
 		ArrayList<ElevatorRequest> right = new ArrayList<>();
 		ArrayList<ElevatorRequest> seek_sequence = new ArrayList<>();
+		
+		//System.out.println("Elevator ID " + elevatorID);
 	    
 		if (req != null) {
+//			System.out.println("Request floor " + req.getFloor());
+//			System.out.println("Current floor " + currentFloor);
+//			System.out.println("Current destination floor " + currentDestinationFloor);
 			floorDestinations.add(req);
 			
 		    if (currentDestinationFloor > req.getFloor() && currentDirection == Direction.STATIONARY) {
@@ -112,7 +114,9 @@ public class Elevator {
 	    
 	    for (int i = 0; i < floorDestinations.size(); i++) {
 	    	ElevatorRequest f = floorDestinations.get(i);
-	        if (f.getFloor() < currentFloor && direction == Direction.DOWN) {
+	    	if (f.getDirection() != direction) {
+	    		left.add(f);
+	    	} else if (f.getFloor() < currentFloor && direction == Direction.DOWN) {
 	            left.add(f);
 	        } else if (f.getFloor() > currentFloor && direction == Direction.UP) {
 	        	right.add(f);
@@ -215,7 +219,7 @@ public class Elevator {
 	 * get all the destinations
 	 * @return The floor destinations
 	 */
-	public ArrayList<ElevatorRequest> getFloorDestinations() {
+	protected ArrayList<ElevatorRequest> getFloorDestinations() {
 		return floorDestinations;
 	}
 
@@ -296,6 +300,12 @@ public class Elevator {
 		return this.currentDestinationFloor;
 	}
 	
+	/**
+	 * Check if a request is in the elevator request queue
+	 * 
+	 * @param request to check
+	 * @return int 1 if floors is in, 0 if not
+	 */
 	public int isRequestInQueue(ElevatorRequest request) {
 		for (ElevatorRequest r : floorDestinations) {
 			if (request.getFloor() == r.getFloor()) {
@@ -305,26 +315,28 @@ public class Elevator {
 		return 0;
 	}
 	
+	/**
+	 * Start internal wait button timer
+	 */
 	public void startWaitTimer() {
-		interiorButtonTimer = new Timer();
-		interiorButtonTimerTask = makeTimerTask();
-		interiorButtonTimer.schedule(interiorButtonTimerTask, BUTTON_WAIT_TIMEOUT);
-		isTimerOff = false;
+		interiorButtonWaitHandler = interiorButtonWaitScheduler.schedule(makeTimerTask(), BUTTON_WAIT_TIMEOUT, MILLISECONDS);
 	}
 	
+	/**
+	 * Stop internal wait button timer
+	 */
 	public void stopWaitTimer() {
-		if (!isTimerOff) {
-			interiorButtonTimer.cancel();
-			interiorButtonTimerCancelCounter++; //janky way of stopping timers from running
-			isTimerOff = true;
-		}
+		interiorButtonWaitHandler.cancel(true);
 	}
 	
-	private TimerTask makeTimerTask() {
-		return new TimerTask() {
+	/**
+	 * Return Runnable wait timer task
+	 * @return
+	 */
+	private Runnable makeTimerTask() {
+		return new Runnable() {
 			@Override
 			public void run() {
-				if(interiorButtonTimerCancelCounter == 0) {
 					Scheduler.LOGGER.warn("Floorsubsystem failed to give internal button press!");
 					if (peekTopRequest() != null ) {
 						try {
@@ -336,62 +348,76 @@ public class Elevator {
 					} else {
 						stopTimeoutTimer();
 					}
-				} else {
-					interiorButtonTimerCancelCounter--;
-				}
 			}
         };
 	}
 	
+	/**
+	 * Start timeout timer
+	 */
 	public void startTimeoutTimer() {
-		System.out.println("Elevator " + elevatorID + " timeout timer started");
-		timeoutTimer = new Timer();
-		timeoutTimerTask = makeTimeoutTask();
-		timeoutTimer.schedule(timeoutTimerTask, TIMEOUT);
+		timeoutHandler = timeoutScheduler.schedule(makeTimeoutTask(), TIMEOUT, MILLISECONDS);
 		isTimeoutTimerOff = false;
 	}
 	
+	/**
+	 * Reset timeout timer
+	 */
 	public void resetTimeoutTimer() {
-		timeoutTimer.cancel();
-		timeoutTimer = new Timer();
-		timeoutTimerTask = makeTimeoutTask();
-		timeoutTimer.schedule(timeoutTimerTask, TIMEOUT);
+		//System.out.println("Elevator " + elevatorID + " timer reset");
+		stopTimeoutTimer();
+		startTimeoutTimer();
 	}
 	
+	/**
+	 * Stop timeout timer
+	 */
 	public void stopTimeoutTimer() {
-		if (!isTimeoutTimerOff) {
-			timeoutTimer.cancel();
-			timeoutTimerCancelCounter++;
-			isTimeoutTimerOff = true;
-		}
+		timeoutHandler.cancel(true);
+		isTimeoutTimerOff = true;
 	}
 	
-	private TimerTask makeTimeoutTask() {
+	/**
+	 * Return a timeout task
+	 * 
+	 * @return Runnable
+	 */
+	private Runnable makeTimeoutTask() {
 		Elevator e = this;
-		return new TimerTask() {
+		return new Runnable() {
 			@Override
 			public void run() {
-				System.out.println("Elevator " + elevatorID + " " + timeoutTimerCancelCounter);
-				if(timeoutTimerCancelCounter == 0) {
+				if(!isTimeoutTimerOff) {
 					state = ElevatorState.TIMEOUT;
 					scheduler.hardFaultElevator(e);
-				} else {
-					timeoutTimerCancelCounter--;
 				}
 			}
         };
 	}
 	
+	/**
+	 * Create a door fault simulation timer
+	 * 
+	 * @param timeout
+	 */
 	public void createDoorFaultSimTimer(int timeout) {
 		doorFaultSimTimer = new Timer();
 		doorFaultSimTimerTask = makeDoorFaultSimTask();
 		doorFaultSimTimeout = timeout;
 	}
 	
+	/**
+	 * Start door fault simulation timer
+	 */
 	public void startDoorFaultSimTimer() {
 		doorFaultSimTimer.schedule(doorFaultSimTimerTask, doorFaultSimTimeout);
 	}
 	
+	/**
+	 * Return a door fault timer task
+	 * 
+	 * @return TimerTask
+	 */
 	private TimerTask makeDoorFaultSimTask() {
 		return new TimerTask() {
 			@Override
@@ -406,6 +432,11 @@ public class Elevator {
         };
 	}
 	
+	/**
+	 * Return all the external button requests of an elevator
+	 * 
+	 * @return ArrayList<ElevatorRequest> of external request
+	 */
 	public ArrayList<ElevatorRequest> getAllExternalRequest() {
 		ArrayList<ElevatorRequest> ret = new ArrayList<>();
 		for (ElevatorRequest r : floorDestinations) {
@@ -416,6 +447,11 @@ public class Elevator {
 		return ret;
 	}
 	
+	/**
+	 * Returns if the elevator is schedulable or not
+	 * 
+	 * @return Boolean
+	 */
 	public Boolean isSchedulable() {
 		if (state == ElevatorState.MOVING || state == ElevatorState.STOPPED) {
 			return true;
@@ -423,6 +459,9 @@ public class Elevator {
 		return false;
 	}
 	
+	/**
+	 * Increase the priority of floors that are the same as the current destination and current floor
+	 */
 	public void increaseSameFloorPriority() {
 	    int shift = 0;  
 	    for (int i = 0; i < floorDestinations.size(); i++) {
@@ -434,10 +473,14 @@ public class Elevator {
 	    }
 	}
 	
+	/**
+	 * Get isTimeoutTimerOff
+	 * @return Boolean
+	 */
 	public Boolean isTimeoutTimerOff() {
 		return isTimeoutTimerOff;
 	}
-	
+		
 	public static void main(String[] args) {
 	    Elevator e = new Elevator(123, 1, 1, null, null);
 	    e.currentFloor = 1;

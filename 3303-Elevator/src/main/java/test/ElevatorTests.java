@@ -3,7 +3,6 @@ package test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import elevators.BoardingState;
-import elevators.Elevator;
 import elevators.IdleState;
 import elevators.MovingState;
 import main.Main;

@@ -17,6 +17,7 @@ message WrapperMessage{
 		FaultMessage faultMessage = 8;
 		SimulateFaultMessage simFaultMessage = 9;
 	}
+	bool TEST = 10;
 }
 
 message FaultMessage{

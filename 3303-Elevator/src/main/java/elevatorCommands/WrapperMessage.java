@@ -178,6 +178,11 @@ private static final long serialVersionUID = 0L;
             msgCase_ = 9;
             break;
           }
+          case 80: {
+
+            tEST_ = input.readBool();
+            break;
+          }
           default: {
             if (!parseUnknownField(
                 input, unknownFields, extensionRegistry, tag)) {
@@ -544,6 +549,17 @@ private static final long serialVersionUID = 0L;
     return elevatorCommands.SimulateFaultMessage.getDefaultInstance();
   }
 
+  public static final int TEST_FIELD_NUMBER = 10;
+  private boolean tEST_;
+  /**
+   * <code>bool TEST = 10;</code>
+   * @return The tEST.
+   */
+  @java.lang.Override
+  public boolean getTEST() {
+    return tEST_;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -584,6 +600,9 @@ private static final long serialVersionUID = 0L;
     }
     if (msgCase_ == 9) {
       output.writeMessage(9, (elevatorCommands.SimulateFaultMessage) msg_);
+    }
+    if (tEST_ != false) {
+      output.writeBool(10, tEST_);
     }
     unknownFields.writeTo(output);
   }
@@ -630,6 +649,10 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(9, (elevatorCommands.SimulateFaultMessage) msg_);
     }
+    if (tEST_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(10, tEST_);
+    }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
     return size;
@@ -645,6 +668,8 @@ private static final long serialVersionUID = 0L;
     }
     elevatorCommands.WrapperMessage other = (elevatorCommands.WrapperMessage) obj;
 
+    if (getTEST()
+        != other.getTEST()) return false;
     if (!getMsgCase().equals(other.getMsgCase())) return false;
     switch (msgCase_) {
       case 1:
@@ -697,6 +722,9 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
+    hash = (37 * hash) + TEST_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getTEST());
     switch (msgCase_) {
       case 1:
         hash = (37 * hash) + ELEVATORREQUEST_FIELD_NUMBER;
@@ -874,6 +902,8 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      tEST_ = false;
+
       msgCase_ = 0;
       msg_ = null;
       return this;
@@ -965,6 +995,7 @@ private static final long serialVersionUID = 0L;
           result.msg_ = simFaultMessageBuilder_.build();
         }
       }
+      result.tEST_ = tEST_;
       result.msgCase_ = msgCase_;
       onBuilt();
       return result;
@@ -1014,6 +1045,9 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(elevatorCommands.WrapperMessage other) {
       if (other == elevatorCommands.WrapperMessage.getDefaultInstance()) return this;
+      if (other.getTEST() != false) {
+        setTEST(other.getTEST());
+      }
       switch (other.getMsgCase()) {
         case ELEVATORREQUEST: {
           mergeElevatorRequest(other.getElevatorRequest());
@@ -2366,6 +2400,37 @@ private static final long serialVersionUID = 0L;
       msgCase_ = 9;
       onChanged();;
       return simFaultMessageBuilder_;
+    }
+
+    private boolean tEST_ ;
+    /**
+     * <code>bool TEST = 10;</code>
+     * @return The tEST.
+     */
+    @java.lang.Override
+    public boolean getTEST() {
+      return tEST_;
+    }
+    /**
+     * <code>bool TEST = 10;</code>
+     * @param value The tEST to set.
+     * @return This builder for chaining.
+     */
+    public Builder setTEST(boolean value) {
+      
+      tEST_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>bool TEST = 10;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearTEST() {
+      
+      tEST_ = false;
+      onChanged();
+      return this;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

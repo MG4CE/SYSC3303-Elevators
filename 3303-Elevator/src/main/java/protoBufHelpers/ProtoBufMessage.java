@@ -91,6 +91,17 @@ public class ProtoBufMessage {
 		}
 	}
 
+	
+	/**
+	 * Check if message of type WrapperMessage, really only for debugging and testing
+	 * 
+	 * @return True if of type
+	 */
+	public Boolean isWrapperMessage() {
+		return this.message instanceof WrapperMessage;
+	}
+
+	
 	/**
 	 * Check if message of type ElevatorRequestMessage
 	 * 
@@ -174,6 +185,15 @@ public class ProtoBufMessage {
  
 	//TODO: ADD ERROR CHECKING TO CASTS!
 
+	/**
+	 * Cast message to type WrapperMessage, really only for debugging/testing
+	 * 
+	 * @return message of type WrapperMessage
+	 */
+	public WrapperMessage toWrapperMessages() {
+		return (WrapperMessage)(this.message);
+	}
+	
 	/**
 	 * Cast message to type ElevatorRequestMessage
 	 * 
