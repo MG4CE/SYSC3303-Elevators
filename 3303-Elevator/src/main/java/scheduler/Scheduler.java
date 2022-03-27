@@ -533,7 +533,7 @@ public class Scheduler extends UDPHelper {
 		for(Elevator elevator : elevators) {
 			synchronized(elevator){
 				if(elevator.peekTopRequest() != null) {
-					if(elevator.getNumDestinations() == 1) {
+					if(elevator.getNumDestinations() == 1 && elevator.getCurrentDestination() != elevator.peekTopRequest().getFloor()) {
 						if(elevator.isTimeoutTimerOff()) {
 							elevator.startTimeoutTimer();
 						}
