@@ -90,7 +90,6 @@ class ElevatorTest {
 		assertEquals(1, main.e.getCurrentFloor());
 	}
 	
-	
 	/**
 	 * Tear down
 	 */

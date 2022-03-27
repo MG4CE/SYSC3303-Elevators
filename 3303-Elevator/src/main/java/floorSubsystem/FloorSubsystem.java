@@ -34,6 +34,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     private List<Integer> repliedMessages; // request IDs for messages which have been replied to
     private int schedulerPort;
     private InetAddress schedulerAddress;
+    private boolean inputFileParsed;
 
     /**
      * Create new instance of Floor Subsystem
@@ -48,6 +49,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         this.elevatorInteriorRequestList = new ArrayList<>();
         this.repliedMessages = new ArrayList<>();
         this.schedulerAddress = schedulerAddress;
+        inputFileParsed = false;
     }
 
     /**
@@ -332,6 +334,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     public void run(){
         Timer timer = new Timer();
         readCommandsFile(timer);
+        this.inputFileParsed = true;
 
         while(true) {
             // Receive UPD message
@@ -425,4 +428,10 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
 
         floorThread.start();
     }
+
+    public boolean isInputFileParsed() {
+        return inputFileParsed;
+    }
+
+    
 }
