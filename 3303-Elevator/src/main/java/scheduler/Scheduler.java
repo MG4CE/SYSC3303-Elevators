@@ -144,7 +144,7 @@ public class Scheduler extends UDPHelper {
 	    						synchronized(elevator){
 		    						if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
 		    							elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
-										if(elevator.getNumDestinations() == 1) {
+										if(elevator.isTimeoutTimerOff()) {
 											elevator.startTimeoutTimer();
 										}
 		    							if(elevator.isSchedulable()) {

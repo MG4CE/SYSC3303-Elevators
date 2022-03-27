@@ -56,8 +56,8 @@ public class Elevator {
 	private Timer doorFaultSimTimer;
 	private TimerTask doorFaultSimTimerTask;
 	private int doorFaultSimTimeout;
-	private ArrayList<Integer> timeoutTimerCancelList; 
-	private ArrayList<Integer> interiorButtonTimerCancelList; 
+	private int timeoutTimerCancelCounter; 
+	private int interiorButtonTimerCancelCounter; 
 
 	/**
 	 * The constructor for the elevator control class
@@ -84,8 +84,8 @@ public class Elevator {
 		this.doorFaultSimTimer = null;
 		this.doorFaultSimTimerTask = null;
 		this.isTimeoutTimerOff = true;
-		this.timeoutTimerCancelList = new ArrayList<>();
-		this.interiorButtonTimerCancelList = new ArrayList<>();
+		this.timeoutTimerCancelCounter = 0;
+		this.interiorButtonTimerCancelCounter = 0;
 	}
 
 	/**
@@ -315,7 +315,7 @@ public class Elevator {
 	public void stopWaitTimer() {
 		if (!isTimerOff) {
 			interiorButtonTimer.cancel();
-			interiorButtonTimerCancelList.add(1); //janky way of stopping timers from running
+			interiorButtonTimerCancelCounter++; //janky way of stopping timers from running
 			isTimerOff = true;
 		}
 	}
@@ -324,7 +324,7 @@ public class Elevator {
 		return new TimerTask() {
 			@Override
 			public void run() {
-				if(interiorButtonTimerCancelList.size() == 0) {
+				if(interiorButtonTimerCancelCounter == 0) {
 					Scheduler.LOGGER.warn("Floorsubsystem failed to give internal button press!");
 					if (peekTopRequest() != null ) {
 						try {
@@ -337,13 +337,14 @@ public class Elevator {
 						stopTimeoutTimer();
 					}
 				} else {
-					interiorButtonTimerCancelList.remove(0);
+					interiorButtonTimerCancelCounter--;
 				}
 			}
         };
 	}
 	
 	public void startTimeoutTimer() {
+		System.out.println("Elevator " + elevatorID + " timeout timer started");
 		timeoutTimer = new Timer();
 		timeoutTimerTask = makeTimeoutTask();
 		timeoutTimer.schedule(timeoutTimerTask, TIMEOUT);
@@ -352,7 +353,6 @@ public class Elevator {
 	
 	public void resetTimeoutTimer() {
 		timeoutTimer.cancel();
-		isTimeoutTimerOff = false;
 		timeoutTimer = new Timer();
 		timeoutTimerTask = makeTimeoutTask();
 		timeoutTimer.schedule(timeoutTimerTask, TIMEOUT);
@@ -361,7 +361,7 @@ public class Elevator {
 	public void stopTimeoutTimer() {
 		if (!isTimeoutTimerOff) {
 			timeoutTimer.cancel();
-			timeoutTimerCancelList.add(1);
+			timeoutTimerCancelCounter++;
 			isTimeoutTimerOff = true;
 		}
 	}
@@ -371,11 +371,12 @@ public class Elevator {
 		return new TimerTask() {
 			@Override
 			public void run() {
-				if(timeoutTimerCancelList.size() == 0) {
+				System.out.println("Elevator " + elevatorID + " " + timeoutTimerCancelCounter);
+				if(timeoutTimerCancelCounter == 0) {
 					state = ElevatorState.TIMEOUT;
 					scheduler.hardFaultElevator(e);
 				} else {
-					timeoutTimerCancelList.remove(0);
+					timeoutTimerCancelCounter--;
 				}
 			}
         };
