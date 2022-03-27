@@ -8,10 +8,7 @@ import java.net.UnknownHostException;
 
 import elevatorCommands.Button;
 import org.apache.logging.log4j.core.util.Assert;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import elevators.BoardingState;
 import elevators.IdleState;
@@ -26,9 +23,11 @@ import scheduler.Scheduler;
  * @Golan
  */
 public class SchedulerTests {
-    Elevator e1, e2, e3 ,e4 ,e5;
-    Scheduler s1, s2, s3, s4, s5;
-    public SchedulerTests() throws SocketException {
+    static Elevator e1, e2, e3 ,e4 ,e5;
+    static Scheduler s1, s2, s3, s4, s5;
+
+    @BeforeAll
+    public static void init() throws SocketException {
         s1 = new Scheduler(3000,5);
         s2 = new Scheduler(3001,5);
         s3 = new Scheduler(3002,5);
@@ -88,4 +87,5 @@ public class SchedulerTests {
     {
         assertEquals(s5.evaluateDirectionalScore(e5,new ElevatorRequest(1,2,Button.EXTERIOR)),1);
     }
+
 }
