@@ -67,6 +67,7 @@ public class Main extends UDPHelper {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Scheduler.main(args);
 		Elevator.main(args);
+		Elevator.main(args);
 		FloorSubsystem.main(args);
 		
 		/*

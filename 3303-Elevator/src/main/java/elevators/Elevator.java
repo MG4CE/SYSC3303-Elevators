@@ -16,7 +16,10 @@ import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
+import elevatorCommands.FaultMessage;
+import elevatorCommands.FaultType;
 import elevatorCommands.FloorSensorMessage;
+import elevatorCommands.SimulateFaultMessage;
 import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
 import stateMachine.StateMachine;
@@ -38,6 +41,7 @@ public class Elevator extends UDPHelper implements Runnable {
 	protected Motor elevatorMotor;
 	protected StateMachine elevatorFSM;
 	protected Boolean running;
+	protected Boolean isDoorAtFault;
 
 	/**
 	 * Constructor takes in scheduler connection information and a set receive port
@@ -56,7 +60,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 		this.running = true;
-
+		this.isDoorAtFault = false;
 	}
 
 	/**
@@ -74,6 +78,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 		this.running = true;
+		this.isDoorAtFault = false;
 	}
 
 	/**
@@ -118,6 +123,15 @@ public class Elevator extends UDPHelper implements Runnable {
 	protected void sendElevatorArrivedMessage() throws IOException {
 		ElevatorArrivedMessage msg = ElevatorArrivedMessage.newBuilder().setElevatorID(this.elevatorID)
 				.setFloor(this.currentFloor)
+				// TODO: ADD TIMESTAMP
+				.build();
+		sendMessage(msg, schedulerPort, schedulerAddress);
+	}
+	
+	protected void sendFaultMessage(FaultType f) throws IOException {
+		FaultMessage msg = FaultMessage.newBuilder()
+				.setElevatorID(this.elevatorID)
+				.setFault(f)
 				// TODO: ADD TIMESTAMP
 				.build();
 		sendMessage(msg, schedulerPort, schedulerAddress);
@@ -173,7 +187,22 @@ public class Elevator extends UDPHelper implements Runnable {
 		while (this.running) {
 			try {
 				DatagramPacket recvMessage = receiveMessage(); // wait for message from scheduler
-				this.elevatorFSM.updateFSM(new ProtoBufMessage(recvMessage));
+				ProtoBufMessage msg = new ProtoBufMessage(recvMessage);
+				if (msg.isElevatorSimulateFaultMessage()) {
+					SimulateFaultMessage eFault = msg.toElevatorSimulateFaultMessage();
+					if(eFault.getFault() == FaultType.DOORFAULT && eFault.getTimeout() != 0) {
+						LOGGER.info("Setting door fault to trigger!");
+						isDoorAtFault = true;
+					} else if(eFault.getFault() == FaultType.DOORFAULT && eFault.getTimeout() == 0) {
+						LOGGER.info("Disabling door fault to trigger!");
+						isDoorAtFault = false;
+					} else if (eFault.getFault() == FaultType.ELEVATOR_UNRESPONSIVE) {
+						LOGGER.warn("Elevator UNRESPONSIVE simulation condition received, stopping elevator!");
+						System.exit(1);
+					}
+				} else {
+					this.elevatorFSM.updateFSM(msg);
+				}
 			} catch (IOException e) {
 				LOGGER.error("FSM update failed, stopping elevator:" + e.getMessage());
 				this.running = false;

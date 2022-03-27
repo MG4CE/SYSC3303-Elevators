@@ -37,8 +37,8 @@ public class StateMachine {
 		State prevState = getCurrentState();
 		currentState = currentState.nextState(message);
 		if (currentState != prevState) { // State change occurred!
-			LOGGER.info("State Machine Moving to " + this.currentState.getClass().getName());
 			prevState.exitActions(); // invoke exit actions if any
+			LOGGER.info("State Machine Moving to " + this.currentState.getClass().getName());
 			this.currentState.entryActions(); // invoke entry actions if any
 		}
 	}

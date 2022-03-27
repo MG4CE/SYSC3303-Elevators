@@ -39,6 +39,7 @@ public class ArrivingState implements State {
 				return new BoardingState(elevator); //Arrived!
 			}
 		}
+		//bug prone here we might get a message here
 		throw new IOException("INVALID FSM STATE");
 	}
 }
