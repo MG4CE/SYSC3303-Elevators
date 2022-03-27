@@ -1,4 +1,4 @@
-package protoBufTests;
+package protoBufHelpers;
 
 
 
@@ -30,8 +30,6 @@ import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
 import elevatorCommands.WrapperMessage;
-import protoBufHelpers.ProtoBufMessage;
-import protoBufHelpers.UDPHelper;
 
 class ProtoBufMessageTests{
 

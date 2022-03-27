@@ -1,4 +1,4 @@
-package test;
+package elevators;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,9 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import elevators.BoardingState;
-import elevators.IdleState;
-import elevators.MovingState;
 import main.Main;
 
  

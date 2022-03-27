@@ -34,6 +34,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     private List<Integer> repliedMessages; // request IDs for messages which have been replied to
     private int schedulerPort;
     private InetAddress schedulerAddress;
+    private boolean inputFileParsed;
 
     /**
      * Create new instance of Floor Subsystem
@@ -48,6 +49,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         this.elevatorInteriorRequestList = new ArrayList<>();
         this.repliedMessages = new ArrayList<>();
         this.schedulerAddress = schedulerAddress;
+        inputFileParsed = false;
     }
 
     /**
@@ -330,6 +332,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     public void run(){
         Timer timer = new Timer();
         readCommandsFile(timer);
+        this.inputFileParsed = true;
 
         while(true) {
             // Receive UPD message
@@ -417,10 +420,16 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     public static void main(String[] args) throws SocketException, UnknownHostException {
         InetAddress schedulerAddress = InetAddress.getLocalHost();
         int schedulerPort = 6969;
-        String commandFile = "src/main/java/input/input.txt";
+        String commandFile = "documents/input/input.txt";
 
         Thread floorThread = new Thread (new FloorSubsystem(schedulerPort, commandFile, schedulerAddress));
 
         floorThread.start();
     }
+
+    public boolean isInputFileParsed() {
+        return inputFileParsed;
+    }
+
+    
 }
