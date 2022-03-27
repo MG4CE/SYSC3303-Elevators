@@ -1,6 +1,6 @@
-# Iteration 3 - SYSC 3303 - The Schedulators
+# Iteration 4 - SYSC 3303 - The Schedulators
 
-# ProtoBuf Success
+Iteration 4 involves the addition of Faults to the system, including door faults, as well as unresponsive elevators (stuck in shaft)
 
 ## Issues to address
 - #### Iteration 1 issues
@@ -22,6 +22,9 @@
 - Dealing with nonsequential floors
 - Bug when scheduling with 1 elevator only (Overwrites current destination) 
 
+<br />
+- #### Iteration 4 issues
+- Currently, there are no know issues with this iteration
 
 ## Installation
  Warning this project needs JDK 17
@@ -71,6 +74,10 @@ Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
  2. Run As -> JUnit Test
 ```
 
+### Compiling Protobuf Messages
+```java
+	protoc -I=./src/main/proto --java_out=./src/main/java elevator.proto
+```
 
 
 ## Folders & File Description
