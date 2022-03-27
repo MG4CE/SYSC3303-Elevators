@@ -444,7 +444,7 @@ public class Scheduler extends UDPHelper {
 	 * @param request the new request
 	 * @return the score returned
 	 */
-	private int evaluateDirectionalScore(Elevator e, ElevatorRequest request) {
+	protected int evaluateDirectionalScore(Elevator e, ElevatorRequest request) {
     	int score = e.getCurrentFloor() - request.getFloor();
     	Direction direction = e.getlDirection();
     	if (score == 0 && direction != Direction.STATIONARY) {
@@ -462,7 +462,7 @@ public class Scheduler extends UDPHelper {
     	return score;
     }
 	
-	private int getSchedulableScore(Elevator e) {
+	protected int getSchedulableScore(Elevator e) {
 		if (!e.isSchedulable()) {
 			return -99999999;
 		}
@@ -478,7 +478,7 @@ public class Scheduler extends UDPHelper {
     	listenerThread.interrupt();
     	schedulerThread.interrupt();
     }
-	
+
 	protected void hardFaultElevator(Elevator e) {
 		if(e.getState() != ElevatorState.TIMEOUT) {
 			return;
@@ -514,6 +514,32 @@ public class Scheduler extends UDPHelper {
 				}
 			}
 		}
+	}
+
+	/**
+	 * A method used in testing
+	 * @param e The elevator
+	 */
+	public void addToElevators(Elevator e)
+	{
+		elevators.add(e);
+	}
+
+	/**
+	 * Get if the Scheduler is running
+	 * @return
+	 */
+	public Boolean getRunning() {
+		return isRunning;
+	}
+
+	/**
+	 * Stop all of the threads
+	 */
+	protected void stopSchedulerThreads() {
+		isRunning = false;
+		listenerThread.interrupt();
+		schedulerThread.interrupt();
 	}
 
 	/**

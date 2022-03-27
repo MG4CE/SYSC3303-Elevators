@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/bin" />
-    <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_17">
+    <output url="file://$MODULE_DIR$/3303-Elevator/target/classes" />
+    <output-test url="file://$MODULE_DIR$/3303-Elevator/target/test-classes" />
+    <content url="file://$MODULE_DIR$/3303-Elevator">
+      <sourceFolder url="file://$MODULE_DIR$/3303-Elevator/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/3303-Elevator/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/3303-Elevator/target" />
+    </content>
+    <orderEntry type="jdk" jdkName="corretto-17" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.19.4" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-api:2.17.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-core:2.17.2" level="project" />
+    <orderEntry type="library" name="Maven: org.junit.jupiter:junit-jupiter-engine:5.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apiguardian:apiguardian-api:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.junit.platform:junit-platform-engine:1.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.junit.platform:junit-platform-commons:1.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.opentest4j:opentest4j:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.junit.jupiter:junit-jupiter-api:5.3.1" level="project" />
   </component>
 </module>
