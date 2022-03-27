@@ -3,7 +3,7 @@ package scheduler;
 import elevatorCommands.*;
 import protoBufHelpers.ProtoBufMessage;
 import protoBufHelpers.UDPHelper;
-import scheduler.Elevator.ElevatorState;
+import scheduler.ElevatorControl.ElevatorState;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -29,7 +29,7 @@ public class Scheduler extends UDPHelper {
 	//A queue of the messages
     private ArrayList<DatagramPacket> messageQueue;
 	//The elevator control list which represents the changes to the actual elevators
-    private ArrayList<Elevator> elevators;
+    private ArrayList<ElevatorControl> elevators;
 	//The counter for the elevator ids
     private int elevatorIDCounter;
 	//the threads that will be running
@@ -135,7 +135,7 @@ public class Scheduler extends UDPHelper {
 	    					if(request.getButton().equals(Button.EXTERIOR)) {
 	    						LOGGER.info("Exterior button pressed at floor " + request.getFloor() + " direction " + request.getDirection());
 	    						ElevatorRequest eReq = new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.EXTERIOR);
-	    						Elevator elevator = assignBestElevator(eReq);
+	    						ElevatorControl elevator = assignBestElevator(eReq);
 	    						if(elevator == null) {
 	    							LOGGER.info("No elevators avaliable, ignoring request!");
 	    							continue;
@@ -158,7 +158,7 @@ public class Scheduler extends UDPHelper {
 	    						}
 	    					} else {
 	    						LOGGER.info("Interior button pressed inside Elevator " + request.getElevatorID() + " requesting to go to floor " + request.getFloor());
-								for(Elevator elevator : elevators) {
+								for(ElevatorControl elevator : elevators) {
 									if(request.getElevatorID() == elevator.getElevatorID()) {
 										synchronized(elevator){
 											elevator.stopWaitTimer();
@@ -178,7 +178,7 @@ public class Scheduler extends UDPHelper {
 							}
 	    				} else if(msg.isElevatorRegisterMessage()) {
 							ElevatorRegisterMessage message = msg.toElevatorRegisterMessage();
-	    					elevators.add(new Elevator(packet.getPort(), elevatorIDCounter, message.getFloor(), packet.getAddress(), s));
+	    					elevators.add(new ElevatorControl(packet.getPort(), elevatorIDCounter, message.getFloor(), packet.getAddress(), s));
 	    					try {
 								sendElevatorRegisterMessage(elevatorIDCounter, packet.getPort(), packet.getAddress());
 							} catch (IOException e) {
@@ -190,7 +190,7 @@ public class Scheduler extends UDPHelper {
 	    				} else if(msg.isElevatorArrivedMessage()) {
 							ElevatorArrivedMessage message = msg.toElevatorArrivedMessage();
 	    					LOGGER.info("Elevator " + message.getElevatorID() + " has arrived at floor " + message.getFloor());
-							for(Elevator elevator : elevators) {
+							for(ElevatorControl elevator : elevators) {
 								synchronized(elevator){
 									if(message.getElevatorID() == elevator.getElevatorID()) {
 										elevator.resetTimeoutTimer();
@@ -244,7 +244,7 @@ public class Scheduler extends UDPHelper {
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
-							for(Elevator elevator : elevators) {
+							for(ElevatorControl elevator : elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
 									synchronized(elevator){
 										elevator.resetTimeoutTimer();
@@ -255,7 +255,7 @@ public class Scheduler extends UDPHelper {
 						} else if(msg.isFloorSensorMessage()) {
 							FloorSensorMessage request = msg.toFloorSensorMessage();
 							LOGGER.debug("Elevator " + request.getElevatorID() + " is currently at floor " + request.getFloor());
-							for(Elevator elevator : elevators) {
+							for(ElevatorControl elevator : elevators) {
 								if(request.getElevatorID() == elevator.getElevatorID()) {
 									synchronized(elevator){
 										elevator.resetTimeoutTimer();
@@ -266,7 +266,7 @@ public class Scheduler extends UDPHelper {
 						} else if(msg.isElevatorSimulateFaultMessage()) {
 							SimulateFaultMessage request = msg.toElevatorSimulateFaultMessage();
 							LOGGER.info("Simulating " + request.getFault() + " for Elevator " + request.getElevatorID() + " duration " + request.getTimeout() + "millis");
-							for(Elevator elevator : elevators) {
+							for(ElevatorControl elevator : elevators) {
 								if(request.getElevatorID() == elevator.getElevatorID()) {
 									if(request.getFault() == FaultType.DOORFAULT) {
 										elevator.createDoorFaultSimTimer(request.getTimeout());
@@ -280,8 +280,8 @@ public class Scheduler extends UDPHelper {
 							}
 						} else if(msg.isElevatorFaultMessage()) {
 							FaultMessage request = msg.toElevatorFaultMessage();
-							Elevator elevatorAtFault = null;
-							for(Elevator elevator : elevators) {
+							ElevatorControl elevatorAtFault = null;
+							for(ElevatorControl elevator : elevators) {
 								if(request.getElevatorID() == elevator.getElevatorID()) {
 									elevatorAtFault = elevator;
 								}
@@ -401,22 +401,22 @@ public class Scheduler extends UDPHelper {
 	 * @param req the request
 	 * @return the best elevator
 	 */
-    public Elevator assignBestElevator(ElevatorRequest req) {
+    public ElevatorControl assignBestElevator(ElevatorRequest req) {
     	if(elevators.size() == 0) {
     		return null;
     	}
     	
-    	Elevator selectedElevator = null;
+    	ElevatorControl selectedElevator = null;
     	if(elevators.size() == 1) {
     		synchronized(elevators.get(0)){
     			elevators.get(0).addDestination(req);
     		}
     		selectedElevator = elevators.get(0);
     	} else {
-    		Elevator best = null;
-    		Iterator<Elevator> iter = elevators.iterator();
+    		ElevatorControl best = null;
+    		Iterator<ElevatorControl> iter = elevators.iterator();
     		while (iter.hasNext()) {
-	    		Elevator elevator = iter.next();
+	    		ElevatorControl elevator = iter.next();
 	    		if(best != null) {
 		    		synchronized(elevator){
 		    			synchronized(best){
@@ -444,7 +444,7 @@ public class Scheduler extends UDPHelper {
 	 * @param request the request
 	 * @return whether elevator one preferred over two
 	 */
-	private Boolean compareElevator(Elevator e1, Elevator e2, ElevatorRequest request) {
+	private Boolean compareElevator(ElevatorControl e1, ElevatorControl e2, ElevatorRequest request) {
     	int e1Score = evaluateDirectionalScore(e1, request) - e1.getNumDestinations() + e1.isRequestInQueue(request)*2 + getSchedulableScore(e1);
     	int e2Score = evaluateDirectionalScore(e2, request) - e2.getNumDestinations() + e2.isRequestInQueue(request)*2 + getSchedulableScore(e2);
     	if (e1Score > e2Score) {
@@ -460,7 +460,7 @@ public class Scheduler extends UDPHelper {
 	 * @param request the new request
 	 * @return the score returned
 	 */
-	protected int evaluateDirectionalScore(Elevator e, ElevatorRequest request) {
+	protected int evaluateDirectionalScore(ElevatorControl e, ElevatorRequest request) {
     	int score = e.getCurrentFloor() - request.getFloor();
     	Direction direction = e.getlDirection();
     	if (score == 0 && direction != Direction.STATIONARY) {
@@ -485,7 +485,7 @@ public class Scheduler extends UDPHelper {
 	 * @param e Elevator to check
 	 * @return Score int
 	 */
-	protected int getSchedulableScore(Elevator e) {
+	protected int getSchedulableScore(ElevatorControl e) {
 		if (!e.isSchedulable()) {
 			return -99999999;
 		}
@@ -507,7 +507,7 @@ public class Scheduler extends UDPHelper {
 	 * 
 	 * @param e Elevator at fault
 	 */
-	protected void hardFaultElevator(Elevator e) {
+	protected void hardFaultElevator(ElevatorControl e) {
 		if(e.getState() != ElevatorState.TIMEOUT) {
 			return;
 		}
@@ -530,7 +530,7 @@ public class Scheduler extends UDPHelper {
 	 * Buggy as it can potentially send a dispatch requests when an elevator is inside the arrival state  
 	 */
 	protected void verifyElevatorTopRequests() {
-		for(Elevator elevator : elevators) {
+		for(ElevatorControl elevator : elevators) {
 			synchronized(elevator){
 				if(elevator.peekTopRequest() != null) {
 					if(elevator.getNumDestinations() == 1 && elevator.getCurrentDestination() != elevator.peekTopRequest().getFloor()) {
@@ -553,7 +553,7 @@ public class Scheduler extends UDPHelper {
 	 * A method used in testing
 	 * @param e The elevator
 	 */
-	public void addToElevators(Elevator e)
+	public void addToElevators(ElevatorControl e)
 	{
 		elevators.add(e);
 	}

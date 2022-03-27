@@ -12,7 +12,7 @@ import org.junit.jupiter.api.*;
  * @Golan
  */
 public class SchedulerTests {
-    static Elevator e1, e2, e3 ,e4 ,e5;
+    static ElevatorControl e1, e2, e3 ,e4 ,e5;
     static Scheduler s1, s2, s3, s4, s5;
 
     @BeforeAll
@@ -22,11 +22,11 @@ public class SchedulerTests {
         s3 = new Scheduler(3002,5);
         s4 = new Scheduler(3003,5);
         s5 = new Scheduler(3004,5);
-        e1 = new Elevator(3000,3,0,null,s1);
-        e2 = new Elevator(3001,3,0,null,s2);
-        e3 = new Elevator(3002,3,0,null,s3);
-        e4 = new Elevator(3003,3,0,null,s4);
-        e5 = new Elevator(3004,3,0,null,s5);
+        e1 = new ElevatorControl(3000,3,0,null,s1);
+        e2 = new ElevatorControl(3001,3,0,null,s2);
+        e3 = new ElevatorControl(3002,3,0,null,s3);
+        e4 = new ElevatorControl(3003,3,0,null,s4);
+        e5 = new ElevatorControl(3004,3,0,null,s5);
     }
 
     /**
@@ -44,7 +44,7 @@ public class SchedulerTests {
      * Test the assignBestElevatorClass
      */
     public void testAssignBestElevator() throws IOException {
-        Elevator e2;
+        ElevatorControl e2;
         e2 = s1.assignBestElevator(new ElevatorRequest(1,0, Button.EXTERIOR));
         assertEquals(e2,null);
         s1.addToElevators(e1);

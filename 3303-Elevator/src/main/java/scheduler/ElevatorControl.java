@@ -20,7 +20,7 @@ import elevatorCommands.Direction;
  * that can be used by the scheduler to send the appropriate commands to
  * the elevator.
  */
-public class Elevator {
+public class ElevatorControl {
 	
 	private static final int BUTTON_WAIT_TIMEOUT = 1000;
 	private static final int TIMEOUT = 10000;
@@ -68,7 +68,7 @@ public class Elevator {
 	 * @param currentFloor The current floor the elevator is on
 	 * @param address The internet address
 	 */
-	public Elevator(int port, int elevatorID, int currentFloor, InetAddress address, Scheduler scheduler) {
+	public ElevatorControl(int port, int elevatorID, int currentFloor, InetAddress address, Scheduler scheduler) {
 		this.port = port;
 		this.address = address;
 		this.elevatorID = elevatorID;
@@ -383,7 +383,7 @@ public class Elevator {
 	 * @return Runnable
 	 */
 	private Runnable makeTimeoutTask() {
-		Elevator e = this;
+		ElevatorControl e = this;
 		return new Runnable() {
 			@Override
 			public void run() {
@@ -482,7 +482,7 @@ public class Elevator {
 	}
 		
 	public static void main(String[] args) {
-	    Elevator e = new Elevator(123, 1, 1, null, null);
+	    ElevatorControl e = new ElevatorControl(123, 1, 1, null, null);
 	    e.currentFloor = 1;
 	    e.currentDestinationFloor = 1;
 	    e.currentDirection = Direction.UP;
