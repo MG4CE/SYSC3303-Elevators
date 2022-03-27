@@ -2,21 +2,10 @@ package scheduler;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
-
 import elevatorCommands.Button;
-import org.apache.logging.log4j.core.util.Assert;
 import org.junit.jupiter.api.*;
 
-import elevators.BoardingState;
-import elevators.IdleState;
-import elevators.MovingState;
-import main.Main;
-import scheduler.Elevator;
-import scheduler.ElevatorRequest;
-import scheduler.Scheduler;
 
 /**
  * Testing the Scheduler
