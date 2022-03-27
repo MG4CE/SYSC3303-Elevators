@@ -1,7 +1,5 @@
 package test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -13,7 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import elevators.IdleState;
 import main.Main;
 
 
@@ -51,17 +48,17 @@ class FloorSubsystemTest {
 
 
 // ==============================================
-//    /**
-//     * Send
-//     * @throws IOException
-//     * @throws InterruptedException
-//     */
-//    @Test
-//    void testHardFaultMessage() throws IOException, InterruptedException {
-//        String commandFile = "src/main/java/input/input.txt";
-//        Thread floorThread = new Thread (new FloorSubsystem(schedulerPort,commandFile, schedulerAddress));
-//        floorThread.start();
-//    }
+    /**
+     * Send
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    @Test
+    void testHardFaultMessage() throws IOException, InterruptedException {
+        String commandFile = "src/main/java/input/input.txt";
+        Thread floorThread = new Thread (new FloorSubsystem(schedulerPort,commandFile, schedulerAddress));
+        floorThread.start();
+    }
 
     /**
      * Tests that floor subsystem is done sending messages
