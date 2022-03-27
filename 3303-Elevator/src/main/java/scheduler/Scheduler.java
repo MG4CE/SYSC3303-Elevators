@@ -143,10 +143,8 @@ public class Scheduler extends UDPHelper {
 	    						elevator.increaseSameFloorPriority();
 	    						synchronized(elevator){
 		    						if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
-		    							System.out.println(elevator.peekTopRequest().getFloor() + " " + request.getFloor() + " " + elevator.peekTopRequest().getFloor() + " " + elevator.getCurrentDestination());
 		    							elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 										if(elevator.isTimeoutTimerOff()) {
-											System.out.println("Elevator " + elevator.getElevatorID() + " started timeout timer");
 											elevator.startTimeoutTimer();
 										}
 		    							if(elevator.isSchedulable()) {
@@ -202,7 +200,24 @@ public class Scheduler extends UDPHelper {
 											LOGGER.error("Failed to forward elevator arrived message: " + e.getMessage());
 										}
 										elevator.setState(ElevatorState.STOPPED);
-										ElevatorRequest lastReq = elevator.popTopRequest();
+										ElevatorRequest lastReq = null;
+										if(elevator.getCurrentDestination() == elevator.peekTopRequest().getFloor()) {
+											lastReq = elevator.popTopRequest();
+										} else {
+											//This not a great way of removing a request if we reschedule an elevator in the event
+											//of an elevator request redistribution due to a hard fault
+											ArrayList<ElevatorRequest> requests = elevator.getFloorDestinations();
+											for(int i = 0; i < elevator.getNumDestinations(); i++) {
+												if(message.getFloor() == requests.get(i).getFloor()) {
+													lastReq = requests.remove(i);
+												}
+											}
+										}
+										
+										if(lastReq == null) {
+											throw new IllegalStateException("Arrived floor not found queue, how did we get here?");
+										}
+										
 										elevator.increaseSameFloorPriority();
 										if (!elevator.getFloorDestinations().isEmpty() && lastReq.getRequestType() == Button.INTERIOR) {
 											elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
@@ -216,7 +231,6 @@ public class Scheduler extends UDPHelper {
 										} else if (lastReq.getRequestType() == Button.EXTERIOR) {
 											elevator.startWaitTimer();
 										} else {
-											System.out.println("Elevator " + elevator.getElevatorID() + " stopped timout timer");
 											elevator.stopTimeoutTimer();
 										}
 									}
@@ -233,7 +247,6 @@ public class Scheduler extends UDPHelper {
 							for(Elevator elevator : elevators) {
 								if(message.getElevatorID() == elevator.getElevatorID()) {
 									synchronized(elevator){
-										System.out.println("2 Elevator " + elevator.getElevatorID() + " timer reset");
 										elevator.resetTimeoutTimer();
 										elevator.setState(ElevatorState.MOVING);
 									}
@@ -245,7 +258,6 @@ public class Scheduler extends UDPHelper {
 							for(Elevator elevator : elevators) {
 								if(request.getElevatorID() == elevator.getElevatorID()) {
 									synchronized(elevator){
-										System.out.println("3 Elevator " + elevator.getElevatorID() + " timer reset");
 										elevator.resetTimeoutTimer();
 										elevator.setCurrentFloor(request.getFloor());
 									}
@@ -283,7 +295,6 @@ public class Scheduler extends UDPHelper {
 									elevatorAtFault.startDoorFaultSimTimer();
 								} else if(request.getFault() == FaultType.SCHEDULE_FAULT) {
 									LOGGER.info("Elevator " + request.getElevatorID() + " has encountred scheduling fault");
-									System.out.println("4 Elevator " + elevatorAtFault.getElevatorID() + " timer reset");
 									elevatorAtFault.resetTimeoutTimer();
 									ElevatorRequest r = elevatorAtFault.popTopRequest();
 									elevatorAtFault.addDestination(r);
@@ -467,6 +478,12 @@ public class Scheduler extends UDPHelper {
     	return score;
     }
 	
+	/**
+	 * Returns a score based on if the elevator is schedulable or not
+	 * 
+	 * @param e Elevator to check
+	 * @return Score int
+	 */
 	private int getSchedulableScore(Elevator e) {
 		if (!e.isSchedulable()) {
 			return -99999999;
@@ -484,6 +501,11 @@ public class Scheduler extends UDPHelper {
     	schedulerThread.interrupt();
     }
 	
+	/**
+	 * Process an elevator if its at a hard fault and reschedule all external requests to other elevators
+	 * 
+	 * @param e Elevator at fault
+	 */
 	protected void hardFaultElevator(Elevator e) {
 		if(e.getState() != ElevatorState.TIMEOUT) {
 			return;
@@ -498,17 +520,20 @@ public class Scheduler extends UDPHelper {
 				assignBestElevator(r);
 			}
 		}
-		//verifyElevatorTopRequests();
+		verifyElevatorTopRequests();
 	}
 	
-	//Buggy as it can send a message to elevator while its in the arriving state
+	/**
+	 * Verify if all the top requests for an elevator are the ones in progress and attempt to reschedule
+	 * 
+	 * Buggy as it can potentially send a dispatch requests when an elevator is inside the arrival state  
+	 */
 	protected void verifyElevatorTopRequests() {
 		for(Elevator elevator : elevators) {
 			synchronized(elevator){
 				if(elevator.peekTopRequest() != null) {
-					if(elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
+					if(elevator.getNumDestinations() == 1) {
 						if(elevator.isTimeoutTimerOff()) {
-							System.out.println("Elevator " + elevator.getElevatorID() + " started timeout timer");
 							elevator.startTimeoutTimer();
 						}
 						elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
