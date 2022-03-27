@@ -203,10 +203,7 @@ class ElevatorTest {
 		Thread.sleep(3200 * 5);
 		assertEquals(1, main6.e.getCurrentFloor());
 	}
-	
-	
-	
-	
+  
 	/**
 	 * Tear down
 	 */
