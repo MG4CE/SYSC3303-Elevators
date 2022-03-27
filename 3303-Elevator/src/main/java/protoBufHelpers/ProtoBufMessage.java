@@ -86,6 +86,7 @@ public class ProtoBufMessage {
 			case SCHEDULERDISPATCH -> this.message = msg.getSchedulerDispatch();
 			case REGISTERMESSAGE -> this.message = msg.getRegisterMessage();
 			case FAULTMESSAGE -> this.message = msg.getFaultMessage();
+			case SIMFAULTMESSAGE -> this.message = msg.getSimFaultMessage();
 			default -> this.message = null;
 		}
 	}

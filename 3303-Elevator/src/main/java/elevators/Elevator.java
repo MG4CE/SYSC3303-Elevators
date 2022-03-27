@@ -78,6 +78,7 @@ public class Elevator extends UDPHelper implements Runnable {
 		this.elevatorMotor = new Motor(this);
 		this.elevatorFSM = new StateMachine(new IdleState(this));
 		this.running = true;
+		this.isDoorAtFault = false;
 	}
 
 	/**
@@ -190,10 +191,10 @@ public class Elevator extends UDPHelper implements Runnable {
 				if (msg.isElevatorSimulateFaultMessage()) {
 					SimulateFaultMessage eFault = msg.toElevatorSimulateFaultMessage();
 					if(eFault.getFault() == FaultType.DOORFAULT && eFault.getTimeout() != 0) {
+						LOGGER.info("Setting door fault to trigger!");
 						isDoorAtFault = true;
-					} else if(eFault.getFault() == FaultType.DOORFAULT && eFault.getTimeout() == 0) {
-						isDoorAtFault = false;
 					} else if (eFault.getFault() == FaultType.ELEVATOR_UNRESPONSIVE) {
+						LOGGER.warn("Elevator UNRESPONSIVE simulation condition received, stopping elevator!");
 						System.exit(1);
 					}
 				} else {

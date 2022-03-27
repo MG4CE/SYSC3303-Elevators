@@ -27,7 +27,7 @@ public class Elevator {
 		MOVING,
 		STOPPED,
 		DOOR_FAULT,
-		TIMEOUTED
+		TIMEOUT
 	}
 		
 	//The port of the elevator
@@ -55,6 +55,9 @@ public class Elevator {
 	private TimerTask timeoutTimerTask;
 	private Timer doorFaultSimTimer;
 	private TimerTask doorFaultSimTimerTask;
+	private int doorFaultSimTimeout;
+	private ArrayList<Integer> timeoutTimerCancelList; 
+	private ArrayList<Integer> interiorButtonTimerCancelList; 
 
 	/**
 	 * The constructor for the elevator control class
@@ -81,6 +84,8 @@ public class Elevator {
 		this.doorFaultSimTimer = null;
 		this.doorFaultSimTimerTask = null;
 		this.isTimeoutTimerOff = true;
+		this.timeoutTimerCancelList = new ArrayList<>();
+		this.interiorButtonTimerCancelList = new ArrayList<>();
 	}
 
 	/**
@@ -132,7 +137,7 @@ public class Elevator {
 	            }
 	            direction = Direction.UP;
 	        }
-	        else if (direction == Direction.UP || currentDestinationFloor < req.getFloor()) {
+	        else if (direction == Direction.UP || currentFloor < req.getFloor()) {
 	            for (int i = 0; i < right.size(); i++) {
 	                cur_track = right.get(i);
 	                seek_sequence.add(cur_track);
@@ -141,16 +146,12 @@ public class Elevator {
 	        }
 	    }
 	    
-	    int shift = 0;  
-	    for (int i = 0; i < seek_sequence.size(); i++) {
-	    	if (seek_sequence.get(i).getFloor() == currentDestinationFloor) {
-	    		ElevatorRequest r = seek_sequence.remove(i);
-	    		seek_sequence.add(shift, r);
-	    		shift++;
-	    	}
-	    }
-	    
 	    floorDestinations = seek_sequence;
+//	    System.out.println("Current direction: " + currentDirection);
+//	    System.out.print("Sequence is" + "\n");
+//	    for (int i = 0; i < floorDestinations.size(); i++) {
+//	        System.out.print(floorDestinations.get(i).getFloor() + "\n");
+//	    }
 	}
 
 	/**
@@ -242,6 +243,7 @@ public class Elevator {
 			currentDirection = Direction.DOWN;
 		}
 		addDestination(null);
+		currentDestinationFloor = peekTopRequest().getFloor();
 	}
 
 	/**
@@ -266,6 +268,9 @@ public class Elevator {
 	 * @return the top request
 	 */
 	public ElevatorRequest peekTopRequest() {
+		if(floorDestinations.size() == 0) {
+			return null;
+		}
 		return this.floorDestinations.get(0);
 	}
 
@@ -278,8 +283,9 @@ public class Elevator {
 			switchDirections();
 		} else if (currentDestinationFloor < destination && currentDirection == Direction.DOWN) {
 			switchDirections();
+		} else {
+			this.currentDestinationFloor = destination;
 		}
-		this.currentDestinationFloor = destination;
 	}
 
 	/**
@@ -309,6 +315,7 @@ public class Elevator {
 	public void stopWaitTimer() {
 		if (!isTimerOff) {
 			interiorButtonTimer.cancel();
+			interiorButtonTimerCancelList.add(1); //janky way of stopping timers from running
 			isTimerOff = true;
 		}
 	}
@@ -317,16 +324,20 @@ public class Elevator {
 		return new TimerTask() {
 			@Override
 			public void run() {
-				Scheduler.LOGGER.warn("Floorsubsystem failed to give internal button press!");
-				if (peekTopRequest() != null ) {
-					try {
-						scheduler.sendSchedulerDispatchMessage(peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
-					} catch (IOException e) {
-						e.printStackTrace();
+				if(interiorButtonTimerCancelList.size() == 0) {
+					Scheduler.LOGGER.warn("Floorsubsystem failed to give internal button press!");
+					if (peekTopRequest() != null ) {
+						try {
+							scheduler.sendSchedulerDispatchMessage(peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						setCurrentDestination(peekTopRequest().getFloor());
+					} else {
+						stopTimeoutTimer();
 					}
-					setCurrentDestination(peekTopRequest().getFloor());
 				} else {
-					stopTimeoutTimer();
+					interiorButtonTimerCancelList.remove(0);
 				}
 			}
         };
@@ -340,7 +351,8 @@ public class Elevator {
 	}
 	
 	public void resetTimeoutTimer() {
-		interiorButtonTimer.cancel();
+		timeoutTimer.cancel();
+		isTimeoutTimerOff = false;
 		timeoutTimer = new Timer();
 		timeoutTimerTask = makeTimeoutTask();
 		timeoutTimer.schedule(timeoutTimerTask, TIMEOUT);
@@ -348,7 +360,8 @@ public class Elevator {
 	
 	public void stopTimeoutTimer() {
 		if (!isTimeoutTimerOff) {
-			interiorButtonTimer.cancel();
+			timeoutTimer.cancel();
+			timeoutTimerCancelList.add(1);
 			isTimeoutTimerOff = true;
 		}
 	}
@@ -358,28 +371,36 @@ public class Elevator {
 		return new TimerTask() {
 			@Override
 			public void run() {
-				state = ElevatorState.TIMEOUTED;
-				scheduler.hardFaultElevator(e);
+				if(timeoutTimerCancelList.size() == 0) {
+					state = ElevatorState.TIMEOUT;
+					scheduler.hardFaultElevator(e);
+				} else {
+					timeoutTimerCancelList.remove(0);
+				}
 			}
         };
 	}
 	
-	public void startDoorFaultSimTimer(int timeout) {
+	public void createDoorFaultSimTimer(int timeout) {
 		doorFaultSimTimer = new Timer();
 		doorFaultSimTimerTask = makeDoorFaultSimTask();
-		doorFaultSimTimer.schedule(doorFaultSimTimerTask, timeout);
+		doorFaultSimTimeout = timeout;
+	}
+	
+	public void startDoorFaultSimTimer() {
+		doorFaultSimTimer.schedule(doorFaultSimTimerTask, doorFaultSimTimeout);
 	}
 	
 	private TimerTask makeDoorFaultSimTask() {
 		return new TimerTask() {
 			@Override
 			public void run() {
+				Scheduler.LOGGER.info("Ending simulated door fault for Elevator " + elevatorID);
 				try {
 					scheduler.sendStopDoorFaultSimulateFaultMessage(elevatorID, port, address);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				scheduler.verifyElevatorTopRequests();
 			}
         };
 	}
@@ -401,11 +422,29 @@ public class Elevator {
 		return false;
 	}
 	
+	public void increaseSameFloorPriority() {
+	    int shift = 0;  
+	    for (int i = 0; i < floorDestinations.size(); i++) {
+	    	if (floorDestinations.get(i).getFloor() == currentDestinationFloor && currentDestinationFloor == currentFloor) {
+	    		ElevatorRequest r = floorDestinations.remove(i);
+	    		floorDestinations.add(shift, r);
+	    		shift++;
+	    	}
+	    }
+	}
+	
+	public Boolean isTimeoutTimerOff() {
+		return isTimeoutTimerOff;
+	}
+	
 	public static void main(String[] args) {
 	    Elevator e = new Elevator(123, 1, 1, null, null);
+	    e.currentFloor = 1;
+	    e.currentDestinationFloor = 1;
+	    e.currentDirection = Direction.UP;
 	    e.addDestination(new ElevatorRequest(10, 999, Direction.UP, Button.EXTERIOR));
 	    e.addDestination(new ElevatorRequest(10, 999, Direction.UP, Button.EXTERIOR));
-	    e.addDestination(new ElevatorRequest(3, 999, Direction.DOWN, Button.EXTERIOR));
+	    e.addDestination(new ElevatorRequest(3, 999, Direction.UP, Button.EXTERIOR));
 	    e.addDestination(new ElevatorRequest(5, 999, Direction.UP, Button.EXTERIOR));
 	    e.addDestination(new ElevatorRequest(6, 999, Direction.UP, Button.EXTERIOR));
 	    e.addDestination(new ElevatorRequest(7, 999, Direction.DOWN, Button.EXTERIOR));

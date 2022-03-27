@@ -204,7 +204,6 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
         };
     }
