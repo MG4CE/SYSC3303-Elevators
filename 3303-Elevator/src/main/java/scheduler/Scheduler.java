@@ -460,7 +460,7 @@ public class Scheduler extends UDPHelper {
 	 * @param request the new request
 	 * @return the score returned
 	 */
-	private int evaluateDirectionalScore(Elevator e, ElevatorRequest request) {
+	protected int evaluateDirectionalScore(Elevator e, ElevatorRequest request) {
     	int score = e.getCurrentFloor() - request.getFloor();
     	Direction direction = e.getlDirection();
     	if (score == 0 && direction != Direction.STATIONARY) {
@@ -478,13 +478,14 @@ public class Scheduler extends UDPHelper {
     	return score;
     }
 	
+
 	/**
 	 * Returns a score based on if the elevator is schedulable or not
 	 * 
 	 * @param e Elevator to check
 	 * @return Score int
 	 */
-	private int getSchedulableScore(Elevator e) {
+	protected int getSchedulableScore(Elevator e) {
 		if (!e.isSchedulable()) {
 			return -99999999;
 		}
@@ -500,7 +501,7 @@ public class Scheduler extends UDPHelper {
     	listenerThread.interrupt();
     	schedulerThread.interrupt();
     }
-	
+  
 	/**
 	 * Process an elevator if its at a hard fault and reschedule all external requests to other elevators
 	 * 
@@ -546,6 +547,32 @@ public class Scheduler extends UDPHelper {
 				}
 			}
 		}
+	}
+
+	/**
+	 * A method used in testing
+	 * @param e The elevator
+	 */
+	public void addToElevators(Elevator e)
+	{
+		elevators.add(e);
+	}
+
+	/**
+	 * Get if the Scheduler is running
+	 * @return
+	 */
+	public Boolean getRunning() {
+		return isRunning;
+	}
+
+	/**
+	 * Stop all of the threads
+	 */
+	protected void stopSchedulerThreads() {
+		isRunning = false;
+		listenerThread.interrupt();
+		schedulerThread.interrupt();
 	}
 
 	/**
