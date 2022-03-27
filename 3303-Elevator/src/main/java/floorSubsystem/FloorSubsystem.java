@@ -206,7 +206,6 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
         };
     }
@@ -238,7 +237,6 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     private void sendElevatorFaultMessage(SimulateFaultMessage faultMessage) throws IOException {
         LOGGER.info("[FloorSubsystem] Sending elevator " + faultMessage.getFault() +
                 " fault to => [Elevator ID: "+ faultMessage.getElevatorID() + "]");
-        System.out.println("Monkey Moment");
         sendMessage(faultMessage, this.schedulerPort, this.schedulerAddress);
     }
 

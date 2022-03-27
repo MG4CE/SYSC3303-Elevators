@@ -153,7 +153,10 @@ public abstract class UDPHelper {
 			msgBldr.setFaultMessage((FaultMessage)message);
 		}else if(message instanceof SimulateFaultMessage) {
 			msgBldr.setSimFaultMessage((SimulateFaultMessage)message);
-		}else {
+		}else if(message instanceof WrapperMessage){
+			return (WrapperMessage) message; // mostly for debugging/testing
+		}
+		else {
 			throw new IOException("Failed to cast proto msg to correct type");
 		}
 		// build and return message

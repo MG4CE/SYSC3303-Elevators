@@ -142,5 +142,11 @@ public interface WrapperMessageOrBuilder extends
    */
   elevatorCommands.SimulateFaultMessageOrBuilder getSimFaultMessageOrBuilder();
 
+  /**
+   * <code>bool TEST = 10;</code>
+   * @return The tEST.
+   */
+  boolean getTEST();
+
   public elevatorCommands.WrapperMessage.MsgCase getMsgCase();
 }
