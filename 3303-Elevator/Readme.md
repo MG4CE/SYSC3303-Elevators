@@ -28,6 +28,7 @@ Iteration 4 involves the addition of Faults to the system, including door faults
 - Sceduling state machine is not super optimal
 - Elevator can crash if scheduler sends dispatch while the elevator is in the arrival state, scheduler tries to avoid doing this
 - Elevator floor destination queue can enter into an incorrect state due to request redistribution of hard faulted elevator
+- Race condition if hard fault is scheduled during soft fault simulation timeout
 
 ## Installation
  Warning this project needs JDK 17
