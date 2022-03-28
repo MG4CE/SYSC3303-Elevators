@@ -1,10 +1,15 @@
 package elevators;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import elevatorCommands.FaultType;
 import elevatorCommands.SchedulerDispatchMessage;
+import elevatorCommands.SimulateFaultMessage;
 import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
 
@@ -31,7 +36,7 @@ public class BoardingState extends TimerTask implements State {
 		try {
 			elevator.elevatorFSM.updateFSM(null);
 		} catch (IOException e) {
-			elevator.LOGGER.severe(e.getMessage());
+			Elevator.LOGGER.error("Failed to send update FSM message, stopping elevator:" + e.getMessage());
 			elevator.running = false;
 		}
 	}
@@ -44,8 +49,45 @@ public class BoardingState extends TimerTask implements State {
 	
 	@Override
 	public void exitActions() {
-		elevator.closeDoors();
 		timer.cancel();
+		if (elevator.isDoorAtFault) {
+			try {
+				elevator.sendFaultMessage(FaultType.DOORFAULT);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			while(elevator.isDoorAtFault) {
+				DatagramPacket recvMessage;
+				try {
+					recvMessage = elevator.receiveMessage();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+					continue;
+				}
+				ProtoBufMessage msg;
+				try {
+					msg = new ProtoBufMessage(recvMessage);
+				} catch (InvalidProtocolBufferException e) {
+					e.printStackTrace();
+					continue;
+				}
+				if (msg.isElevatorSimulateFaultMessage()) {
+					SimulateFaultMessage eFault = msg.toElevatorSimulateFaultMessage();
+					if(eFault.getFault() == FaultType.DOORFAULT && eFault.getTimeout() == 0) {
+						Elevator.LOGGER.info("Removing door fault condition!");
+						elevator.isDoorAtFault = false;
+					}
+				}
+			}
+			try {
+				elevator.sendFaultMessage(FaultType.RESOLVED);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			elevator.closeDoors();
+		} else {
+			elevator.closeDoors();
+		}
 	}
 	
 	@Override
@@ -55,11 +97,18 @@ public class BoardingState extends TimerTask implements State {
 		} else if(message.isSchedulerDispatchMessage()) { //if message from scheduler
 			SchedulerDispatchMessage msg = message.toSchedulerDispatchMessage();
 			if(msg.getDestFloor() == elevator.getCurrentFloor()) {
-				System.out.printf("Elevator %d: Dispatched to floor current floor %d\n", elevator.elevatorID, elevator.getCurrentFloor());
+				Elevator.LOGGER.info("Elevator " + elevator.elevatorID + ": Dispatched to floor current floor " + elevator.getCurrentFloor());
+				elevator.sendElevatorArrivedMessage();
 				return this; //stay in current state
 			} else {
 				elevator.setDestinationFloor(msg.getDestFloor());
 				elevator.updateCurrentDirection();
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return new MovingState(elevator);
 			}
 		}

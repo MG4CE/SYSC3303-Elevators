@@ -40,7 +40,7 @@ public class Motor {
 	 * Start the motor be creating a recurring timer task that triggers every time we pass a floor
 	 */
 	protected void startMotor(){
-		elevator.LOGGER.info("Starting motor at full speed");
+		Elevator.LOGGER.info("Starting motor");
 		this.currentState = motorState.RUNNING;
 		this.timer = new Timer();
 		this.timer.schedule(makeTimerTask(), TIME_PER_FLOOR*1000, TIME_PER_FLOOR*1000);
@@ -64,7 +64,7 @@ public class Motor {
         		try {
         			elevator.motorUpdate();
         		} catch (IOException e) {
-        			elevator.LOGGER.severe("Motor failed to update floor status, exiting [" + e.getMessage() +"]");
+        			Elevator.LOGGER.error("Motor failed to update floor status, exiting [" + e.getMessage() +"]");
         			System.exit(1);
         		}
         	}
@@ -75,7 +75,7 @@ public class Motor {
 	 * Stop the motor by disabling the timer
 	 */
 	protected void stopMotor() {
-		elevator.LOGGER.info("Stopping motor");
+		Elevator.LOGGER.info("Stopping motor");
 		this.currentState = motorState.IDLE;
 		this.timer.cancel();
 	}

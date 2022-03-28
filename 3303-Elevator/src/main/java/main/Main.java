@@ -3,7 +3,9 @@ package main;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.SchedulerDispatchMessage;
 import elevators.Elevator;
+import floorSubsystem.FloorSubsystem;
 import protoBufHelpers.UDPHelper;
+import scheduler.Scheduler;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,10 +17,26 @@ import java.net.UnknownHostException;
  */
 public class Main extends UDPHelper {
 	public Elevator e;
+	private int elevatorPort; 
 	public Main(int recvPort) throws SocketException {
 		super(recvPort);
 		try {
+			this.elevatorPort = 24;
 			e = new Elevator(23, InetAddress.getLocalHost(), 24);
+		} catch (SocketException e) {
+			e.printStackTrace();
+			System.exit(1);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	public Main(int recvPort, int elevatorPort) throws SocketException {
+		super(recvPort);
+		try {
+			this.elevatorPort = elevatorPort;
+			e = new Elevator(recvPort, InetAddress.getLocalHost(), elevatorPort);
 		} catch (SocketException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -35,7 +53,7 @@ public class Main extends UDPHelper {
 				//TODO: SET ELEVATOR ID
 				//TODO ADD TIMESTAMP
 				.build();
-		sendMessage(msg, 24, InetAddress.getLocalHost());
+		sendMessage(msg, this.elevatorPort, InetAddress.getLocalHost());
 	}
 	
 	public void sendElevatorRegisterMessage(int elevatorID) throws IOException {
@@ -43,10 +61,16 @@ public class Main extends UDPHelper {
 				.setElevatorID(elevatorID)
 				.build();
 
-		sendMessage(msg, 24, InetAddress.getLocalHost());
+		sendMessage(msg, this.elevatorPort, InetAddress.getLocalHost());
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
+		Scheduler.main(args);
+		Elevator.main(args);
+		Elevator.main(args);
+		FloorSubsystem.main(args);
+		
+		/*
 		Main m = new Main(23);
 		Thread elevator = new Thread(m.e);
 		elevator.start();
@@ -58,6 +82,6 @@ public class Main extends UDPHelper {
 		m.sendSchedulerDispatchMessage(10, 123);
 		Thread.sleep(12000);
 		m.sendSchedulerDispatchMessage(0, 123);
-		Thread.sleep(50000);
+		Thread.sleep(50000);*/
 	}
 }

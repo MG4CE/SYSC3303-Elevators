@@ -4,29 +4,45 @@
 package elevatorCommands;
 
 /**
- * Protobuf enum {@code elevatorCommands.LampState}
+ * Protobuf enum {@code elevatorCommands.FaultType}
  */
-public enum LampState
+public enum FaultType
     implements com.google.protobuf.ProtocolMessageEnum {
   /**
-   * <code>ON = 0;</code>
+   * <code>DOORFAULT = 0;</code>
    */
-  ON(0),
+  DOORFAULT(0),
   /**
-   * <code>OFF = 1;</code>
+   * <code>ELEVATOR_UNRESPONSIVE = 1;</code>
    */
-  OFF(1),
+  ELEVATOR_UNRESPONSIVE(1),
+  /**
+   * <code>SCHEDULE_FAULT = 2;</code>
+   */
+  SCHEDULE_FAULT(2),
+  /**
+   * <code>RESOLVED = 3;</code>
+   */
+  RESOLVED(3),
   UNRECOGNIZED(-1),
   ;
 
   /**
-   * <code>ON = 0;</code>
+   * <code>DOORFAULT = 0;</code>
    */
-  public static final int ON_VALUE = 0;
+  public static final int DOORFAULT_VALUE = 0;
   /**
-   * <code>OFF = 1;</code>
+   * <code>ELEVATOR_UNRESPONSIVE = 1;</code>
    */
-  public static final int OFF_VALUE = 1;
+  public static final int ELEVATOR_UNRESPONSIVE_VALUE = 1;
+  /**
+   * <code>SCHEDULE_FAULT = 2;</code>
+   */
+  public static final int SCHEDULE_FAULT_VALUE = 2;
+  /**
+   * <code>RESOLVED = 3;</code>
+   */
+  public static final int RESOLVED_VALUE = 3;
 
 
   public final int getNumber() {
@@ -43,7 +59,7 @@ public enum LampState
    * @deprecated Use {@link #forNumber(int)} instead.
    */
   @java.lang.Deprecated
-  public static LampState valueOf(int value) {
+  public static FaultType valueOf(int value) {
     return forNumber(value);
   }
 
@@ -51,23 +67,25 @@ public enum LampState
    * @param value The numeric wire value of the corresponding enum entry.
    * @return The enum associated with the given numeric wire value.
    */
-  public static LampState forNumber(int value) {
+  public static FaultType forNumber(int value) {
     switch (value) {
-      case 0: return ON;
-      case 1: return OFF;
+      case 0: return DOORFAULT;
+      case 1: return ELEVATOR_UNRESPONSIVE;
+      case 2: return SCHEDULE_FAULT;
+      case 3: return RESOLVED;
       default: return null;
     }
   }
 
-  public static com.google.protobuf.Internal.EnumLiteMap<LampState>
+  public static com.google.protobuf.Internal.EnumLiteMap<FaultType>
       internalGetValueMap() {
     return internalValueMap;
   }
   private static final com.google.protobuf.Internal.EnumLiteMap<
-      LampState> internalValueMap =
-        new com.google.protobuf.Internal.EnumLiteMap<LampState>() {
-          public LampState findValueByNumber(int number) {
-            return LampState.forNumber(number);
+      FaultType> internalValueMap =
+        new com.google.protobuf.Internal.EnumLiteMap<FaultType>() {
+          public FaultType findValueByNumber(int number) {
+            return FaultType.forNumber(number);
           }
         };
 
@@ -85,12 +103,12 @@ public enum LampState
   }
   public static final com.google.protobuf.Descriptors.EnumDescriptor
       getDescriptor() {
-    return elevatorCommands.ElevatorCommandProtos.getDescriptor().getEnumTypes().get(2);
+    return elevatorCommands.ElevatorCommandProtos.getDescriptor().getEnumTypes().get(0);
   }
 
-  private static final LampState[] VALUES = values();
+  private static final FaultType[] VALUES = values();
 
-  public static LampState valueOf(
+  public static FaultType valueOf(
       com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
     if (desc.getType() != getDescriptor()) {
       throw new java.lang.IllegalArgumentException(
@@ -104,10 +122,10 @@ public enum LampState
 
   private final int value;
 
-  private LampState(int value) {
+  private FaultType(int value) {
     this.value = value;
   }
 
-  // @@protoc_insertion_point(enum_scope:elevatorCommands.LampState)
+  // @@protoc_insertion_point(enum_scope:elevatorCommands.FaultType)
 }
 

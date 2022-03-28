@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -27,12 +28,13 @@ import protoBufHelpers.UDPHelper;
  */
 public class FloorSubsystem extends UDPHelper implements Runnable{
 
-    private final Logger LOGGER = Logger.getLogger(FloorSubsystem.class.getName());
+    private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(FloorSubsystem.class);  
     private ArrayList<ElevatorRequestMessage> elevatorInteriorRequestList;
     private String commandFile;
     private List<Integer> repliedMessages; // request IDs for messages which have been replied to
     private int schedulerPort;
     private InetAddress schedulerAddress;
+    private boolean inputFileParsed;
 
     /**
      * Create new instance of Floor Subsystem
@@ -47,6 +49,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         this.elevatorInteriorRequestList = new ArrayList<>();
         this.repliedMessages = new ArrayList<>();
         this.schedulerAddress = schedulerAddress;
+        inputFileParsed = false;
     }
 
     /**
@@ -59,28 +62,30 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param timer Timer Task events are scheduled with this timer instance
      */
     public void readCommandsFile(Timer timer){
-        System.out.println("opening file");
-
         Scanner s = null;
         Direction direction = null;
         int interiorFloorButton = 0;
         int exteriorFloorButton = 0;
         String line = null;
         int requestId = 0;
+        int elevatorId = 0;
+        int timeout = 0;
+        FaultType faultType = null;
+        boolean isFaultMessage = false;
 
         Calendar programStartTime = Calendar.getInstance();
         Calendar firstLineFileTime = null;
         Calendar currentLineFileTime = null;
         Calendar currentLineAdjustedTime = Calendar.getInstance();
 
-        LOGGER.info("Reading commands for " + commandFile);
+        LOGGER.info("Reading commands from " + commandFile);
 
         // Initiate scanner and read the file
         try {
             s = new Scanner(new File(commandFile));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            LOGGER.severe(e.getMessage());
+            LOGGER.info(e.getMessage());
             System.exit(1);
         }
 
@@ -93,34 +98,69 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
             try {
                 line = s.nextLine();
                 String[] lineParts = line.split(" ");
-
-                // Get calendar time object for current input file line
-                currentLineFileTime = utils.Utils.stringToCalendar(lineParts[0]);
+                // check if line is a fault command
+                if (lineParts[0].equals("SF") || lineParts[0].equals("HF")){
+                    isFaultMessage = true;
+                }
 
                 // Save the first line of the input files time
                 if(firstLineFileTime == null) {
-                    //currentLineFileTime.add(Calendar.SECOND, 1);
+                    // Fault messages have time stamp at index 1, regular command have at index 0
+                    if(isFaultMessage){
+                        currentLineFileTime = utils.Utils.stringToCalendar(lineParts[1]);
+                    } else {
+                    currentLineFileTime = utils.Utils.stringToCalendar(lineParts[0]);
+                    }
                     firstLineFileTime = currentLineFileTime;
                 }
 
-                exteriorFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
-                direction = utils.Utils.stringToDirection(lineParts[2]);// Get Floor Direction Enum
-                interiorFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button
+                // Soft fault command
+                if (lineParts[0].equals("SF") || lineParts[0].equals("HF")){
+                    if (lineParts[0].equals("SF")){ // Soft fault
+                        faultType = FaultType.DOORFAULT;
+                        timeout = Integer.parseInt(lineParts[3]); // timeout for soft fault
+                    } else { // hard fault
+                        faultType = FaultType.ELEVATOR_UNRESPONSIVE;
+                    }
+                    currentLineFileTime = utils.Utils.stringToCalendar(lineParts[1]);
+                    elevatorId = Integer.parseInt(lineParts[2]);
 
-                // Create Request - EXTERIOR elevator request message
-                ElevatorRequestMessage exteriorRequestMessage = createExteriorElevatorRequestMessage(exteriorFloorButton,requestId,direction);
+                    // Create Fault Message - Internal Fault Message
+                    SimulateFaultMessage faultMessage = createSimulateFaultMessage(faultType, elevatorId, timeout);
 
-                // Create Timer Event - for EXTERIOR elevator button request
-                TimerTask task = makeMessageRequestTimer(exteriorRequestMessage);
+                    // Create Timer Event - for EXTERIOR elevator button request
+                    TimerTask task = makeFaultRequestTimer(faultMessage);
 
-                // Schedule Timer Event task in the future
-                long offset = getCalDifferenceMillis(firstLineFileTime, currentLineFileTime);
-                currentLineAdjustedTime.setTimeInMillis(programStartTime.getTimeInMillis() + offset);
-                timer.schedule(task,currentLineAdjustedTime.getTime());
+                    // Schedule Timer Event task in the future
+                    long offset = getCalDifferenceMillis(firstLineFileTime, currentLineFileTime);
+                    currentLineAdjustedTime.setTimeInMillis(programStartTime.getTimeInMillis() + offset);
+                    timer.schedule(task,currentLineAdjustedTime.getTime());
 
-                // Add Interior Button request to the list
-                this.elevatorInteriorRequestList.add(createInteriorElevatorRequestMessage(interiorFloorButton, requestId));
-                requestId += 1; // Increment ID for next event
+                } else { // Normal command
+
+                    // Get calendar time object for current input file line
+                    currentLineFileTime = utils.Utils.stringToCalendar(lineParts[0]);
+                    exteriorFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
+                    direction = utils.Utils.stringToDirection(lineParts[2]);// Get Floor Direction Enum
+                    interiorFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button
+
+                    // Create Request - EXTERIOR elevator request message
+                    ElevatorRequestMessage exteriorRequestMessage = createExteriorElevatorRequestMessage(exteriorFloorButton,requestId,direction);
+
+                    // Create Timer Event - for EXTERIOR elevator button request
+                    TimerTask task = makeMessageRequestTimer(exteriorRequestMessage);
+
+                    // Schedule Timer Event task in the future
+                    long offset = getCalDifferenceMillis(firstLineFileTime, currentLineFileTime);
+                    currentLineAdjustedTime.setTimeInMillis(programStartTime.getTimeInMillis() + offset);
+                    timer.schedule(task,currentLineAdjustedTime.getTime());
+
+                    // Add Interior Button request to the list
+                    this.elevatorInteriorRequestList.add(createInteriorElevatorRequestMessage(interiorFloorButton, requestId));
+
+                    requestId += 1; // Increment ID for next event
+                }
+
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
@@ -152,16 +192,35 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     }
 
     /**
+     * Creates timer that sends a request in the future
+     * The Code inside the run() method is what will execute when the timer executes
+     * @param faultMessage Elevator fault  message to be sent
+     * @return Timer Task event
+     */
+    public TimerTask makeFaultRequestTimer(SimulateFaultMessage faultMessage) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    sendElevatorFaultMessage(faultMessage);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    /**
      * Sends an INTERIOR elevator request message to the scheduler subsystem
      * This simulates an INTERIOR  elevator button being pressed OF ANY FLOOR
      * @param requestMessage Elevator Request Message to be sent
      */
     private void sendInteriorElevatorRequest(ElevatorRequestMessage requestMessage) throws IOException {
-        LOGGER.info("[FloorSubsystem] Sending interior button request (ReqID: " + requestMessage.getRequestID() + ")");
-        System.out.printf("[Elevator " + requestMessage.getElevatorID() +"] Floor #%d button pressed inside Elevator #%d [Request ID: %d]\n",
-                requestMessage.getFloor(),
-                requestMessage.getElevatorID(),
-                requestMessage.getRequestID());
+        LOGGER.debug("[FloorSubsystem] Sending interior button request (ReqID: " + requestMessage.getRequestID() + ")");
+        LOGGER.info("[Elevator " + requestMessage.getElevatorID() 
+        			+ "] Floor " + requestMessage.getFloor() 
+        			+ " button pressed inside Elevator " + requestMessage.getElevatorID() 
+        			+ " [Request ID: " + requestMessage.getRequestID() + "]");
         sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
     }
     /**
@@ -170,9 +229,15 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
      * @param requestMessage Elevator Request Message to be sent
      */
     private void sendExteriorElevatorRequest(ElevatorRequestMessage requestMessage) throws IOException {
-        System.out.print("[Floor " + requestMessage.getFloor() + "] " + requestMessage.getDirection()
-                +" button pressed. [Request ID: " + requestMessage.getRequestID() + "]\n");
+        LOGGER.info("[Floor " + requestMessage.getFloor() + "] " + requestMessage.getDirection()
+                +" button pressed [Request ID: " + requestMessage.getRequestID() + "]");
         sendMessage(requestMessage, this.schedulerPort, this.schedulerAddress);
+    }
+
+    private void sendElevatorFaultMessage(SimulateFaultMessage faultMessage) throws IOException {
+        LOGGER.info("[FloorSubsystem] Sending elevator " + faultMessage.getFault() +
+                " fault to => [Elevator ID: "+ faultMessage.getElevatorID() + "]");
+        sendMessage(faultMessage, this.schedulerPort, this.schedulerAddress);
     }
 
     /**
@@ -225,6 +290,29 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     }
 
     /**
+     * Creates a hard or soft fault message.
+     * Soft faults will utilize the timeout field
+     * hard faults set timeout to 0
+     * @param faultType The type of fault
+     * @param elevatorID elevator that will receive the fault
+     * @param timeout timeout for soft faults, will be ignored if hard fault
+     * @return
+     */
+    private SimulateFaultMessage createSimulateFaultMessage(FaultType faultType, int elevatorID, int timeout){
+        if (faultType == FaultType.ELEVATOR_UNRESPONSIVE){ // hard faults; timeout
+            return SimulateFaultMessage.newBuilder()
+                    .setFault(faultType)
+                    .setElevatorID(elevatorID)
+                    .build();
+        } // Soft fault ; YES timeout
+        return SimulateFaultMessage.newBuilder()
+                .setFault(faultType)
+                .setElevatorID(elevatorID)
+                .setTimeout(timeout)
+                .build();
+    }
+
+    /**
      * Calculates the difference between two calendar parameters in MiliSec
      * @param startDate first date to subtract from
      * @param endDate date being subtracted
@@ -244,6 +332,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     public void run(){
         Timer timer = new Timer();
         readCommandsFile(timer);
+        this.inputFileParsed = true;
 
         while(true) {
             // Receive UPD message
@@ -252,7 +341,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 recvMessage = receiveMessage();
             } catch (IOException e1) {
                 e1.printStackTrace();
-                LOGGER.severe("Failed to receive data!");
+                LOGGER.error("Failed to receive data!");
                 System.exit(1);
             }
             // Create Protobuf message
@@ -261,7 +350,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 msg = new ProtoBufMessage(recvMessage);
             } catch (InvalidProtocolBufferException e2) {
                 e2.printStackTrace();
-                LOGGER.severe("Failed to convert received to protobuf type!");
+                LOGGER.error("Failed to convert received to protobuf type!");
                 System.exit(1);
             }
 
@@ -279,11 +368,11 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
             if (msg.isElevatorArrivedMessage()) { // 1. Elevator arrival messages
                 ElevatorArrivedMessage arrivedMessage = msg.toElevatorArrivedMessage();
                 int reqID = arrivedMessage.getRequestID();
-                System.out.println("[Floor " + arrivedMessage.getFloor() + "] Elevator "
+                LOGGER.info("[Floor " + arrivedMessage.getFloor() + "] Elevator "
                         + arrivedMessage.getElevatorID () +" has arrived at floor  " +
                         " [ReqID: " + reqID + "]");
 
-                System.out.println("[Elevator "+ arrivedMessage.getElevatorID() + "] Lamps OFF");
+                LOGGER.info("[Elevator Shaft "+ arrivedMessage.getElevatorID() + "] Lamps OFF");
 
                 if(!repliedMessages.contains(reqID)) { // 2. Elevator departure message
                     for(ElevatorRequestMessage req:elevatorInteriorRequestList) {
@@ -298,10 +387,10 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                                         arrivedMessage.getElevatorID());
 
                                 sendInteriorElevatorRequest(newInteriorRequest);
-                                System.out.println("[Elevator "+ arrivedMessage.getElevatorID() + "] Lamps ON");
+                                LOGGER.info("[Elevator Shaft "+ arrivedMessage.getElevatorID() + "] Lamps ON");
                             } catch (IOException e) {
                                 e.printStackTrace();
-                                LOGGER.severe("Failed to send button request!");
+                                LOGGER.error("Failed to send button request!");
                                 System.exit(1);
                             }
                         }
@@ -309,16 +398,16 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 }
             } else if (msg.isElevatorDepartureMessage()) { // 2. Elevator departure messages
                 ElevatorDepartureMessage departureMessage = msg.toElevatorDepartureMessage();
-                LOGGER.info("[FloorSubsystem] Elevator departure message arrived (elevator ID "+ departureMessage.getElevatorID() + ")" );
+                LOGGER.debug("[FloorSubsystem] Elevator departure message arrived (elevator ID "+ departureMessage.getElevatorID() + ")" );
 
                 if (departureMessage.getDirection() == Direction.UP){
-                    System.out.println("[Elevator "+ departureMessage.getElevatorID() + "] Up Lamp ON");
+                    LOGGER.debug("[Elevator Shaft "+ departureMessage.getElevatorID() + "] Up Lamp ON");
                 } else {
-                    System.out.println("[Elevator "+ departureMessage.getElevatorID() + "] Down Lamp ON");
+                	LOGGER.debug("[Elevator Shaft "+ departureMessage.getElevatorID() + "] Down Lamp ON");
                 }
 
             } else {
-                LOGGER.warning("Received unknown command!");
+                LOGGER.warn("Received unknown command!");
             }
 
             if (elevatorInteriorRequestList.isEmpty()) {
@@ -331,10 +420,16 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     public static void main(String[] args) throws SocketException, UnknownHostException {
         InetAddress schedulerAddress = InetAddress.getLocalHost();
         int schedulerPort = 6969;
-        String commandFile = "src/main/java/input/input.txt";
+        String commandFile = "documents/input/input.txt";
 
         Thread floorThread = new Thread (new FloorSubsystem(schedulerPort, commandFile, schedulerAddress));
 
         floorThread.start();
     }
+
+    public boolean isInputFileParsed() {
+        return inputFileParsed;
+    }
+
+    
 }

@@ -112,5 +112,41 @@ public interface WrapperMessageOrBuilder extends
    */
   elevatorCommands.ElevatorRegisterMessageOrBuilder getRegisterMessageOrBuilder();
 
+  /**
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
+   * @return Whether the faultMessage field is set.
+   */
+  boolean hasFaultMessage();
+  /**
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
+   * @return The faultMessage.
+   */
+  elevatorCommands.FaultMessage getFaultMessage();
+  /**
+   * <code>.elevatorCommands.FaultMessage faultMessage = 8;</code>
+   */
+  elevatorCommands.FaultMessageOrBuilder getFaultMessageOrBuilder();
+
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   * @return Whether the simFaultMessage field is set.
+   */
+  boolean hasSimFaultMessage();
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   * @return The simFaultMessage.
+   */
+  elevatorCommands.SimulateFaultMessage getSimFaultMessage();
+  /**
+   * <code>.elevatorCommands.SimulateFaultMessage simFaultMessage = 9;</code>
+   */
+  elevatorCommands.SimulateFaultMessageOrBuilder getSimFaultMessageOrBuilder();
+
+  /**
+   * <code>bool TEST = 10;</code>
+   * @return The tEST.
+   */
+  boolean getTEST();
+
   public elevatorCommands.WrapperMessage.MsgCase getMsgCase();
 }

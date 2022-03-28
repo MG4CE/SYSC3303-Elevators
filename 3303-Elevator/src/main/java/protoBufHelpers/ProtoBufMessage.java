@@ -2,7 +2,8 @@ package protoBufHelpers;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -10,9 +11,11 @@ import elevatorCommands.ElevatorArrivedMessage;
 import elevatorCommands.ElevatorDepartureMessage;
 import elevatorCommands.ElevatorRegisterMessage;
 import elevatorCommands.ElevatorRequestMessage;
+import elevatorCommands.FaultMessage;
 import elevatorCommands.FloorSensorMessage;
 import elevatorCommands.LampMessage;
 import elevatorCommands.SchedulerDispatchMessage;
+import elevatorCommands.SimulateFaultMessage;
 import elevatorCommands.WrapperMessage;
 
 
@@ -21,7 +24,7 @@ import elevatorCommands.WrapperMessage;
  * as well as cast to specific type.
  */
 public class ProtoBufMessage {
-	private final Logger LOGGER = Logger.getLogger(ProtoBufMessage.class.getName());
+	private static final org.apache.logging.log4j.Logger LOGGER = LogManager.getLogger(ProtoBufMessage.class);
 	WrapperMessage wrapper;
 	com.google.protobuf.GeneratedMessageV3 message;
 
@@ -73,7 +76,7 @@ public class ProtoBufMessage {
 	 * @param WrapperMessage to unpack
 	 */
 	private void unpackMessage(WrapperMessage msg) {
-		LOGGER.info("Unpacking message of type " + msg.getMsgCase().toString());
+		LOGGER.debug("Unpacking message of type " + msg.getMsgCase().toString());
 		switch (msg.getMsgCase()) {
 			case ELEVATORARRIVED -> this.message = msg.getElevatorArrived();
 			case ELEVATORDEPARTURE -> this.message = msg.getElevatorDeparture();
@@ -82,10 +85,23 @@ public class ProtoBufMessage {
 			case LAMPMESSAGE -> this.message = msg.getLampMessage();
 			case SCHEDULERDISPATCH -> this.message = msg.getSchedulerDispatch();
 			case REGISTERMESSAGE -> this.message = msg.getRegisterMessage();
+			case FAULTMESSAGE -> this.message = msg.getFaultMessage();
+			case SIMFAULTMESSAGE -> this.message = msg.getSimFaultMessage();
 			default -> this.message = null;
 		}
 	}
 
+	
+	/**
+	 * Check if message of type WrapperMessage, really only for debugging and testing
+	 * 
+	 * @return True if of type
+	 */
+	public Boolean isWrapperMessage() {
+		return this.message instanceof WrapperMessage;
+	}
+
+	
 	/**
 	 * Check if message of type ElevatorRequestMessage
 	 * 
@@ -104,6 +120,24 @@ public class ProtoBufMessage {
 		return this.message instanceof SchedulerDispatchMessage;
 	}
 
+	/**
+	 * Check if message of type ElevatorFaultMessage
+	 * 
+	 * @return True if of type
+	 */
+	public Boolean isElevatorFaultMessage() {
+		return this.message instanceof FaultMessage;
+	}
+	
+	/**
+	 * Check if message of type ElevatorSimulateFaultMessage
+	 * 
+	 * @return True if of type
+	 */
+	public Boolean isElevatorSimulateFaultMessage() {
+		return this.message instanceof SimulateFaultMessage;
+	}
+	
 	/**
 	 * Check if message of type ElevatorArrivedMessage
 	 * 
@@ -152,6 +186,15 @@ public class ProtoBufMessage {
 	//TODO: ADD ERROR CHECKING TO CASTS!
 
 	/**
+	 * Cast message to type WrapperMessage, really only for debugging/testing
+	 * 
+	 * @return message of type WrapperMessage
+	 */
+	public WrapperMessage toWrapperMessages() {
+		return (WrapperMessage)(this.message);
+	}
+	
+	/**
 	 * Cast message to type ElevatorRequestMessage
 	 * 
 	 * @return message of type ElevatorRequestMessage
@@ -168,7 +211,25 @@ public class ProtoBufMessage {
 	public SchedulerDispatchMessage toSchedulerDispatchMessage() {
 		return (SchedulerDispatchMessage)(this.message);
 	}
-
+	
+	/**
+	 * Cast message to type ElevatorFaultMessage
+	 * 
+	 * @return message of type ElevatorFaultMessage
+	 */
+	public FaultMessage toElevatorFaultMessage() {
+		return (FaultMessage)(this.message);
+	}
+	
+	/**
+	 * Cast message to type SimulateFaultMessage
+	 * 
+	 * @return message of type SimulateFaultMessage
+	 */
+	public SimulateFaultMessage toElevatorSimulateFaultMessage() {
+		return (SimulateFaultMessage)(this.message);
+	}
+	
 	/**
 	 * Cast message to type ElevatorRequestMessage
 	 * 

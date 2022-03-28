@@ -14,7 +14,25 @@ message WrapperMessage{
 		FloorSensorMessage floorSensor = 5;
 		LampMessage lampMessage = 6;
 		ElevatorRegisterMessage registerMessage = 7;
+		FaultMessage faultMessage = 8;
+		SimulateFaultMessage simFaultMessage = 9;
 	}
+	bool TEST = 10;
+}
+
+message FaultMessage{
+	uint32 elevatorID = 1;
+	FaultType fault = 2;
+	int32 timeout = 3;
+	string timeStamp = 4;
+	uint32 floor = 5;
+}
+
+message SimulateFaultMessage{
+	uint32 elevatorID = 1;
+	FaultType fault = 2;
+	string timeStamp = 4;
+	int32 timeout = 5;
 }
 
 message ElevatorRegisterMessage{
@@ -73,6 +91,13 @@ message LampMessage{
 	LampState state = 3;
 	string timeStamp = 4;
 	uint32 elevatorID = 5;
+}
+
+enum FaultType{
+	DOORFAULT = 0;
+	ELEVATOR_UNRESPONSIVE = 1;
+	SCHEDULE_FAULT = 2;
+	RESOLVED = 3;
 }
 
 enum Direction{

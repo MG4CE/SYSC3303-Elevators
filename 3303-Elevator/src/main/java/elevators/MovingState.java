@@ -2,6 +2,8 @@ package elevators;
 
 import java.io.IOException;
 
+import elevatorCommands.Direction;
+import elevatorCommands.FaultType;
 import elevatorCommands.SchedulerDispatchMessage;
 import protoBufHelpers.ProtoBufMessage;
 import stateMachine.State;
@@ -23,7 +25,8 @@ public class MovingState implements State{
 				//send null message to fsm to go to arriving state
 				elevator.elevatorFSM.updateFSM(null); 
 			} catch (IOException e) {
-				e.printStackTrace();
+				Elevator.LOGGER.error("Failed to send update FSM message, stopping elevator:" + e.getMessage());
+				elevator.running = false;
 			}
 			elevator.elevatorMotor.moveOneFloor();
 		} else {
@@ -46,6 +49,11 @@ public class MovingState implements State{
 			}
 		} else if(message.isSchedulerDispatchMessage()) { //if message from scheduler
 			SchedulerDispatchMessage msg = message.toSchedulerDispatchMessage();
+			if (elevator.getCurrentFloor() > msg.getDestFloor() && elevator.getCurrentDirection() == Direction.UP) {
+				elevator.sendFaultMessage(FaultType.SCHEDULE_FAULT);
+			} else if (elevator.getCurrentFloor() < msg.getDestFloor() && elevator.getCurrentDirection() == Direction.DOWN) {
+				elevator.sendFaultMessage(FaultType.SCHEDULE_FAULT);
+			}
 			elevator.setDestinationFloor(msg.getDestFloor());
 			elevator.updateCurrentDirection(); //get elevator moving towards new dest
 			return this;

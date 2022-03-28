@@ -1,9 +1,9 @@
-# Iteration 3 - SYSC 3303 - The Schedulators
+# Iteration 4 - SYSC 3303 - The Schedulators
 
-# ProtoBuf Success
+Iteration 4 involves the addition of Faults to the system, including door faults, as well as unresponsive elevators (stuck in shaft)
 
 ## Issues to address
-- #### Iteration 1 issues
+### Iteration 1 issues
 - ~~How will we interface with the ElevatorButton's?~~  completed (External, Internal buttons)
 - ~~Scheduler will now need to handle a wider array of commands. Command will need to be broken down into multiple Classes for each type of command.~~ Completed 
 - ~~How will the movement be handled with the new Motor class?~~  Completed
@@ -12,16 +12,23 @@
 
 <br />
 
-- #### Iteration 2 issues
-- ~~How to smoothly transition between new commands~~ complete
-- ~~When trying internal button presses 1 floor below~~ completed
+### Iteration 2 issues
+- ~~How to smoothly transition between new commands~~ Completed
+- ~~When trying internal button presses 1 floor below~~ Completed
 
 <br />
 
-- #### Iteration 3 issues
-- Dealing with nonsequential floors
-- Bug when scheduling with 1 elevator only (Overwrites current destination) 
+### Iteration 3 issues
+- ~~Dealing with nonsequential floors~~ Completed
+- ~~Bug when scheduling with 1 elevator only (Overwrites current destination)~~ Completed
 
+<br />
+
+### Iteration 4 issues
+- Sceduling state machine is not super optimal
+- Elevator can crash if scheduler sends dispatch while the elevator is in the arrival state, scheduler tries to avoid doing this
+- Elevator floor destination queue can enter into an incorrect state due to request redistribution of hard faulted elevator
+- Race condition if hard fault is scheduled during soft fault simulation timeout
 
 ## Installation
  Warning this project needs JDK 17
@@ -61,7 +68,6 @@ git clone https://github.com/MG4CE/SYSC3303-Elevators.git
 Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
 1. Open the folder in a terminal
 2. Java -jar 3303-Iteration-2-jar-with-dependencies.jar
-
 ```
 
 ### Run Java Tests
@@ -71,6 +77,10 @@ Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
  2. Run As -> JUnit Test
 ```
 
+### Compiling Protobuf Messages
+```java
+protoc -I=./src/main/proto --java_out=./src/main/java elevator.proto
+```
 
 
 ## Folders & File Description
@@ -80,14 +90,14 @@ Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
 - Folder holding all command types for sending information through the 3 components
 - All Commands were generated using Googles - Google protobuf
 - A skeleton file is compiled using Google Protobuf compiler which generated the following files
-##### Files
-  - #### Button.java -
+### Files
+- #### Button.java -
     - Generated enum that holds the type of button it is Exterior / Interior
 - #### Direction.java -
     - Generated enum that holds the direction of an elevator request Up / Down / Idle
-- ##### LampState.java - 
+- #### LampState.java 
     - Generate Enum that holds the lamp state On / OFF
-   - ##### Google Protoc Compiled Message files
+- #### Google Protoc Compiled Message files
      - ElevatorArrivedMessage.java
      - ElevatorArrivedMessageOrBuilder.java
      - ElevatorCommandProtos.java
@@ -164,18 +174,22 @@ Elevator.PushButton(Destination floor)
 - Each line is shown in the format below
 
 ```java
- "time(HH:mm:ss.ms) floor direction selected floor"
- //Example
+"time(HH:mm:ss.ms) floor direction selected floor"
+"Fault-Type time(HH:mm:ss.ms) elevator timeout"
+//Example
 //Time Floor Direction selectedFloor
+//Fault Type Time Elevator timeout
 00:01:00.1 1 Up 1
 00:02:00.1 1 Up 2
+SF 00:02:30 1 10000
 00:03:00.1 1 Up 3
+HF 00:04:30 1 0
 ```
 
 ## Team & Contributions
 
-1. Maged - Scheduler.java, Elevator.java ,UML 
+1. Maged - Scheduler.java, Elevator.java, UML 
 2. Ehvan - ProtoBuf Messages, Elevator.java, Scheduler.java, UML  
 3. Golan - Scheduler.java, Elevator.java
-4. Rodrigo - Subsystem.java, Scheduler.java
-5. Kevin - Test, Elevator.java, UML, ReadMe
+4. Rodrigo - FloorSubsystem.java, Scheduler.java
+5. Kevin - Tests, Elevator.java, UML, ReadMe
