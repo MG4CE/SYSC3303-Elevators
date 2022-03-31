@@ -2,7 +2,7 @@ package utils;
 
 import java.util.Calendar;
 
-import elevatorCommands.Direction;
+import message.Direction;
 
 /**
  * Class holding static utility methods used through out the system

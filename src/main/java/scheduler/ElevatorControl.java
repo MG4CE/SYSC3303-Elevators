@@ -10,10 +10,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
-import static java.util.concurrent.TimeUnit.*;
+import message.Button;
+import message.Direction;
 
-import elevatorCommands.Button;
-import elevatorCommands.Direction;
+import static java.util.concurrent.TimeUnit.*;
 
 /**
  * The ElevatorControl class is a simulation of the elevator

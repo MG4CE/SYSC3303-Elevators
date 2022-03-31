@@ -1,7 +1,7 @@
 package scheduler;
 
-import elevatorCommands.Button;
-import elevatorCommands.Direction;
+import message.Button;
+import message.Direction;
 
 /**
  * The ElevatorRequest class if used to facilitate requests from the scheduler to the ElevatorControl

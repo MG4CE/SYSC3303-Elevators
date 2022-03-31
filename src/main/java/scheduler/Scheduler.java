@@ -1,8 +1,5 @@
 package scheduler;
 
-import elevatorCommands.*;
-import protoBufHelpers.ProtoBufMessage;
-import protoBufHelpers.UDPHelper;
 import scheduler.ElevatorControl.ElevatorState;
 
 import java.io.IOException;
@@ -15,6 +12,10 @@ import java.util.Iterator;
 import org.apache.logging.log4j.LogManager;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+
+import communication.ProtoBufMessage;
+import communication.UDPHelper;
+import message.*;
 
 /**
  * The Scheduler class will be running one of the main threads in the system.

@@ -3,8 +3,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.net.SocketException;
-import elevatorCommands.Button;
+
 import org.junit.jupiter.api.*;
+
+import message.Button;
 
 
 /**
