@@ -23,7 +23,7 @@ public class SchedulerTCPServer  implements Runnable {
 	    "Content-Length: ";
 	private static final String OUTPUT_END_OF_HEADERS = "\r\n\r\n";
 
-	private int socketNum = 2099;
+	private int socketNum = 107;
 	private Socket webpage;
 	private ServerSocket server;
 	private boolean running = true;
@@ -36,7 +36,7 @@ public class SchedulerTCPServer  implements Runnable {
 	public SchedulerTCPServer(Scheduler scheduler) throws IOException {
 		try {
 			this.scheduler = scheduler;
-			server = new ServerSocket(105);
+			server = new ServerSocket(socketNum);
 			this.bean = new SchedulerBean();
 		} catch (IOException e) {
 			
@@ -66,6 +66,9 @@ public class SchedulerTCPServer  implements Runnable {
 		}
 	}
 	
+	/**
+	 * THis method would be used to update all the information in the Bean Object
+	 */
 	protected void updateSchedulerInfo() {
 		
 		System.out.println(this.scheduler.getElevatorControl().size());
@@ -100,11 +103,11 @@ public class SchedulerTCPServer  implements Runnable {
 		System.out.println("Waiting for call");
 		webpage = server.accept();
 		System.out.println("Webpage call");
-		
 	}
 	
 	private void updateFrontEnd() throws IOException {
 		System.out.println("Updating front end");
+		//Get the updated bean
 		updateSchedulerInfo();
 		JSONObject json = new JSONObject();
 		json.put("ids" , Arrays.toString(this.bean.getElevatorArray()));
@@ -117,18 +120,18 @@ public class SchedulerTCPServer  implements Runnable {
 		 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(webpage.getOutputStream()));
 		
 		 	
-		 	out.write("HTTP/1.0 200 OK\r\n");
-	        out.write("Date: Fri, 31 Dec 1999 23:59:59 GMT\r\n");
-	        out.write("Access-Control-Allow-Origin: *\r\n");
-	        out.write("Server: Apache/0.8.4\r\n");
-	        out.write("Content-Type: text\r\n");
-	        out.write("Content-Length: "+json.toJSONString().length()+"\r\n");
-	        out.write("Expires: Sat, 01 Jan 2000 00:59:59 GMT\r\n");
-	        out.write("Last-modified: Fri, 09 Aug 1996 14:21:40 GMT\r\n");
-	        out.write("\r\n");
-	        out.write(json.toJSONString());
+		 out.write("HTTP/1.0 200 OK\r\n");
+	     out.write("Date: Fri, 31 Dec 1999 23:59:59 GMT\r\n");
+	     out.write("Access-Control-Allow-Origin: *\r\n");
+	     out.write("Server: Apache/0.8.4\r\n");
+	     out.write("Content-Type: text\r\n");
+	     out.write("Content-Length: "+json.toJSONString().length()+"\r\n");
+	     out.write("Expires: Sat, 01 Jan 2000 00:59:59 GMT\r\n");
+	     out.write("Last-modified: Fri, 09 Aug 1996 14:21:40 GMT\r\n");
+	     out.write("\r\n");
+	     out.write(json.toJSONString());
 
-	        out.flush();
+	     out.flush();
         
 		webpage.close();
 	}
