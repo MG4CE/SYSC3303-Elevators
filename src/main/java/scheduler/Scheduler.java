@@ -1,10 +1,13 @@
 package scheduler;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+
 
 import org.apache.logging.log4j.LogManager;
 
@@ -159,6 +162,33 @@ public class Scheduler extends UDPHelper {
     	listenerThread.interrupt();
     	schedulerThread.interrupt();
     }
+
+	
+	public ArrayList<ElevatorControl> getElevatorControl(){
+		return this.elevators;
+	}
+  
+	/**
+	 * Process an elevator if its at a hard fault and reschedule all external requests to other elevators
+	 * 
+	 * @param e Elevator at fault
+	 */
+	protected void hardFaultElevator(ElevatorControl e) {
+		if(e.getState() != ElevatorState.TIMEOUT) {
+			return;
+		}
+		
+		LOGGER.error("Elevator " + e.getElevatorID() + ": has timed out, removing elevator");
+		elevators.remove(e);
+		if(elevators.size() >= 1) {
+			LOGGER.info("Resceduling Elevator " + e.getElevatorID() + ": external button requests to other elevators");
+			ArrayList<ElevatorRequest> pending = e.getAllExternalRequest();
+			for (ElevatorRequest r : pending) {
+				assignBestElevator(r);
+			}
+		}
+		verifyElevatorTopRequests();
+	}
 	
 	/**
 	 * Stop all of the threads
@@ -168,6 +198,10 @@ public class Scheduler extends UDPHelper {
 		listenerThread.interrupt();
 		schedulerThread.interrupt();
 	}
+	
+	
+	
+	
 
 	/**
 	 * The main method for running the threads
@@ -175,15 +209,24 @@ public class Scheduler extends UDPHelper {
 	 */
 	public static void main(String[] args) {
 		Scheduler s = null;
+		Thread schedServer = null;;
+		
 		
 		try {
 			s = new Scheduler(6969, 10);
-		} catch (SocketException e) {
+			schedServer = new Thread(new SchedulerTCPServer(s), "Server");
+		} catch (SocketException e ) {
 			e.printStackTrace();
 			LOGGER.error("Socket creation failed!");
+		} catch (IOException e) {
+			LOGGER.error("Scheduler failed");
+			
 		}
-
+		
 		s.startListenerThread();
 		s.startSchedulingThread();
+		schedServer.start();
 	}
+	
+	
 }
