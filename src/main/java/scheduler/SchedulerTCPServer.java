@@ -112,7 +112,7 @@ public class SchedulerTCPServer  implements Runnable {
 		json.put("requestTo", Arrays.toString(this.bean.getRequestedFloorArray()));
 		json.put("occupents", Arrays.toString(this.bean.getNumberOccupentsArray()));
 		
-		System.out.println((this.scheduler.getElevatorControl().size()));
+		System.out.println((json.toJSONString()));
 		
 		 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(webpage.getOutputStream()));
 		
