@@ -1,4 +1,4 @@
-
+var firstRun = true
 function updateElevators(ids,requestFloor, currentFloor, occupents){
 	for(let i =0; i<ids.length; i++){
 		ids.forEach(function(i,obj) {
@@ -81,26 +81,16 @@ function startElevators(ids,requestFloor, currentFloor, occupents){
 	}
 }
 
-
-
-
-
-$(document).ready(function() {
-var responseLogs = []
-firstRun = true
-i=0
-
-
-while(i<5000){
-	if(i%1000 == 0){
-			$.ajax({
+function AjaxCall(){
+		$.ajax({
 			type:"GET",
 			dataType:"text",
 			async:false,
 			url: "http://localhost:107/",
 			error: function (request, error) {
 			},
-			success: function (data) {				
+			success: function (data) {		
+				console.log(data)			
 				const obj =JSON.parse(data)
 				var ids2 = parseData(obj.ids)	
 				var requestFloor2 = parseData(obj.requestTo)
@@ -108,17 +98,20 @@ while(i<5000){
 				var occupents2 = parseData(obj.occupents)
 				if(firstRun){
 					startElevators(ids2,requestFloor2, currentFloor2, occupents2)
+					firstRun = false
 				}else{
 				updateElevators(ids2,requestFloor2, currentFloor2, occupents2)	
 				}
-				
 			}
 			})
-			
-			firstRun = false
-		}
-		
-		i+=1
-	}	
-	
+			setTimeout(AjaxCall, 1000);
+}
+
+
+
+
+$(document).ready(function() {
+var responseLogs = []
+i=0
+setTimeout(AjaxCall, 1000);
 })
