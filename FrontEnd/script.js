@@ -31,7 +31,7 @@ function parseData(data){
 
 
 
-function startElevators(ids,requestFloor, currentFloor, occupents, _callback){
+function startElevators(ids,requestFloor, currentFloor, occupents){
 	for (var i = 0; i < ids.length; i++) {
 		 
 		$("<div id=\""+ids[i]+"\" class=\"card col-3\">\
@@ -79,8 +79,6 @@ function startElevators(ids,requestFloor, currentFloor, occupents, _callback){
 		</div>").appendTo("#elevatorRow")
 		template = ""
 	}
-	console.log(done)
-	_callback();
 }
 
 
@@ -109,14 +107,14 @@ while(i<5000){
 				var currentFloor2 = parseData(obj.floor)
 				var occupents2 = parseData(obj.occupents)
 				if(firstRun){
-					startElevators(ids2,requestFloor2, currentFloor2, occupents2, updateElevators(ids2,requestFloor2, currentFloor2, occupents2))
+					startElevators(ids2,requestFloor2, currentFloor2, occupents2)
 				}else{
-					updateElevators(ids2,requestFloor2, currentFloor2, occupents2)	
+				updateElevators(ids2,requestFloor2, currentFloor2, occupents2)	
 				}
-				
 				
 			}
 			})
+			
 			firstRun = false
 		}
 		
