@@ -3,6 +3,7 @@ package elevator;
 import java.io.IOException;
 
 import communication.ProtoBufMessage;
+import message.FaultType;
 import statemachine.State;
 
 /**
@@ -38,8 +39,10 @@ public class ArrivingState implements State {
 				elevator.sendElevatorArrivedMessage(); //let scheduler know arrived
 				return new BoardingState(elevator); //Arrived!
 			}
+		} else if (message.isSchedulerDispatchMessage()) {
+			elevator.sendFaultMessage(FaultType.SCHEDULE_FAULT);
+			return this;
 		}
-		//bug prone here we might get a message here
 		throw new IOException("INVALID FSM STATE");
 	}
 }

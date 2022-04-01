@@ -389,7 +389,7 @@ public class ElevatorControl {
 			public void run() {
 				if(!isTimeoutTimerOff) {
 					state = ElevatorState.TIMEOUT;
-					SchedulerUtils.hardFaultElevator(scheduler.elevators, e, scheduler.numFloors);
+					SchedulerUtils.hardFaultElevator(scheduler, e, scheduler.numFloors);
 				}
 			}
         };
@@ -471,6 +471,24 @@ public class ElevatorControl {
 	    		shift++;
 	    	}
 	    }
+	}
+	
+	public Boolean isTopRequestSchedulable() {
+		if(!isSchedulable()) {
+			return false;
+		}
+		
+		if(state == ElevatorState.STOPPED) {
+			return true;
+		}
+		
+		if(peekTopRequest().getFloor() > currentDestinationFloor  && currentDirection == Direction.UP) {
+			return true;
+		}else if(peekTopRequest().getFloor() < currentDestinationFloor  && currentDirection == Direction.DOWN) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**

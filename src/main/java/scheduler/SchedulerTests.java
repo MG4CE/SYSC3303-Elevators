@@ -69,7 +69,7 @@ public class SchedulerTests {
     @Test
     public void testsHardFaultElevator()
     {
-    	SchedulerUtils.hardFaultElevator(s4.elevators, e4, s4.numFloors);
+    	SchedulerUtils.hardFaultElevator(s4, e4, s4.numFloors);
         assertEquals(ElevatorSelection.getSchedulableScore(e4),0);
     }
 

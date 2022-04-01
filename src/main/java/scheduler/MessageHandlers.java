@@ -37,11 +37,11 @@ public class MessageHandlers {
 			elevator.increaseSameFloorPriority();
 			synchronized(elevator){
 				if(elevator.peekTopRequest().getFloor() == request.getFloor() && elevator.peekTopRequest().getFloor() != elevator.getCurrentDestination()) {
-					elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
-					if(elevator.isTimeoutTimerOff()) {
-						elevator.startTimeoutTimer();
-					}
 					if(elevator.isSchedulable()) {
+						elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
+						if(elevator.isTimeoutTimerOff()) {
+							elevator.startTimeoutTimer();
+						}
 						try {
 							SchedulerMessages.sendSchedulerDispatchMessage(s, elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
 						} catch (IOException e) {
@@ -57,9 +57,9 @@ public class MessageHandlers {
 					synchronized(elevator){
 						elevator.stopWaitTimer();
 						elevator.addDestination(new ElevatorRequest(request.getFloor(), request.getRequestID(), request.getDirection(), Button.INTERIOR));
-						elevator.increaseSameFloorPriority();
-						elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 						if(elevator.isSchedulable()) {
+							elevator.increaseSameFloorPriority();
+							elevator.setCurrentDestination(elevator.peekTopRequest().getFloor());
 							try {
 								SchedulerMessages.sendSchedulerDispatchMessage(s, elevator.peekTopRequest().getFloor(), elevator.getPort(), request.getDirection(), elevator.peekTopRequest().getRequestID(), elevator.getElevatorID(), elevator.getAddress());
 							} catch (IOException e) {
@@ -105,6 +105,7 @@ public class MessageHandlers {
 					} else {
 						//This not a great way of removing a request if we reschedule an elevator in the event
 						//of an elevator request redistribution due to a hard fault
+						//this is bad
 						ArrayList<ElevatorRequest> requests = elevator.getFloorDestinations();
 						for(int i = 0; i < elevator.getNumDestinations(); i++) {
 							if(message.getFloor() == requests.get(i).getFloor()) {
@@ -139,7 +140,7 @@ public class MessageHandlers {
 	
 	protected static void handleElevatorDepartureMessage(Scheduler s, DatagramPacket packet, ProtoBufMessage msg) {
 		ElevatorDepartureMessage message = msg.toElevatorDepartureMessage();
-		Scheduler.LOGGER.info("Elevator " + message.getElevatorID() + " is now moving");
+		Scheduler.LOGGER.debug("Elevator " + message.getElevatorID() + " is now moving");
 		try {
 			s.sendMessage(message, s.floorSubsystemPort, s.floorSubsystemAddress);
 		} catch (IOException e) {
@@ -208,7 +209,7 @@ public class MessageHandlers {
 			} else if (request.getFault() == FaultType.RESOLVED) {
 				Scheduler.LOGGER.info("Elevator " + request.getElevatorID() + " has resolved door fault");
 				elevatorAtFault.setState(ElevatorState.STOPPED);
-				SchedulerUtils.verifyElevatorTopRequests(s.elevators);
+				SchedulerUtils.verifyElevatorTopRequests(s);
 			}
 		}
 	}
