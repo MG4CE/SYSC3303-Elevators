@@ -15,6 +15,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import communication.ProtoBufMessage;
 import communication.UDPHelper;
+import scheduler.ElevatorControl.ElevatorState;
 
 /**
  * The Scheduler class will be running one of the main threads in the system.
@@ -168,27 +169,7 @@ public class Scheduler extends UDPHelper {
 		return this.elevators;
 	}
   
-	/**
-	 * Process an elevator if its at a hard fault and reschedule all external requests to other elevators
-	 * 
-	 * @param e Elevator at fault
-	 */
-	protected void hardFaultElevator(ElevatorControl e) {
-		if(e.getState() != ElevatorState.TIMEOUT) {
-			return;
-		}
-		
-		LOGGER.error("Elevator " + e.getElevatorID() + ": has timed out, removing elevator");
-		elevators.remove(e);
-		if(elevators.size() >= 1) {
-			LOGGER.info("Resceduling Elevator " + e.getElevatorID() + ": external button requests to other elevators");
-			ArrayList<ElevatorRequest> pending = e.getAllExternalRequest();
-			for (ElevatorRequest r : pending) {
-				assignBestElevator(r);
-			}
-		}
-		verifyElevatorTopRequests();
-	}
+	
 	
 	/**
 	 * Stop all of the threads
