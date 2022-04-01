@@ -3,7 +3,14 @@
   <groupId>3303-Elevator</groupId>
   <artifactId>3303-Elevator</artifactId>
   <version>iteration-3</version>
+	<name>3303-Elevators Maven Webapp</name>
+  <!-- FIXME change it to the project's website -->
+  <url>http://localhost:105</url>
+
+
+
 	<dependencies>
+
 	  <dependency>
 	    <groupId>com.google.protobuf</groupId>
 	    <artifactId>protobuf-java</artifactId>
@@ -25,14 +32,28 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>5.3.1</version>
         </dependency>
+<dependency>
+	<groupId>com.sun.net.httpserver</groupId>
+	<artifactId>http</artifactId>
+	<version>20070405</version>
+</dependency>
+
+
+<dependency>  
+
+    <groupId>com.googlecode.json-simple</groupId>  
+    <artifactId>json-simple</artifactId>  
+    <version>1.1</version>  
+  </dependency> 
 	</dependencies>
+
 	<properties>
 	     <maven.compiler.source>17</maven.compiler.source>
 	     <maven.compiler.target>17</maven.compiler.target>
 	</properties>
 	<build>
 	  <plugins>
-	    <plugin>
+		<plugin>
 	      <!-- Build an executable JAR -->
 	      <groupId>org.apache.maven.plugins</groupId>
 	      <artifactId>maven-jar-plugin</artifactId>
@@ -46,8 +67,8 @@
 	        </archive>
 	      </configuration>
 	    </plugin>
-		
-  <!-- any other plugins -->
+
+
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
