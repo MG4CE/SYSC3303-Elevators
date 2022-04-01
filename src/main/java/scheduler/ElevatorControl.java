@@ -340,7 +340,7 @@ public class ElevatorControl {
 					Scheduler.LOGGER.warn("Floorsubsystem failed to give internal button press!");
 					if (peekTopRequest() != null ) {
 						try {
-							scheduler.sendSchedulerDispatchMessage(peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
+							SchedulerMessages.sendSchedulerDispatchMessage(scheduler, peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -389,7 +389,7 @@ public class ElevatorControl {
 			public void run() {
 				if(!isTimeoutTimerOff) {
 					state = ElevatorState.TIMEOUT;
-					scheduler.hardFaultElevator(e);
+					SchedulerUtils.hardFaultElevator(scheduler.elevators, e, scheduler.numFloors);
 				}
 			}
         };
@@ -424,7 +424,7 @@ public class ElevatorControl {
 			public void run() {
 				Scheduler.LOGGER.info("Ending simulated door fault for Elevator " + elevatorID);
 				try {
-					scheduler.sendStopDoorFaultSimulateFaultMessage(elevatorID, port, address);
+					SchedulerMessages.sendStopDoorFaultSimulateFaultMessage(scheduler, elevatorID, port, address);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

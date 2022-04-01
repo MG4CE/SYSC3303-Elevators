@@ -47,11 +47,11 @@ public class SchedulerTests {
      */
     public void testAssignBestElevator() throws IOException {
         ElevatorControl e2;
-        e2 = s1.assignBestElevator(new ElevatorRequest(1,0, Button.EXTERIOR));
+        e2 = ElevatorSelection.assignBestElevator(new ElevatorRequest(1,0, Button.EXTERIOR), s1.elevators, s1.numFloors);
         assertEquals(e2,null);
         s1.addToElevators(e1);
         e1.addDestination(new ElevatorRequest(1,0, Button.EXTERIOR));
-        e2 = s1.assignBestElevator(e1.popTopRequest());
+        e2 = ElevatorSelection.assignBestElevator(e1.popTopRequest(), s1.elevators, s1.numFloors);
         assertNotNull(e2);
         assertEquals(e2.getElevatorID(),3);
     }
@@ -63,20 +63,20 @@ public class SchedulerTests {
     public void testsScheduleScore()
     {
         s2.addToElevators(e2);
-        assertEquals(s2.getSchedulableScore(e2),0);
+        assertEquals(ElevatorSelection.getSchedulableScore(e2),0);
     }
 
     @Test
     public void testsHardFaultElevator()
     {
-        s4.hardFaultElevator(e4);
-        assertEquals(s4.getSchedulableScore(e4),0);
+    	SchedulerUtils.hardFaultElevator(s4.elevators, e4, s4.numFloors);
+        assertEquals(ElevatorSelection.getSchedulableScore(e4),0);
     }
 
     @Test
     public void testEvaluateDirectionalScore()
     {
-        assertEquals(s5.evaluateDirectionalScore(e5,new ElevatorRequest(1,2,Button.EXTERIOR)),1);
+        assertEquals(ElevatorSelection.evaluateDirectionalScore(e5, new ElevatorRequest(1,2,Button.EXTERIOR), s5.numFloors), 1);
     }
 
 }
