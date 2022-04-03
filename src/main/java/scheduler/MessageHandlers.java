@@ -208,6 +208,7 @@ public class MessageHandlers {
 				elevatorAtFault.addDestination(r);
 			} else if (request.getFault() == FaultType.RESOLVED) {
 				Scheduler.LOGGER.info("Elevator " + request.getElevatorID() + " has resolved door fault");
+				elevatorAtFault.resetTimeoutTimer();
 				elevatorAtFault.setState(ElevatorState.STOPPED);
 				SchedulerUtils.verifyElevatorTopRequests(s);
 			}

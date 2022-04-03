@@ -356,8 +356,10 @@ public class ElevatorControl {
 	 * Start timeout timer
 	 */
 	public void startTimeoutTimer() {
-		timeoutHandler = timeoutScheduler.schedule(makeTimeoutTask(), TIMEOUT, MILLISECONDS);
-		isTimeoutTimerOff = false;
+		if(isTimeoutTimerOff) {
+			timeoutHandler = timeoutScheduler.schedule(makeTimeoutTask(), TIMEOUT, MILLISECONDS);
+			isTimeoutTimerOff = false;
+		}
 	}
 	
 	/**
@@ -373,8 +375,10 @@ public class ElevatorControl {
 	 * Stop timeout timer
 	 */
 	public void stopTimeoutTimer() {
-		timeoutHandler.cancel(true);
-		isTimeoutTimerOff = true;
+		if(!isTimeoutTimerOff) {
+			timeoutHandler.cancel(true);
+			isTimeoutTimerOff = true;
+		}
 	}
 	
 	/**
@@ -428,6 +432,7 @@ public class ElevatorControl {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				startTimeoutTimer();
 			}
         };
 	}
