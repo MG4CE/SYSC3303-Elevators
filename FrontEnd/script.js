@@ -8,7 +8,7 @@ function updateElevators(ids, requestFloor, currentFloor, occupents, directions,
 				$(this).removeClass("active")
 				$(this).css("background-color","grey")
 				
-				if($(this).text() == requestFloor[obj] | (($(this).text() == "G") & requestFloor[obj] == 0)) {
+				if($(this).text() == requestFloor[obj] | (($(this).text() == "G") & requestFloor[obj] == 0) & states[obj] != 9) {
 					$(this).addClass("active")
 			}})
 			//Change text of the elevator current and dest floor
@@ -19,14 +19,19 @@ function updateElevators(ids, requestFloor, currentFloor, occupents, directions,
 			//Deal with states
 			if(states[obj] == 0 & currentFloor[obj] == requestFloor[obj] & directions[obj] == 0){
 				//stopped
-				$("#"+i).find(".elevatorImage").attr('src',"./images/waiting.png")
+				$("#"+i).find(".elevatorImage").attr('src',"./images/sleep.png")
 			}
 			else if(states[obj] == 2) {
 				//Door Fault
 				$("#"+i).find(".elevatorImage").attr('src',"./images/error.png")
+				$("#"+i).find(".RequestedFloorNum").text("SoftFault")
+				$("#"+i).find(".currentFloor").text(currentFloor[obj])
+				$("#"+i).find(".numberPassengers").text(occupents[obj])
 			}
 			else if(states[obj]==9){
 				$("#"+i).find(".elevatorImage").attr('src',"./images/killed.png")
+				$("#"+i).find(".currentFloor").text("Offline")
+				$("#"+i).find(".RequestedFloorNum").text("Offline")
 			}
 			else{
 				//Moving
@@ -37,7 +42,7 @@ function updateElevators(ids, requestFloor, currentFloor, occupents, directions,
 					$("#"+i).find(".elevatorImage").attr('src',"./images/down.png")
 				}
 				else{
-					$("#"+i).find(".elevatorImage").attr('src',"./images/waiting.png")
+					$("#"+i).find(".elevatorImage").attr('src',"./images/sleep.png")
 				}
 			}
 	})
@@ -72,7 +77,7 @@ function startElevators(ids, requestFloor, currentFloor, occupents, directions, 
 		<div class=\"card align-self-left col-8 \" style=\"width: 18rem;\" id=\"1\">\
 		<p class=\"card-top align-self-center\">Elevator #"+ids[i]+"</p>\
 		<div class=\"row mt-1 align-self-center\">\
-		<img class=\"elevatorImage align-self-center\" src=\"./images/waiting.png\" alt=\"Card image cap\">\
+		<img class=\"elevatorImage align-self-center\" src=\"./images/sleep.png\" alt=\"Card image cap\">\
 		</div>\
 		<div class=\"row mt-1 align-self-center\">\
 		<p class=\"card-top align-self-center square currentFloor\">"+currentFloor[i]+"</p>\
