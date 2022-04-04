@@ -18,6 +18,7 @@ public class SchedulerUtils {
 		
 		Scheduler.LOGGER.error("Elevator " + e.getElevatorID() + ": has timed out, removing elevator");
 		s.elevators.remove(e);
+		s.backendForDash.addToHardFaults(e.getElevatorID());
 		if(s.elevators.size() >= 1) {
 			Scheduler.LOGGER.info("Resceduling Elevator " + e.getElevatorID() + ": external button requests to other elevators");
 			ArrayList<ElevatorRequest> pending = e.getAllExternalRequest();

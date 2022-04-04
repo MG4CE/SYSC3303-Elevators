@@ -18,6 +18,7 @@ public class SchedulerBean {
 	private int numFloors;
 	private List<Integer> elevatorDirectionList;
 	private List<Integer> elevatorStateList;
+	private List<Integer> elevatorHardFaultList;
 	
 	
 	private int[] elevatorArray;
@@ -34,6 +35,7 @@ public class SchedulerBean {
 		numberOccupentsList = new ArrayList<>();
 		elevatorDirectionList = new ArrayList<>();
 		elevatorStateList = new ArrayList<>();
+		elevatorHardFaultList = new ArrayList<>();
 		}
 	
 	public void setElevatorList(List<Integer> elevatorList) {
@@ -50,6 +52,14 @@ public class SchedulerBean {
 	
 	public void setNumberOccupentsList(List<Integer> elevatorOccupentsList) {
 		this.numberOccupentsList = elevatorOccupentsList;
+	}
+	
+	public void addToHardFaults(Integer id) {
+		this.elevatorHardFaultList.add(id);
+	}
+	
+	public List<Integer> getHardFaultList(){
+		return this.elevatorHardFaultList;
 	}
 	
 	public void buildArrays() {

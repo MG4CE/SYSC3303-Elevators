@@ -32,6 +32,7 @@ public class Scheduler extends UDPHelper {
     protected Boolean isRunning;
     protected int floorSubsystemPort;
     protected InetAddress floorSubsystemAddress;
+    protected SchedulerTCPServer backendForDash;
     
 	/**
 	 * The constructor for the Scheduler
@@ -154,6 +155,9 @@ public class Scheduler extends UDPHelper {
 		return isRunning;
 	}
 	
+	void addServerToScheduler(SchedulerTCPServer server) {
+		this.backendForDash = server;
+	}
 	/**
 	 * Stop all of the threads
 	 */

@@ -43,6 +43,7 @@ public class SchedulerTCPServer  implements Runnable {
 			this.scheduler = scheduler;
 			server = new ServerSocket(socketNum);
 			this.bean = new SchedulerBean();
+			this.scheduler.addServerToScheduler(this);
 		} catch (IOException e) {
 			
 			e.printStackTrace();
@@ -68,6 +69,10 @@ public class SchedulerTCPServer  implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	protected void addToHardFaults(Integer elevatorId) {
+		this.bean.addToHardFaults(elevatorId);
 	}
 	
 	/**
@@ -96,12 +101,23 @@ public class SchedulerTCPServer  implements Runnable {
 				bean.getDirectionList().add(0);
 				this.numberOfElevators++;
 			}
+			checkForHardFaults(this.scheduler.getElevatorControl());
 		}
 		bean.buildArrays();
-		
 	}
 	
 	
+	private void checkForHardFaults(ArrayList<ElevatorControl> elevatorControl) {
+		boolean found = false;
+		int index = -1;
+		
+		for(Integer elevatorIdThatHF: this.bean.getHardFaultList()) {
+			if((index = this.bean.findElevatorIndex(elevatorIdThatHF))!=-1) {
+				this.bean.getElevatorStateList().set(index, 9);
+			}
+		}
+	}
+
 	public int translateState(ElevatorControl ev) {
 		if(ev.getState().equals(ElevatorControl.ElevatorState.STOPPED) & ev.getCurrentFloor() != ev.getCurrentDestination()) {
 			return 1;

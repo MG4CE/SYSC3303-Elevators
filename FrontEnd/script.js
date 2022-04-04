@@ -11,7 +11,6 @@ function updateElevators(ids, requestFloor, currentFloor, occupents, directions,
 				if($(this).text() == requestFloor[obj] | (($(this).text() == "G") & requestFloor[obj] == 0)) {
 					$(this).addClass("active")
 			}})
-			console.log(i, obj)
 			//Change text of the elevator current and dest floor
 			$("#"+i).find(".RequestedFloorNum").text(requestFloor[obj])
 			$("#"+i).find(".currentFloor").text(currentFloor[obj])
@@ -26,7 +25,7 @@ function updateElevators(ids, requestFloor, currentFloor, occupents, directions,
 				//Door Fault
 				$("#"+i).find(".elevatorImage").attr('src',"./images/error.png")
 			}
-			else if(states[obj]==0 & currentFloor[obj] != requestFloor[obj] & directions[obj] ==0){
+			else if(states[obj]==9){
 				$("#"+i).find(".elevatorImage").attr('src',"./images/killed.png")
 			}
 			else{
@@ -106,10 +105,6 @@ function startElevators(ids, requestFloor, currentFloor, occupents, directions, 
 		buttons+="</div>"
 		buttons+="</div>"
 		
-		
-		
-
-		console.log(top,buttons)
 		var template = top + buttons
 		
 		$(template).appendTo("#elevatorRow")
