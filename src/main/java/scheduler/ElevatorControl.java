@@ -76,7 +76,7 @@ public class ElevatorControl {
 		this.floorDestinations = new ArrayList<>();
 		this.currentDirection = Direction.STATIONARY;
 		this.state = ElevatorState.STOPPED;
-		this.currentDestinationFloor = -1;
+		this.currentDestinationFloor = 0;
 		this.scheduler = scheduler;
 		this.doorFaultSimTimer = null;
 		this.doorFaultSimTimerTask = null;

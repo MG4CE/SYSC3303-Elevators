@@ -12,9 +12,13 @@ import java.io.OutputStreamWriter;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.json.simple.JSONObject;
+
+import message.Direction;
 
 public class SchedulerTCPServer  implements Runnable {
 	private  String OUTPUT;
@@ -31,6 +35,7 @@ public class SchedulerTCPServer  implements Runnable {
 	private OutputStream output;
 	BufferedWriter o;
 	SchedulerBean bean;
+	int numberOfElevators = 0;
 
 	
 	public SchedulerTCPServer(Scheduler scheduler) throws IOException {
@@ -51,7 +56,6 @@ public class SchedulerTCPServer  implements Runnable {
 	public void run() {
 		while(running) {
 			try {
-				System.out.println("System running");
 				runServer();
 			} catch (IOException e) {
 				try {
@@ -67,31 +71,55 @@ public class SchedulerTCPServer  implements Runnable {
 	}
 	
 	/**
-	 * THis method would be used to update all the information in the Bean Object
+	 * This method would be used to update all the information in the Bean Object
 	 */
 	protected void updateSchedulerInfo() {
-		
-		System.out.println(this.scheduler.getElevatorControl().size());
 		for (ElevatorControl elevator : this.scheduler.getElevatorControl()) {
 			int index;
-			System.out.println(elevator.getElevatorID());
-			System.out.println(bean.findElevatorIndex(elevator.getElevatorID()));
-			System.out.println(Arrays.toString(bean.getElevatorList().toArray()));
-			
+			//Found old elevator update its values
 			if((index = bean.findElevatorIndex(elevator.getElevatorID())) != -1) {
 				bean.getElevatorFloorList().set(index, elevator.getCurrentFloor());
 				bean.getFloorRequestedList().set(index, elevator.getCurrentDestination());
 				bean.getNumberOccupentsList().set(index, 1);
+				bean.setNumFloors(scheduler.numFloors);
+				bean.getElevatorStateList().set(index, translateState(elevator));
+				bean.getDirectionList().set(index, translateDirection(elevator.getCurrentDestination(), elevator.getCurrentFloor()));
 			}
 			else {
+				//New elevator add its defaults
 				bean.getElevatorList().add(elevator.getElevatorID());
-				bean.getElevatorFloorList().add(elevator.getCurrentFloor());
-				bean.getFloorRequestedList().add(elevator.getCurrentDestination());
+				bean.getElevatorFloorList().add(elevator.getCurrentFloor()+1);
+				bean.getFloorRequestedList().add(elevator.getCurrentDestination()+1);
 				bean.getNumberOccupentsList().add(1);
+				bean.setNumFloors(scheduler.numFloors);
+				bean.getElevatorStateList().add(0);
+				bean.getDirectionList().add(0);
+				this.numberOfElevators++;
 			}
 		}
 		bean.buildArrays();
 		
+	}
+	
+	
+	public int translateState(ElevatorControl ev) {
+		if(ev.getState().equals(ElevatorControl.ElevatorState.STOPPED) & ev.getCurrentFloor() != ev.getCurrentDestination()) {
+			return 1;
+		}else {
+			
+		}
+		return ev.getState().ordinal();
+	}
+	
+	public int translateDirection(int destFloor, int currFloor) {
+		if(destFloor > currFloor) {
+			return 2;
+		}	
+		else if(destFloor < currFloor) {
+			return 1;
+		}
+		else
+			return 0;
 	}
 	
 	public void runServer() throws IOException {
@@ -100,13 +128,10 @@ public class SchedulerTCPServer  implements Runnable {
 	}
 	
 	private void listenForCall() throws IOException {
-		System.out.println("Waiting for call");
 		webpage = server.accept();
-		System.out.println("Webpage call");
 	}
 	
 	private void updateFrontEnd() throws IOException {
-		System.out.println("Updating front end");
 		//Get the updated bean
 		updateSchedulerInfo();
 		JSONObject json = new JSONObject();
@@ -114,8 +139,9 @@ public class SchedulerTCPServer  implements Runnable {
 		json.put("floor", Arrays.toString(this.bean.getElevatorFloorArray()));
 		json.put("requestTo", Arrays.toString(this.bean.getRequestedFloorArray()));
 		json.put("occupents", Arrays.toString(this.bean.getNumberOccupentsArray()));
-		
-		System.out.println((json.toJSONString()));
+		json.put("directions", Arrays.toString(this.bean.getDirectionArray()));
+		json.put("states", Arrays.toString(this.bean.getStateArray()));
+		json.put("numFloors", this.bean.getNumFloors());
 		
 		 BufferedWriter out = new BufferedWriter(new OutputStreamWriter(webpage.getOutputStream()));
 		
