@@ -1,10 +1,13 @@
 package scheduler;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+
 
 import org.apache.logging.log4j.LogManager;
 
@@ -12,6 +15,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import communication.ProtoBufMessage;
 import communication.UDPHelper;
+import scheduler.ElevatorControl.ElevatorState;
 
 /**
  * The Scheduler class will be running one of the main threads in the system.
@@ -28,6 +32,7 @@ public class Scheduler extends UDPHelper {
     protected Boolean isRunning;
     protected int floorSubsystemPort;
     protected InetAddress floorSubsystemAddress;
+    protected SchedulerTCPServer backendForDash;
     
 	/**
 	 * The constructor for the Scheduler
@@ -150,6 +155,9 @@ public class Scheduler extends UDPHelper {
 		return isRunning;
 	}
 	
+	void addServerToScheduler(SchedulerTCPServer server) {
+		this.backendForDash = server;
+	}
 	/**
 	 * Stop all of the threads
 	 */
@@ -159,6 +167,13 @@ public class Scheduler extends UDPHelper {
     	listenerThread.interrupt();
     	schedulerThread.interrupt();
     }
+
+	
+	public ArrayList<ElevatorControl> getElevatorControl(){
+		return this.elevators;
+	}
+  
+	
 	
 	/**
 	 * Stop all of the threads
@@ -168,6 +183,10 @@ public class Scheduler extends UDPHelper {
 		listenerThread.interrupt();
 		schedulerThread.interrupt();
 	}
+	
+	
+	
+	
 
 	/**
 	 * The main method for running the threads
@@ -175,15 +194,24 @@ public class Scheduler extends UDPHelper {
 	 */
 	public static void main(String[] args) {
 		Scheduler s = null;
+		Thread schedServer = null;;
+		
 		
 		try {
 			s = new Scheduler(6969, 10);
-		} catch (SocketException e) {
+			schedServer = new Thread(new SchedulerTCPServer(s), "Server");
+		} catch (SocketException e ) {
 			e.printStackTrace();
 			LOGGER.error("Socket creation failed!");
+		} catch (IOException e) {
+			LOGGER.error("Scheduler failed");
+			
 		}
-
+		
 		s.startListenerThread();
 		s.startSchedulingThread();
+		schedServer.start();
 	}
+	
+	
 }
