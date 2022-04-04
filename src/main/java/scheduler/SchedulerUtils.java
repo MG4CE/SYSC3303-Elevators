@@ -1,8 +1,11 @@
 package scheduler;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.util.ArrayList;
 
+import message.Button;
+import message.ElevatorRequestMessage;
 import scheduler.ElevatorControl.ElevatorState;
 
 public class SchedulerUtils {
@@ -23,14 +26,23 @@ public class SchedulerUtils {
 			Scheduler.LOGGER.info("Resceduling Elevator " + e.getElevatorID() + ": external button requests to other elevators");
 			ArrayList<ElevatorRequest> pending = e.getAllExternalRequest();
 			for (ElevatorRequest r : pending) {
-				ElevatorSelection.assignBestElevator(r, s.elevators, numFloors);
+				ElevatorRequestMessage m = ElevatorRequestMessage.newBuilder()
+		                .setFloor(r.getFloor())
+		                .setButton(Button.EXTERIOR)
+		                .setDirection(r.getDirection())
+		                .setRequestID(r.getRequestID())
+		                .build();
+				synchronized(s.messageQueue) {
+					s.messageQueue.add(new DatagramPacket(m.toByteArray(), m.toByteArray().length));
+					s.messageQueue.notifyAll();
+				}
 			}
 		}
-		verifyElevatorTopRequests(s);
 	}
 	
 	/**
 	 * Verify if all the top requests for an elevator are the ones in progress and attempt to reschedule
+	 * This can cause issues in unsupported use cases
 	 */
 	protected static void verifyElevatorTopRequests(Scheduler s) {
 		for(ElevatorControl elevator : s.elevators) {
