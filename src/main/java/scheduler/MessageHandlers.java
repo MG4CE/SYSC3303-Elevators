@@ -94,7 +94,7 @@ public class MessageHandlers {
 				if(message.getElevatorID() == elevator.getElevatorID()) {
 					elevator.resetTimeoutTimer();
 					try {
-						SchedulerMessages.sendElevatorArrivedMessage(s, message, elevator.peekTopRequest().getRequestID(), s.floorSubsystemPort, s.floorSubsystemAddress);
+						SchedulerMessages.sendElevatorArrivedMessage(s, message, message.getElevatorID(), s.floorSubsystemPort, s.floorSubsystemAddress);
 					} catch (IOException e) {
 						Scheduler.LOGGER.error("Failed to forward elevator arrived message: " + e.getMessage());
 					}

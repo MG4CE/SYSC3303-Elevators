@@ -1,10 +1,8 @@
 package scheduler;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
@@ -15,7 +13,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import communication.ProtoBufMessage;
 import communication.UDPHelper;
-import scheduler.ElevatorControl.ElevatorState;
 
 /**
  * The Scheduler class will be running one of the main threads in the system.
@@ -66,7 +63,6 @@ public class Scheduler extends UDPHelper {
 						e1.printStackTrace();
 						LOGGER.error("Failed to receive data from socket, stopping!");
 						isRunning = false;
-						schedulerThread.interrupt();
 					}
 					
 					if(!listenerThread.isInterrupted() && msg != null) {
@@ -162,9 +158,9 @@ public class Scheduler extends UDPHelper {
 	 * Stop all of the threads
 	 */
 	public void stopScheduler() {
+    	listenerThread.interrupt();
     	isRunning = false;
     	this.closePbSocket();
-    	listenerThread.interrupt();
     	schedulerThread.interrupt();
     }
 
