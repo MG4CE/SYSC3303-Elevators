@@ -174,6 +174,7 @@ public class SchedulerTCPServer  implements Runnable {
 	 * Update the front end by translating all system data into a json and return in an http packet
 	 * @throws IOException
 	 */
+	@SuppressWarnings("unchecked")
 	private void updateFrontEnd() throws IOException {
 		//Update the bean
 		updateSchedulerInfo();
