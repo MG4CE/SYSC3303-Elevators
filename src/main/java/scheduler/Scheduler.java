@@ -198,12 +198,18 @@ public class Scheduler extends UDPHelper {
 	 */
 	public static void main(String[] args) {
 		Scheduler s = null;
-		Thread schedServer = null;;
+		SchedulerTCPServer ss = null;
+		TimeMessageServer ts = null;
+		Thread schedServer= null;
+		Thread timeServer = null;
 		
 		
 		try {
-			s = new Scheduler(6969, 10);
-			schedServer = new Thread(new SchedulerTCPServer(s), "Server");
+			s = new Scheduler(6969, 22);
+			ss = new SchedulerTCPServer(s);
+			ts = new TimeMessageServer(ss);
+			schedServer = new Thread(ss, "Server");
+			timeServer = new Thread(ts, "TimeServer");
 		} catch (SocketException e ) {
 			e.printStackTrace();
 			LOGGER.error("Socket creation failed!");
@@ -215,6 +221,7 @@ public class Scheduler extends UDPHelper {
 		s.startListenerThread();
 		s.startSchedulingThread();
 		schedServer.start();
+		timeServer.start();
 	}
 	
 	

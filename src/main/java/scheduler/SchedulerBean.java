@@ -1,6 +1,7 @@
 package scheduler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,7 +11,6 @@ import java.util.Objects;
  *
  */
 public class SchedulerBean {
-	
 	//Lists to dynamically add / delete elevator data
 	private List<Integer> elevatorList;
 	private List<Integer> elevatorAtFloorList;
@@ -18,6 +18,8 @@ public class SchedulerBean {
 	private List<Integer> elevatorDirectionList;
 	private List<Integer> elevatorStateList;
 	private List<Integer> elevatorHardFaultList;
+	private List<String> timingMessageList = new ArrayList<>();
+	private int counter = 0;
 	
 	private int numFloors;
 	
@@ -27,6 +29,7 @@ public class SchedulerBean {
 	private int[] floorRequestedArray;
 	private int[] elevatorDirectionArray;
 	private int[] elevatorStateArray;
+	private List<String> timeMessageList;
 
 	public SchedulerBean() {
 		elevatorList = new ArrayList<>();
@@ -35,7 +38,42 @@ public class SchedulerBean {
 		elevatorDirectionList = new ArrayList<>();
 		elevatorStateList = new ArrayList<>();
 		elevatorHardFaultList = new ArrayList<>();
+		timingMessageList = new ArrayList<>();
 		}
+
+	
+	
+	/**
+	 * Method that gets the most recent addition to the arrayList (Last entry)
+	 * @return
+	 */
+	public synchronized String removeTopValue(){
+	
+		if(!this.timingMessageList.isEmpty()) {
+			return timingMessageList.remove(0);
+		}
+		else {
+			return "";
+		}
+	}
+	
+	/**
+	 * Get the size of the TimeMessageList
+	 * @return
+	 */
+	public int getTimeListSize() {
+		return timingMessageList.size();
+	}
+	
+	
+	/**
+	 * Add a new arrival string for the front end logger
+	 * @param String : arrival message 
+	 */
+	public synchronized void addTimingMessage(String msg) {
+		timingMessageList.add(msg);
+	}
+
 
 	/**
 	 * Add en elevatorId that has been hard faulted
