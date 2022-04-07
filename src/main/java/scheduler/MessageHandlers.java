@@ -230,6 +230,9 @@ public class MessageHandlers {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				if(request.getFault() == FaultType.ELEVATOR_UNRESPONSIVE) {
+					elevator.resetTimeoutTimer();
+				}
 			}
 		}
 	}
