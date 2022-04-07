@@ -9,17 +9,14 @@ Iteration 5 involves adding a GUI to track elevators and to implement timing mec
 - ~~How will the movement be handled with the new Motor class?~~  Completed
 - ~~How will ElevatorFloorSensor detect the location of the elevator in the shaft?~~ Completed
 - ~~We might need a new type of class Message to notify other components in the system of changes.~~ -Completed
-<br />
 
 ### Iteration 2 issues
 - ~~How to smoothly transition between new commands~~ Completed
 - ~~When trying internal button presses 1 floor below~~ Completed
-<br />
 
 ### Iteration 3 issues
 - ~~Dealing with nonsequential floors~~ Completed
 - ~~Bug when scheduling with 1 elevator only (Overwrites current destination)~~ Completed
-<br />
 
 ### Iteration 4 issues
 - ~~Sceduling state machine is not super optimal~~
@@ -29,6 +26,8 @@ Iteration 5 involves adding a GUI to track elevators and to implement timing mec
 
 ### Iteration 5 issues
 - No known issues were found during this iteration
+
+<br>
 
 ## Installation
  Warning this project needs JDK 17
@@ -44,6 +43,7 @@ git clone https://github.com/MG4CE/SYSC3303-Elevators.git
 3. Navigate to the exported project and select the 3303-project folder and make sure to select the pom.xml
 ![](documents/images/maven3.png)
 
+<br>
 
 ## Usage
 
@@ -79,6 +79,8 @@ Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
 protoc -I=./src/main/proto --java_out=./src/main/java elevator.proto
 ```
 
+<br>
+
 ## Folders & File Description
 
 ### ElevatorCommands 
@@ -111,7 +113,6 @@ protoc -I=./src/main/proto --java_out=./src/main/java elevator.proto
      - SchedulerDispatchMessageOrBuilder.java  
      - WrapperMessage.java
      - WrapperMessageOrBuilder.java
-  <br />
   <br />
 
 ### Elevator.java
@@ -175,6 +176,7 @@ SF 00:02:30 1 10000
 00:03:00.1 1 Up 3
 HF 00:04:30 1 0
 ```
+<br />
 
 ## Team & Contributions
 
