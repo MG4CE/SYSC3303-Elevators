@@ -40,6 +40,7 @@ public class SchedulerBean {
 		elevatorHardFaultList = new ArrayList<>();
 		timingMessageList = new ArrayList<>();
 		}
+
 	
 	
 	/**
@@ -72,6 +73,7 @@ public class SchedulerBean {
 	public synchronized void addTimingMessage(String msg) {
 		timingMessageList.add(msg);
 	}
+
 
 	/**
 	 * Add en elevatorId that has been hard faulted
@@ -120,7 +122,6 @@ public class SchedulerBean {
                 .toArray();
 	}
 	
-	
 	/**
 	 * Finds the corresponding index that has the current elevatorId
 	 * Since all the data about 1 elevator uses the same index in all lists/arrays
@@ -130,8 +131,7 @@ public class SchedulerBean {
 	public int findElevatorIndex(int elevatorId) {
 		return this.elevatorList.indexOf(elevatorId);
 	}
-	
-	
+
 	/**
 	 * Getter for Direction List
 	 * @return
@@ -155,6 +155,7 @@ public class SchedulerBean {
 	public List<Integer> getElevatorList() {
 		return elevatorList;
 	}
+	
 	/**
 	 * Getter for ElevatorCurrentFloorList
 	 * @return
@@ -162,6 +163,7 @@ public class SchedulerBean {
 	public List<Integer> getElevatorFloorList() {
 		return elevatorAtFloorList;
 	}
+	
 	/**
 	 * Getter for elevator request Floor List
 	 * @return
@@ -185,6 +187,7 @@ public class SchedulerBean {
 	public int getNumFloors() {
 		return this.numFloors;
 	}
+	
 	/**
 	 * Get elevatorIdArray
 	 * @return
@@ -209,7 +212,6 @@ public class SchedulerBean {
 		return this.floorRequestedArray;
 	}
 	
-	
 	/**
 	 * Get Elevator Directions array
 	 * @return
@@ -225,7 +227,4 @@ public class SchedulerBean {
 	public int[] getStateArray() {
 		return this.elevatorStateArray;
 	}
-
-	
-	
 }

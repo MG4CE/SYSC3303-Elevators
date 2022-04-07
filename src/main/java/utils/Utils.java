@@ -5,7 +5,10 @@ import java.util.Calendar;
 import message.Direction;
 
 /**
- * Class holding static utility methods used through out the system
+ * Static utility method.
+ * 
+ * Legacy methods that could be useful if we decided actual 
+ * implement message time-stamps for protobuffer.
  */
 public class Utils {
 	/**

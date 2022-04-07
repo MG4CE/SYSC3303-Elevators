@@ -131,7 +131,7 @@ public abstract class UDPHelper {
 		sendByteArray(msg.toByteArray(), port, address);
 	}	
 	
-	WrapperMessage createWrapperMessage(com.google.protobuf.GeneratedMessageV3 message) throws IOException {
+	public static WrapperMessage createWrapperMessage(com.google.protobuf.GeneratedMessageV3 message) throws IOException {
 		WrapperMessage.Builder msgBldr = WrapperMessage.newBuilder();		
 		// find type of message
 		if(message instanceof ElevatorRequestMessage){
@@ -181,5 +181,4 @@ public abstract class UDPHelper {
 	public void closePbSocket(){
 		this.recvSocket.close();
 	}
-
 }

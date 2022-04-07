@@ -1,10 +1,8 @@
 package scheduler;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 
@@ -15,7 +13,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import communication.ProtoBufMessage;
 import communication.UDPHelper;
-import scheduler.ElevatorControl.ElevatorState;
 
 /**
  * The Scheduler class will be running one of the main threads in the system.
@@ -36,6 +33,7 @@ public class Scheduler extends UDPHelper {
     
 	/**
 	 * The constructor for the Scheduler
+	 * 
 	 * @param listenPort the port to listen to
 	 * @param numFloors the number of floors
 	 * @throws SocketException an exception with UDP
@@ -66,7 +64,6 @@ public class Scheduler extends UDPHelper {
 						e1.printStackTrace();
 						LOGGER.error("Failed to receive data from socket, stopping!");
 						isRunning = false;
-						schedulerThread.interrupt();
 					}
 					
 					if(!listenerThread.isInterrupted() && msg != null) {
@@ -141,6 +138,7 @@ public class Scheduler extends UDPHelper {
 
 	/**
 	 * A method used in testing
+	 * 
 	 * @param e The elevator
 	 */
 	public void addToElevators(ElevatorControl e) {
@@ -149,31 +147,40 @@ public class Scheduler extends UDPHelper {
 
 	/**
 	 * Get if the Scheduler is running
+	 * 
 	 * @return
 	 */
 	public Boolean getIsRunning() {
 		return isRunning;
 	}
 	
+	/**
+	 * Added a back-end TCP server to the scheduler
+	 * 
+	 * @param server SchedulerTCPServer
+	 */
 	void addServerToScheduler(SchedulerTCPServer server) {
 		this.backendForDash = server;
 	}
+	
 	/**
 	 * Stop all of the threads
 	 */
 	public void stopScheduler() {
+    	listenerThread.interrupt();
     	isRunning = false;
     	this.closePbSocket();
-    	listenerThread.interrupt();
     	schedulerThread.interrupt();
     }
-
 	
+	/**
+	 * Get all elevators registered with the scheduler
+	 * 
+	 * @return ArrayList<ElevatorControl>
+	 */
 	public ArrayList<ElevatorControl> getElevatorControl(){
 		return this.elevators;
 	}
-  
-	
 	
 	/**
 	 * Stop all of the threads
@@ -183,13 +190,10 @@ public class Scheduler extends UDPHelper {
 		listenerThread.interrupt();
 		schedulerThread.interrupt();
 	}
-	
-	
-	
-	
 
 	/**
 	 * The main method for running the threads
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {

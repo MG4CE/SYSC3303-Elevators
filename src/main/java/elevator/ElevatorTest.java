@@ -17,7 +17,6 @@ import main.Main;
 /**
  * Testing Elevator Movements
  * @author kevin
- *
  */
 class ElevatorTest {
 	static Main main,main1, main2,main3,main4,main5,main6,main7;
@@ -62,8 +61,6 @@ class ElevatorTest {
 		elevator4.start();
 		elevator5.start();
 		elevator6.start();
-		
-		
     }
 	
 	/**
@@ -222,5 +219,4 @@ class ElevatorTest {
         elevator6.interrupt();
         System.out.println("teardown");
     }
-
 }

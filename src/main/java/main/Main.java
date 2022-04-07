@@ -14,7 +14,7 @@ import elevator.Elevator;
 import floorsubsystem.FloorSubsystem;
 
 /**
- * Do not run this, used for internal component testing early on (should be removed).
+ * Do not run this, used for internal testing.
  */
 public class Main extends UDPHelper {
 	public Elevator e;
