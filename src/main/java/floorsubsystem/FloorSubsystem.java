@@ -433,7 +433,6 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 	// Find the start time for the reqID of the arrival message 
                 	long serviceTime = getTimeNow()- startTimes.get(reqID);
                 	String newMessage = "REQ-ID: " + reqID + "- Service Time: " + serviceTime;
-                	System.out.println(newMessage);
                 	try {
 						this.sendByteArray(newMessage.getBytes(), TIMESERVERADDRESS, InetAddress.getByName("localhost"));
 					} catch (IOException e) {
@@ -442,7 +441,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
 					}
                 	System.out.println(newMessage);
 
-                	
+
                 	// If this is the last request to be serviced, send the total program execution time
                 	if (this.requestIDcount == reqID) {
                 		// If program start time has not been initiated, this is the first command to be executed
@@ -455,7 +454,6 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     						// TODO Auto-generated catch block
     						e.printStackTrace();
     					}
-                    	System.out.println(newMessage);
                 	}
                 }
             } else if (msg.isElevatorDepartureMessage()) { // 2. Elevator departure messages
