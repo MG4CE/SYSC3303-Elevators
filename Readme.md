@@ -1,6 +1,6 @@
-# Iteration 4 - SYSC 3303 - The Schedulators
+# Iteration 5 - SYSC 3303 - The Schedulators
 
-Iteration 4 involves the addition of Faults to the system, including door faults, as well as unresponsive elevators (stuck in shaft)
+Iteration 5 involves adding a GUI to track elevators and to implement timing mechanism to measure how long the elevators take to services requests. 
 
 ## Issues to address
 ### Iteration 1 issues
@@ -25,31 +25,27 @@ Iteration 4 involves the addition of Faults to the system, including door faults
 <br />
 
 ### Iteration 4 issues
-- Sceduling state machine is not super optimal
-- Elevator can crash if scheduler sends dispatch while the elevator is in the arrival state, scheduler tries to avoid doing this
-- Elevator floor destination queue can enter into an incorrect state due to request redistribution of hard faulted elevator
-- Race condition if hard fault is scheduled during soft fault simulation timeout
+- ~~Sceduling state machine is not super optimal~~
+- ~~Elevator can crash if scheduler sends dispatch while the elevator is in the arrival state, scheduler tries to avoid doing this~~
+- ~~Elevator floor destination queue can enter into an incorrect state due to request redistribution of hard faulted elevator~~
+- ~~Race condition if hard fault is scheduled during soft fault simulation timeout~~
+
+### Iteration 5 issues
+- No known issues were found during this iteration
 
 ## Installation
  Warning this project needs JDK 17
 
-1. Export the Project into the destination of your workspace so that you can easily import as Maven
-2. Import Project using maven -> Exsiting maven projects
-3. Navigate to the exported project and select the 3303-project folder and make sure to select the pom.xml
-
-![](documents/images/maven1.png)
-![](documents/images/maven2.png)
-![](documents/images/maven3.png)
-
-
-or
-
-Git Clone the Project
-
+1. Git Clone the Project into the destination of your workspace so that you can easily import as Maven
 ```bash
 git clone https://github.com/MG4CE/SYSC3303-Elevators.git
 ```
-
+2. Import Project using maven -> Exsiting maven projects
+![](documents/images/maven1.png)
+3. Navigate into the destination of your workspace, where you placed the project
+![](documents/images/maven2.png)
+3. Navigate to the exported project and select the 3303-project folder and make sure to select the pom.xml
+![](documents/images/maven3.png)
 
 
 ## Usage
@@ -76,12 +72,15 @@ Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
  1. Right-click the test package in the package explorer
  2. Run As -> JUnit Test
 ```
+#### Test Runs
+![](documents/images/maven1.png)
+![](documents/images/maven2.png)
+![](documents/images/maven3.png)
 
 ### Compiling Protobuf Messages
 ```java
 protoc -I=./src/main/proto --java_out=./src/main/java elevator.proto
 ```
-
 
 ## Folders & File Description
 
@@ -148,8 +147,6 @@ protoc -I=./src/main/proto --java_out=./src/main/java elevator.proto
 - FloorSubsystem will send ExternalFloorBtnCommands
 - Elevator will send InternalFloorBtnCommands
 
-
-
 ### FloorSubsystem.java
 
 - Reads input commands from input.txt
@@ -165,8 +162,6 @@ Elevator.PushButton(Destination floor)
 //Stop command shown below
 "0:0:0.0", -1, "up", -1
 ```
- 
-
 
 ### input.txt
 

@@ -41,12 +41,12 @@ class ProtoBufMessageTests{
 	@Test
 	void testSendMessage() throws IOException {
 		DatagramSocket sendSock = new DatagramSocket();
-		DatagramSocket recvSock = new DatagramSocket(35);
+		DatagramSocket recvSock = new DatagramSocket(72);
 		WrapperMessage testMsg = WrapperMessage.newBuilder().setTEST(true).build();
 		DatagramPacket sendPacket = new DatagramPacket(testMsg.toByteArray(), 
 														testMsg.toByteArray().length,
 														InetAddress.getLocalHost(),
-														35);
+														72);
 		sendSock.send(sendPacket);
 		byte[] rawReadBytes = new byte[128];
 		DatagramPacket recvPack = new DatagramPacket(rawReadBytes, 128);
