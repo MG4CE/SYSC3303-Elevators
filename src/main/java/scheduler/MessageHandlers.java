@@ -18,6 +18,15 @@ import scheduler.ElevatorControl.ElevatorState;
 
 public class MessageHandlers {
 	
+	/**
+	 * Handles incoming ElevatorRequestMessage's, EXTERIOR button requests will get directly scheduled to
+	 * an elevator if possible and dispatched if the request is top priority. INTERIOR button requests get
+	 * scheduled to the elevator it belongs to and dispatched if the request is top priority.
+	 * 
+	 * @param s Instance of scheduler for control
+	 * @param packet Raw packet, required for address and port information
+	 * @param msg ProtoBufMessage that is an instance of ElevatorRequestMessage
+	 */
 	protected static void handleElevatorRequestMessage(Scheduler s, DatagramPacket packet, ProtoBufMessage msg) {
 		ElevatorRequestMessage request = msg.toElevatorRequestMessage();
 		
@@ -72,6 +81,14 @@ public class MessageHandlers {
 		}
 	}
 	
+	/**
+	 * Handles incoming ElevatorRegisterMessage's, which creates an elevator control object for the invoking elevator
+	 * and hands/assigns the elevator an ID.
+	 * 
+	 * @param s Instance of scheduler for control
+	 * @param packet Raw packet, required for address and port information
+	 * @param msg ProtoBufMessage that is an instance of ElevatorRegisterMessage
+	 */
 	protected static void handleElevatorRegisterMessage(Scheduler s, DatagramPacket packet, ProtoBufMessage msg) {
 		ElevatorRegisterMessage message = msg.toElevatorRegisterMessage();
 		s.elevators.add(new ElevatorControl(packet.getPort(), s.elevatorIDCounter, message.getFloor(), packet.getAddress(), s));
@@ -85,7 +102,15 @@ public class MessageHandlers {
 		s.elevatorIDCounter++;
 	}
 	
-	
+	/**
+	 * Handles incoming ElevatorArrivedMessage's, on arrival it sets the elevator control state to stopped and tries
+	 * to dispatch the elevator to the next destination, also forwards the message to the floor subsystem. If the 
+	 * request being serviced is an external button request only start a timer that wait for internal button request to arrive.
+	 * 
+	 * @param s Instance of scheduler for control
+	 * @param packet Raw packet, required for address and port information
+	 * @param msg ProtoBufMessage that is an instance of ElevatorArrivedMessage
+	 */
 	protected static void handleElevatorArrivedMessage(Scheduler s, DatagramPacket packet, ProtoBufMessage msg) {
 		ElevatorArrivedMessage message = msg.toElevatorArrivedMessage();
 		Scheduler.LOGGER.info("Elevator " + message.getElevatorID() + " has arrived at floor " + message.getFloor());
@@ -138,6 +163,14 @@ public class MessageHandlers {
 		}
 	}
 	
+	/**
+	 * Handles incoming ElevatorDepartureMessage's, which updates the elevator control object state to MOVING and 
+	 * forwards the message to the floor subsystem.
+	 * 
+	 * @param s Instance of scheduler for control
+	 * @param packet Raw packet, required for address and port information
+	 * @param msg ProtoBufMessage that is an instance of ElevatorDepartureMessage
+	 */
 	protected static void handleElevatorDepartureMessage(Scheduler s, DatagramPacket packet, ProtoBufMessage msg) {
 		ElevatorDepartureMessage message = msg.toElevatorDepartureMessage();
 		Scheduler.LOGGER.debug("Elevator " + message.getElevatorID() + " is now moving");
@@ -156,6 +189,13 @@ public class MessageHandlers {
 		}
 	}
 	
+	/**
+	 * Handles incoming FloorSensorMessage's, which updates the current floor of the elevator control object.
+	 * 
+	 * @param s Instance of scheduler for control
+	 * @param packet Raw packet, required for address and port information
+	 * @param msg ProtoBufMessage that is an instance of FloorSensorMessage
+	 */
 	protected static void handleFloorSensorMessage(Scheduler s, DatagramPacket packet, ProtoBufMessage msg) {
 		FloorSensorMessage request = msg.toFloorSensorMessage();
 		Scheduler.LOGGER.debug("Elevator " + request.getElevatorID() + " is currently at floor " + request.getFloor());
@@ -169,6 +209,14 @@ public class MessageHandlers {
 		}
 	}
 	
+	/**
+	 * Handles incoming ElevatorSimulateFaultMessage's, which makes preparation for the specific simulation fault and
+	 * forwards the message to the correct target elevator.
+	 * 
+	 * @param s Instance of scheduler for control
+	 * @param packet Raw packet, required for address and port information
+	 * @param msg ProtoBufMessage that is an instance of ElevatorSimulateFaultMessage
+	 */
 	protected static void handleElevatorSimulateFaultMessage(Scheduler s, DatagramPacket packet, ProtoBufMessage msg) {
 		SimulateFaultMessage request = msg.toElevatorSimulateFaultMessage();
 		Scheduler.LOGGER.info("Simulating " + request.getFault() + " for Elevator " + request.getElevatorID() + " duration " + request.getTimeout() + "millis");
@@ -186,6 +234,15 @@ public class MessageHandlers {
 		}
 	}
 	
+	/**
+	 * Handles incoming FaultMessage's. For door faults we update the state of the elevator control object and start the
+	 * simulated door fault timer, that ends the fault. For schedule faults the top request is popped and rescheduled.
+	 * When a door fault is resolved the state is updated to the stopped state and the current destination is verified.
+	 * 
+	 * @param s Instance of scheduler for control
+	 * @param packet Raw packet, required for address and port information
+	 * @param msg ProtoBufMessage that is an instance of FaultMessage
+	 */
 	protected static void handleElevatorFaultMessage(Scheduler s, DatagramPacket packet, ProtoBufMessage msg) {
 		FaultMessage request = msg.toElevatorFaultMessage();
 		ElevatorControl elevatorAtFault = null;

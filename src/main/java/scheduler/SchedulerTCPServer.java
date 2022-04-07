@@ -24,7 +24,6 @@ public class SchedulerTCPServer  implements Runnable {
 	private SchedulerBean bean;
 	int numberOfElevators = 0;
 
-	
 	public SchedulerTCPServer(Scheduler scheduler) throws IOException {
 		try {
 			//Add the scheduler here
@@ -61,6 +60,7 @@ public class SchedulerTCPServer  implements Runnable {
 			}
 		}
 	}
+	
 	/**
 	 * Method used from SchedulerUtils to add to hardFaulted list
 	 * this represents what elevators have Hard Faulted
@@ -99,7 +99,6 @@ public class SchedulerTCPServer  implements Runnable {
 		}
 		bean.buildArraysForJsonOutput();
 	}
-	
 	
 	/**
 	 * Method used to check if any elevators have hard faulted
@@ -207,5 +206,4 @@ public class SchedulerTCPServer  implements Runnable {
         //Close the connection
 		webpage.close();
 	}
-
 }

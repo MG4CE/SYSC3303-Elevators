@@ -426,10 +426,12 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
 
         floorThread.start();
     }
-
+    
+    /**
+     * Checks if input file is parsed
+     * @return Boolean
+     */
     public boolean isInputFileParsed() {
         return inputFileParsed;
     }
-
-    
 }

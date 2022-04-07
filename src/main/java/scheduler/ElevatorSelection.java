@@ -51,6 +51,7 @@ public class ElevatorSelection {
 
 	/**
 	 * Compare the elevator requests and their score
+	 * 
 	 * @param e1 the first elevator
 	 * @param e2 the second elevator
 	 * @param request the request

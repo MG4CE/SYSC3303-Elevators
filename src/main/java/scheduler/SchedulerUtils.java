@@ -8,7 +8,11 @@ import message.Button;
 import message.ElevatorRequestMessage;
 import scheduler.ElevatorControl.ElevatorState;
 
+/**
+ * Scheduler utility methods
+ */
 public class SchedulerUtils {
+	
 	/**
 	 * Process an elevator if its at a hard fault and reschedule all external requests to other elevators
 	 * 

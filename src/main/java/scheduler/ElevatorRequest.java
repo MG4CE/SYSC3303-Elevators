@@ -14,6 +14,7 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 
 	/**
 	 * The constructor for the ElevatorRequest class
+	 * 
 	 * @param destinationFloor The destination floor
 	 * @param requestID The id of the request
 	 */
@@ -26,7 +27,8 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 
 	/**
 	 * Another constructor
-	 * @param destinationFloor the destination floor
+	 * 
+	 * @param destinationFloor t he destination floor
 	 * @param requestID the id of the request
 	 * @param direction the direction of the elevator
 	 */
@@ -39,6 +41,7 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 
 	/**
 	 * Get the destination floor
+	 * 
 	 * @return destination floor
 	 */
 	public int getFloor() {
@@ -48,6 +51,7 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 
 	/**
 	 * Get the request ID
+	 * 
 	 * @return the ID of the request
 	 */
 	public int getRequestID() {
@@ -56,6 +60,7 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 
 	/**
 	 * The direction of the elevator request
+	 * 
 	 * @return the direction
 	 */
 	public Direction getDirection() {
@@ -64,6 +69,7 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 	
 	/**
 	 * Get the request type of the elevator request
+	 * 
 	 * @return ButtonType
 	 */
 	public Button getRequestType() {
@@ -72,6 +78,7 @@ public class ElevatorRequest implements Comparable<ElevatorRequest> {
 
 	/**
 	 * Used to comapre two elevator requests
+	 * 
 	 * @param o the other elevator request
 	 * @return the difference between the two requests
 	 */

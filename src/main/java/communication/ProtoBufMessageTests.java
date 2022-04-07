@@ -28,19 +28,14 @@ import message.SimulateFaultMessage;
 import message.WrapperMessage;
 
 class ProtoBufMessageTests{
-
 	
 	@BeforeEach
-	void init() throws SocketException {
-		
-	}
+	void init() throws SocketException {}
 	
 	@AfterEach
-	void after() {
-		
-	}
+	void after() {}
 
-	/*
+	/**
 	 * Verify protobuf Wrapper messages being sent and received over udp
 	 */
 	@Test
@@ -62,7 +57,7 @@ class ProtoBufMessageTests{
 		recvSock.close();
 	}
 
-	/*
+	/**
 	 * Verify floor can be set and read from FaultMessage
 	 */
 	@Test 
@@ -73,7 +68,7 @@ class ProtoBufMessageTests{
 		assertEquals(69, f.getFloor());
 	}
 	
-	/*
+	/**
 	 * Verify ElevatorID can be set and read from FaultMessage
 	 */	
 	@Test 
@@ -84,7 +79,7 @@ class ProtoBufMessageTests{
 		assertEquals(69, f.getElevatorID());
 	}
 	
-	/*
+	/**
 	 * Verify Fault Type can be set and read from FaultMessage
 	 */
 	@Test 
@@ -105,7 +100,7 @@ class ProtoBufMessageTests{
 		assertEquals(FaultType.SCHEDULE_FAULT, f3.getFault());
 	}
 	
-	/*
+	/**
 	 * Verify TimeStamp can be set and read from FaultMessage
 	 */
 	@Test 
@@ -116,7 +111,7 @@ class ProtoBufMessageTests{
 		assertEquals("cheese", f.getTimeStamp());
 	}
 
-	/*
+	/**
 	 * Verify ElevatorID can be set and read from SimFaultMessage
 	 */
 	@Test 
@@ -127,7 +122,7 @@ class ProtoBufMessageTests{
 		assertEquals(69, f.getElevatorID());
 	}
 	
-	/*
+	/**
 	 * Verify all Fault Types can be set and read from SimFaultMessage
 	 */
 	@Test 
@@ -148,7 +143,7 @@ class ProtoBufMessageTests{
 		assertEquals(FaultType.SCHEDULE_FAULT, f3.getFault());
 	}
 	
-	/*
+	/**
 	 * Verify Timeout can be set and read from SimFaultMessage
 	 */
 	@Test 
@@ -159,7 +154,7 @@ class ProtoBufMessageTests{
 		assertEquals(69, f.getTimeout());
 	}
 	
-	/*
+	/**
 	 * Verify TimeStamp can be set and read from SimFaultMessage
 	 */
 	@Test 
@@ -170,7 +165,7 @@ class ProtoBufMessageTests{
 		assertEquals("cheese", f.getTimeStamp());
 	}
 	
-	/*
+	/**
 	 * Verify ElevatorID can be set and read from ElevatorRegisterMessage
 	 */
 	@Test 
@@ -181,7 +176,7 @@ class ProtoBufMessageTests{
 		assertEquals(123, f.getElevatorID());
 	}
 	
-	/*
+	/**
 	 * Verify Floor can be set and read from ElevatorRegisterMessage
 	 */
 	@Test 
@@ -192,7 +187,7 @@ class ProtoBufMessageTests{
 		assertEquals(123, f.getFloor());
 	}
 
-	/*
+	/**
 	 * Verify an external button click (required fields) all work
 	 */
 	@Test 
@@ -213,7 +208,7 @@ class ProtoBufMessageTests{
 		assertEquals(12, f.getRequestID());
 	}
 	
-	/*
+	/**
 	 * Verify an internal button click (required fields) all work
 	 */
 	@Test 
@@ -233,7 +228,7 @@ class ProtoBufMessageTests{
 		assertEquals(12, f.getRequestID());
 	}
 	
-	/*
+	/**
 	 * Verify Floor can be set and read from ElevatorArrivedMessage
 	 */
 	@Test 
@@ -244,7 +239,7 @@ class ProtoBufMessageTests{
 		assertEquals(123, f.getFloor());
 	}
 
-	/*
+	/**
 	 * Verify TimeStamp can be set and read from ElevatorArrivedMessage
 	 */
 	@Test 
@@ -255,7 +250,7 @@ class ProtoBufMessageTests{
 		assertEquals("cheese", f.getTimeStamp());
 	}
 	
-	/*
+	/**
 	 * Verify ElevatorID can be set and read from ElevatorArrivedMessage
 	 */
 	@Test 
@@ -266,7 +261,7 @@ class ProtoBufMessageTests{
 		assertEquals(123, f.getElevatorID());
 	}
 	
-	/*
+	/**
 	 * Verify RequestID can be set and read from FaultMessage
 	 */
 	@Test 
@@ -277,7 +272,7 @@ class ProtoBufMessageTests{
 		assertEquals(69, f.getRequestID());
 	}
 	
-	/*
+	/**
 	 * Verify Floor can be set and read from ElevatorDepartureMessage
 	 */
 	@Test 
@@ -288,7 +283,7 @@ class ProtoBufMessageTests{
 		assertEquals(123, f.getInitialFloor());
 	}
 
-	/*
+	/**
 	 * Verify TimeStamp can be set and read from ElevatorDepartureMessage
 	 */
 	@Test 
@@ -299,7 +294,7 @@ class ProtoBufMessageTests{
 		assertEquals("cheese", f.getTimeStamp());
 	}
 	
-	/*
+	/**
 	 * Verify ElevatorID can be set and read from ElevatorDepartureMessage
 	 */
 	@Test 
@@ -310,7 +305,7 @@ class ProtoBufMessageTests{
 		assertEquals(123, f.getElevatorID());
 	}
 	
-	/*
+	/**
 	 * Verify RequestID can be set and read from ElevatorDepartureMessage
 	 */
 	@Test 
@@ -321,7 +316,7 @@ class ProtoBufMessageTests{
 		assertEquals(69, f.getRequestID());
 	}
 
-	/*
+	/**
 	 * Verify Direction can be set and read from ElevatorDepartureMessage
 	 */
 	@Test 
@@ -337,7 +332,7 @@ class ProtoBufMessageTests{
 		assertEquals(Direction.UP, f2.getDirection());
 	}
 	
-	/*
+	/**
 	 * Verify TimeStamp can be set and read from FloorSensorMessage
 	 */
 	@Test 
@@ -348,7 +343,7 @@ class ProtoBufMessageTests{
 		assertEquals("cheese", f.getTimeStamp());
 	}
 	
-	/*
+	/**
 	 * Verify Floor can be set and read from FloorSensorMessage
 	 */
 	@Test 
@@ -359,7 +354,7 @@ class ProtoBufMessageTests{
 		assertEquals(123, f.getFloor());
 	}
 	
-	/*
+	/**
 	 * Verify Direction can be set and read from FloorSensorMessage
 	 */
 	@Test 
@@ -375,7 +370,7 @@ class ProtoBufMessageTests{
 		assertEquals(Direction.UP, f2.getDirection());
 	}	
 	
-	/*
+	/**
 	 * Verify LampState can be set and read from LampMessage
 	 */
 	@Test 
@@ -391,7 +386,7 @@ class ProtoBufMessageTests{
 		assertEquals(LampState.ON, f2.getState());
 	}
 	
-	/*
+	/**
 	 * Verify Floor can be set and read from LampMessage
 	 */
 	@Test 
@@ -402,7 +397,7 @@ class ProtoBufMessageTests{
 		assertEquals(123, f.getFloor());
 	}
 	
-	/*
+	/**
 	 * Verify ElevatorID can be set and read from LampMessage
 	 */
 	@Test 

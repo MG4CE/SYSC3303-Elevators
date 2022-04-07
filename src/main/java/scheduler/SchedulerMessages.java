@@ -29,6 +29,7 @@ public class SchedulerMessages {
 				.setFloor(floor)
 				.setElevatorID(elevatorID)
 				.setDirection(direction)
+				//TODO: ADD TIMESTAMP
 				.build();
 
 		s.sendMessage(lampMsg, port, address);
@@ -52,6 +53,7 @@ public class SchedulerMessages {
 				.setDestFloor(destFloor)
 				.setElevatorID(elevatorID)
 				.setRequestID(requestID)
+				//TODO: ADD TIMESTAMP
 				.build();
 
 		s.sendMessage(dispatchMsg, port, address);
@@ -108,6 +110,7 @@ public class SchedulerMessages {
 	protected static void sendElevatorRegisterMessage(Scheduler s, int elevatorID, int port, InetAddress address) throws IOException {
 		ElevatorRegisterMessage msg = ElevatorRegisterMessage.newBuilder()
 				.setElevatorID(elevatorID)
+				//TODO: ADD TIMESTAMP
 				.build();
 
 		s.sendMessage(msg, port, address);

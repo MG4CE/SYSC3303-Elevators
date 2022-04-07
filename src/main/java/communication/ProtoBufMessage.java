@@ -91,7 +91,6 @@ public class ProtoBufMessage {
 		}
 	}
 
-	
 	/**
 	 * Check if message of type WrapperMessage, really only for debugging and testing
 	 * 
@@ -101,7 +100,6 @@ public class ProtoBufMessage {
 		return this.message instanceof WrapperMessage;
 	}
 
-	
 	/**
 	 * Check if message of type ElevatorRequestMessage
 	 * 
