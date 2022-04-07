@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
@@ -21,6 +22,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import communication.ProtoBufMessage;
 import communication.UDPHelper;
 import message.*;
+import scheduler.SchedulerBean;
 
 /**
  * Responsible for reading input file and generating commands that will be sent to the scheduler and the elevator.
@@ -35,6 +37,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     private int schedulerPort;
     private InetAddress schedulerAddress;
     private boolean inputFileParsed;
+    private HashMap<Integer, Long> startTimes; // start times for each request id
 
     /**
      * Create new instance of Floor Subsystem
@@ -49,7 +52,8 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         this.elevatorInteriorRequestList = new ArrayList<>();
         this.repliedMessages = new ArrayList<>();
         this.schedulerAddress = schedulerAddress;
-        inputFileParsed = false;
+        this.inputFileParsed = false;
+        this.startTimes = new HashMap<Integer, Long>();
     }
 
     /**
@@ -172,16 +176,28 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     }
 
     /**
+     * Return the immediate time in milliseconds
+     * @return Long : time right now in Millis.
+     */
+    private long getTimeNow() {
+    	return System.currentTimeMillis();
+    }
+    
+    /**
      * Creates timer that sends a request in the future
      * The Code inside the run() method is what will execute when the timer executes
+     * Also keeps track of a starting time of when the request was sent out
      * @param requestMessage Elevator request message to be sent
      * @return Timer Task event
      */
-    public TimerTask makeMessageRequestTimer(ElevatorRequestMessage requestMessage) {
+    public TimerTask makeMessageRequestTimer(ElevatorRequestMessage requestMessage) {    	
         return new TimerTask() {
             @Override
             public void run() {
                 try {
+                	// Save start time of when this request is "executed"
+                	long timeNow = getTimeNow();
+                	startTimes.put(requestMessage.getRequestID(), timeNow);
                     sendExteriorElevatorRequest(requestMessage);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -333,8 +349,8 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         Timer timer = new Timer();
         readCommandsFile(timer);
         this.inputFileParsed = true;
-
         while(true) {
+
             // Receive UPD message
             DatagramPacket recvMessage = null;
             try {
@@ -353,28 +369,31 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 LOGGER.error("Failed to convert received to protobuf type!");
                 System.exit(1);
             }
-
-            /*
-                Received Message Handling
+            /* Received Message Handling
 
                 1. Elevator arrival messages
                 -> trigger directional lamps OFF (for the elevator shaft no longer being used)
                 -> set elevator id before sending interior button press
-                -> Send interior button press.
-
+                	1.1 (if arrival message contains a request ID for which the interior button has not been sent)
+                	-> Send interior button press.
+                	1.2 (if arrival message has ID for which the interioir button was already sent; request is done)
+                	-> save total time it took to service that request and send to scheduler
+                	
                 2. Elevator departure message
                 -> trigger directional lamps ON (for the elevator shaft being used)
              */
             if (msg.isElevatorArrivedMessage()) { // 1. Elevator arrival messages
                 ElevatorArrivedMessage arrivedMessage = msg.toElevatorArrivedMessage();
                 int reqID = arrivedMessage.getRequestID();
+                
+                
                 LOGGER.info("[Floor " + arrivedMessage.getFloor() + "] Elevator "
                         + arrivedMessage.getElevatorID () +" has arrived at floor  " +
                         " [ReqID: " + reqID + "]");
 
                 LOGGER.info("[Elevator Shaft "+ arrivedMessage.getElevatorID() + "] Lamps OFF");
 
-                if(!repliedMessages.contains(reqID)) { // 2. Elevator departure message
+                if(!repliedMessages.contains(reqID)) { // 1.1
                     for(ElevatorRequestMessage req:elevatorInteriorRequestList) {
                         if (req.getRequestID() == reqID) {
                             repliedMessages.add(reqID);
@@ -395,6 +414,11 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                             }
                         }
                     }
+                } else {  // 1.2
+                	// Find the start time for the reqID of the arrival message 
+                	long serviceTime = getTimeNow()- startTimes.get(reqID);
+                	String newMessage = "REQ-ID: " + reqID + "- Service Time: " + serviceTime;
+                	SchedulerBean.addTimingMessage(newMessage);
                 }
             } else if (msg.isElevatorDepartureMessage()) { // 2. Elevator departure messages
                 ElevatorDepartureMessage departureMessage = msg.toElevatorDepartureMessage();

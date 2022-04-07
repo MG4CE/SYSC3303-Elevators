@@ -18,6 +18,7 @@ public class SchedulerBean {
 	private List<Integer> elevatorDirectionList;
 	private List<Integer> elevatorStateList;
 	private List<Integer> elevatorHardFaultList;
+	private static List<String> timingMessageList;
 	
 	private int numFloors;
 	
@@ -35,12 +36,19 @@ public class SchedulerBean {
 		elevatorDirectionList = new ArrayList<>();
 		elevatorStateList = new ArrayList<>();
 		elevatorHardFaultList = new ArrayList<>();
+		timingMessageList = new ArrayList<>();
 		}
 	
 
 	
 
-	
+	/**
+	 * Add a new arrival string for the front end logger
+	 * @param String : arrival message 
+	 */
+	public static void addTimingMessage(String msg) {
+		timingMessageList.add(msg);
+	}
 
 	/**
 	 * Add en elevatorId that has been hard faulted
