@@ -23,6 +23,7 @@ import communication.ProtoBufMessage;
 import communication.UDPHelper;
 import message.*;
 import scheduler.SchedulerBean;
+import scheduler.SchedulerTCPServer;
 
 /**
  * Responsible for reading input file and generating commands that will be sent to the scheduler and the elevator.
@@ -38,6 +39,8 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
     private InetAddress schedulerAddress;
     private boolean inputFileParsed;
     private HashMap<Integer, Long> startTimes; // start times for each request id
+    private SchedulerBean beanToSendTimingMessagesTo;
+    private final int TIMESERVERADDRESS = 119;
 
     /**
      * Create new instance of Floor Subsystem
@@ -53,7 +56,7 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         this.repliedMessages = new ArrayList<>();
         this.schedulerAddress = schedulerAddress;
         this.inputFileParsed = false;
-        this.startTimes = new HashMap<Integer, Long>();
+        this.startTimes = new HashMap<Integer, Long>();     
     }
 
     /**
@@ -417,8 +420,16 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                 } else {  // 1.2
                 	// Find the start time for the reqID of the arrival message 
                 	long serviceTime = getTimeNow()- startTimes.get(reqID);
-                	String newMessage = "REQ-ID: " + reqID + "- Service Time: " + serviceTime;
-                	SchedulerBean.addTimingMessage(newMessage);
+                	String newMessage = "REQ-ID:-" + reqID + "-Service Time:-" + serviceTime;
+                	
+                	try {
+						this.sendByteArray(newMessage.getBytes(), TIMESERVERADDRESS, InetAddress.getByName("localhost"));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                	System.out.println(newMessage);
+                
                 }
             } else if (msg.isElevatorDepartureMessage()) { // 2. Elevator departure messages
                 ElevatorDepartureMessage departureMessage = msg.toElevatorDepartureMessage();
@@ -445,7 +456,6 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
         InetAddress schedulerAddress = InetAddress.getLocalHost();
         int schedulerPort = 6969;
         String commandFile = "documents/input/input.txt";
-
         Thread floorThread = new Thread (new FloorSubsystem(schedulerPort, commandFile, schedulerAddress));
 
         floorThread.start();
