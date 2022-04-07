@@ -9,19 +9,16 @@ Iteration 5 involves adding a GUI to track elevators and to implement timing mec
 - ~~How will the movement be handled with the new Motor class?~~  Completed
 - ~~How will ElevatorFloorSensor detect the location of the elevator in the shaft?~~ Completed
 - ~~We might need a new type of class Message to notify other components in the system of changes.~~ -Completed
-
 <br />
 
 ### Iteration 2 issues
 - ~~How to smoothly transition between new commands~~ Completed
 - ~~When trying internal button presses 1 floor below~~ Completed
-
 <br />
 
 ### Iteration 3 issues
 - ~~Dealing with nonsequential floors~~ Completed
 - ~~Bug when scheduling with 1 elevator only (Overwrites current destination)~~ Completed
-
 <br />
 
 ### Iteration 4 issues
@@ -72,10 +69,10 @@ Opening the 3303-Iteration-2-jar-with-dependencies.jar in terminal
  1. Right-click the test package in the package explorer
  2. Run As -> JUnit Test
 ```
-#### Test Runs
-![](documents/images/maven1.png)
-![](documents/images/maven2.png)
-![](documents/images/maven3.png)
+- Test Runs
+![](documents/images/tests.png)
+
+
 
 ### Compiling Protobuf Messages
 ```java
@@ -121,7 +118,7 @@ protoc -I=./src/main/proto --java_out=./src/main/java elevator.proto
 
 - The Elevator that holds a Finite State Machine which holds states of what the elevator is doing.
 - The elevator will listen for commands from the scheduler.java
-    ##### States
+    #### States
     - IDLE - Waiting for scheduler request
     - BOARDING - Waiting at floor for Internal Button request or for passengers to leave
     - MOVING - The elevator is traveling from A floor to another
@@ -137,12 +134,10 @@ protoc -I=./src/main/proto --java_out=./src/main/java elevator.proto
 
 - The scheduler dispatches elevator requests to the elevator using the SCAN Algorithm
 
-
 - Holds 3 lists 
     - Elevator up list - Holds up requests
     - Elevator down list - Holds down requests
     - Commands to dispatch - Holds commands to send to the elevator in the current direction
-
 
 - FloorSubsystem will send ExternalFloorBtnCommands
 - Elevator will send InternalFloorBtnCommands
