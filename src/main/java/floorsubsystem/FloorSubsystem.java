@@ -156,7 +156,10 @@ public class FloorSubsystem extends UDPHelper implements Runnable{
                     exteriorFloorButton = Integer.parseInt(lineParts[1]); // External Floor the command was called from
                     direction = utils.Utils.stringToDirection(lineParts[2]);// Get Floor Direction Enum
                     interiorFloorButton = Integer.parseInt(lineParts[3]);// Internal Elevator destination floor button
-
+                    if(interiorFloorButton < 0) {
+                    	LOGGER.debug("Invalid floor button!\n");
+                    	continue;
+                    }
                     // Create Request - EXTERIOR elevator request message
                     ElevatorRequestMessage exteriorRequestMessage = createExteriorElevatorRequestMessage(exteriorFloorButton,this.requestIDcount,direction);
 
