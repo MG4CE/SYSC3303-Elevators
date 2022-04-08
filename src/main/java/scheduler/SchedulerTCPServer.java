@@ -8,6 +8,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Objects;
+
 import org.json.simple.JSONObject;
 
 /**
@@ -31,7 +34,7 @@ public class SchedulerTCPServer  implements Runnable {
 			//Start the TCP server
 			server = new ServerSocket(socketNum);
 			//Create the FrontEnd data bean
-			this.bean = new SchedulerBean();
+			this.bean= new SchedulerBean();
 			//Add the tcp server to scheduler so it can comm the hard faults
 			this.scheduler.addServerToScheduler(this);
 		} catch (IOException e) {
@@ -67,7 +70,7 @@ public class SchedulerTCPServer  implements Runnable {
 	 * @param elevatorId
 	 */
 	protected void addToHardFaults(Integer elevatorId) {
-		this.bean.addToHardFaults(elevatorId);
+		bean.addToHardFaults(elevatorId);
 	}
 	
 	/**
@@ -107,9 +110,9 @@ public class SchedulerTCPServer  implements Runnable {
 	private void checkForHardFaults(ArrayList<ElevatorControl> elevatorControl) {
 		int index = -1;
 		
-		for(Integer elevatorIdThatHF: this.bean.getHardFaultList()) {
-			if((index = this.bean.findElevatorIndex(elevatorIdThatHF))!=-1) {
-				this.bean.getElevatorStateList().set(index, 9);
+		for(Integer elevatorIdThatHF: bean.getHardFaultList()) {
+			if((index = bean.findElevatorIndex(elevatorIdThatHF))!=-1) {
+				bean.getElevatorStateList().set(index, 9);
 			}
 		}
 	}
@@ -168,6 +171,13 @@ public class SchedulerTCPServer  implements Runnable {
 	private void listenForCall() throws IOException {
 		webpage = server.accept();
 	}
+	/**
+	 * This method is called from by the TimeMessageServer to add incoming time messages to the frontEnd list
+	 * @param msg
+	 */
+	public void addMessagesToBeanArray(String msg) {
+		this.bean.addTimingMessage(msg);
+	}
 	
 	/**
 	 * Update the front end by translating all system data into a json and return in an http packet
@@ -180,12 +190,13 @@ public class SchedulerTCPServer  implements Runnable {
 		
 		//Create json for return data
 		JSONObject json = new JSONObject();
-		json.put("ids" , Arrays.toString(this.bean.getElevatorArray()));
-		json.put("floor", Arrays.toString(this.bean.getElevatorFloorArray()));
-		json.put("requestTo", Arrays.toString(this.bean.getRequestedFloorArray()));
-		json.put("directions", Arrays.toString(this.bean.getDirectionArray()));
-		json.put("states", Arrays.toString(this.bean.getStateArray()));
-		json.put("numFloors", this.bean.getNumFloors());
+		json.put("ids" , Arrays.toString(bean.getElevatorArray()));
+		json.put("floor", Arrays.toString(bean.getElevatorFloorArray()));
+		json.put("requestTo", Arrays.toString(bean.getRequestedFloorArray()));
+		json.put("directions", Arrays.toString(bean.getDirectionArray()));
+		json.put("states", Arrays.toString(bean.getStateArray()));
+		json.put("numFloors", bean.getNumFloors());
+		json.put("timing", this.bean.removeTopValue());
 		
 		//Object outstream from the tcp server
 		BufferedWriter out = new BufferedWriter(new OutputStreamWriter(webpage.getOutputStream()));
