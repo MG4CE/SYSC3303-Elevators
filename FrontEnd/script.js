@@ -4,6 +4,7 @@ var elevatorPath = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAoHC
 var audioObjects =[];
 
 
+
 function updateConsole(timingInfo){
 
 	console.log(timingInfo)
@@ -174,7 +175,6 @@ function AjaxCall() {
 					startElevators(ids2,requestFloor2, currentFloor2, directions2, states2, numFloors2)
 					firstRun = false
 				}else{
-
 				updateElevators(ids2,requestFloor2, currentFloor2,directions2, states2, numFloors2)	
 				updateConsole(timingInfo)
 
