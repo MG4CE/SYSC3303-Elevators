@@ -10,10 +10,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 
-import static java.util.concurrent.TimeUnit.*;
+import message.Button;
+import message.Direction;
 
-import elevatorCommands.Button;
-import elevatorCommands.Direction;
+import static java.util.concurrent.TimeUnit.*;
 
 /**
  * The ElevatorControl class is a simulation of the elevator
@@ -63,6 +63,7 @@ public class ElevatorControl {
 
 	/**
 	 * The constructor for the elevator control class
+	 * 
 	 * @param port The port of the elevator
 	 * @param elevatorID The ID of the elevator
 	 * @param currentFloor The current floor the elevator is on
@@ -76,7 +77,7 @@ public class ElevatorControl {
 		this.floorDestinations = new ArrayList<>();
 		this.currentDirection = Direction.STATIONARY;
 		this.state = ElevatorState.STOPPED;
-		this.currentDestinationFloor = -1;
+		this.currentDestinationFloor = 0;
 		this.scheduler = scheduler;
 		this.doorFaultSimTimer = null;
 		this.doorFaultSimTimerTask = null;
@@ -87,6 +88,7 @@ public class ElevatorControl {
 
 	/**
 	 * Add a destination to the elevators list of destinations
+	 * 
 	 * @param req the ElevatorRequest that will hold the destination
 	 */
 	public void addDestination(ElevatorRequest req) {		
@@ -98,9 +100,9 @@ public class ElevatorControl {
 		//System.out.println("Elevator ID " + elevatorID);
 	    
 		if (req != null) {
-//			System.out.println("Request floor " + req.getFloor());
-//			System.out.println("Current floor " + currentFloor);
-//			System.out.println("Current destination floor " + currentDestinationFloor);
+			//System.out.println("Request floor " + req.getFloor());
+			//System.out.println("Current floor " + currentFloor);
+			//System.out.println("Current destination floor " + currentDestinationFloor);
 			floorDestinations.add(req);
 			
 		    if (currentDestinationFloor > req.getFloor() && currentDirection == Direction.STATIONARY) {
@@ -151,15 +153,16 @@ public class ElevatorControl {
 	    }
 	    
 	    floorDestinations = seek_sequence;
-//	    System.out.println("Current direction: " + currentDirection);
-//	    System.out.print("Sequence is" + "\n");
-//	    for (int i = 0; i < floorDestinations.size(); i++) {
-//	        System.out.print(floorDestinations.get(i).getFloor() + "\n");
-//	    }
+	    //System.out.println("Current direction: " + currentDirection);
+	    //System.out.print("Sequence is" + "\n");
+	    //for (int i = 0; i < floorDestinations.size(); i++) {
+	    //    System.out.print(floorDestinations.get(i).getFloor() + "\n");
+	    //}
 	}
 
 	/**
 	 * Get the state of the elevator
+	 * 
 	 * @return the state
 	 */
 	public ElevatorState getState() {
@@ -168,6 +171,7 @@ public class ElevatorControl {
 
 	/**
 	 * Set the state of the elevator
+	 * 
 	 * @param state the state to be set
 	 */
 	public void setState(ElevatorState state) {
@@ -176,6 +180,7 @@ public class ElevatorControl {
 
 	/**
 	 * Get the port of the elevator
+	 * 
 	 * @return the elevator port
 	 */
 	public int getPort() {
@@ -184,6 +189,7 @@ public class ElevatorControl {
 
 	/**
 	 * get the elevator ID
+	 * 
 	 * @return the Id of the elevator
 	 */
 	public int getElevatorID() {
@@ -192,6 +198,7 @@ public class ElevatorControl {
 
 	/**
 	 * Get the current floor of the elevator
+	 * 
 	 * @return the current floor
 	 */
 	public int getCurrentFloor() {
@@ -201,6 +208,7 @@ public class ElevatorControl {
 
 	/**
 	 * Get the last directon of the elevator
+	 * 
 	 * @return the last direction
 	 */
 	public Direction getlDirection() {
@@ -209,6 +217,7 @@ public class ElevatorControl {
 
 	/**
 	 * Set the current floor of the elevator
+	 * 
 	 * @param currentFloor the floor to be set
 	 */
 	public void setCurrentFloor(int currentFloor) {
@@ -217,6 +226,7 @@ public class ElevatorControl {
 
 	/**
 	 * get all the destinations
+	 * 
 	 * @return The floor destinations
 	 */
 	protected ArrayList<ElevatorRequest> getFloorDestinations() {
@@ -225,6 +235,7 @@ public class ElevatorControl {
 
 	/**
 	 * Pop the top request off of the destinations
+	 * 
 	 * @return the top destination
 	 */
 	public ElevatorRequest popTopRequest() {
@@ -252,6 +263,7 @@ public class ElevatorControl {
 
 	/**
 	 * get the number of destinations
+	 * 
 	 * @return the number of destinations
 	 */
 	public int getNumDestinations() {
@@ -261,6 +273,7 @@ public class ElevatorControl {
 	/**
 	 * Get the InetAddress
 	 * @return The InetAddress
+	 * 
 	 */
 	public InetAddress getAddress() {
 		return this.address;
@@ -269,6 +282,7 @@ public class ElevatorControl {
 
 	/**
 	 * Peek the top request
+	 * 
 	 * @return the top request
 	 */
 	public ElevatorRequest peekTopRequest() {
@@ -280,6 +294,7 @@ public class ElevatorControl {
 
 	/**
 	 * Set the current destination of the elevator control
+	 * 
 	 * @param destination the elevator control destination
 	 */
 	public void setCurrentDestination(int destination) {
@@ -294,6 +309,7 @@ public class ElevatorControl {
 
 	/**
 	 * get the current floor destination
+	 * 
 	 * @return the floor destination
 	 */
 	public int getCurrentDestination() {
@@ -331,7 +347,8 @@ public class ElevatorControl {
 	
 	/**
 	 * Return Runnable wait timer task
-	 * @return
+	 * 
+	 * @return Runnable task
 	 */
 	private Runnable makeTimerTask() {
 		return new Runnable() {
@@ -340,7 +357,7 @@ public class ElevatorControl {
 					Scheduler.LOGGER.warn("Floorsubsystem failed to give internal button press!");
 					if (peekTopRequest() != null ) {
 						try {
-							scheduler.sendSchedulerDispatchMessage(peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
+							SchedulerMessages.sendSchedulerDispatchMessage(scheduler, peekTopRequest().getFloor(), port, currentDirection, peekTopRequest().getRequestID(), elevatorID, address);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -356,8 +373,10 @@ public class ElevatorControl {
 	 * Start timeout timer
 	 */
 	public void startTimeoutTimer() {
-		timeoutHandler = timeoutScheduler.schedule(makeTimeoutTask(), TIMEOUT, MILLISECONDS);
-		isTimeoutTimerOff = false;
+		if(isTimeoutTimerOff) {
+			timeoutHandler = timeoutScheduler.schedule(makeTimeoutTask(), TIMEOUT, MILLISECONDS);
+			isTimeoutTimerOff = false;
+		}
 	}
 	
 	/**
@@ -373,8 +392,10 @@ public class ElevatorControl {
 	 * Stop timeout timer
 	 */
 	public void stopTimeoutTimer() {
-		timeoutHandler.cancel(true);
-		isTimeoutTimerOff = true;
+		if(!isTimeoutTimerOff) {
+			timeoutHandler.cancel(true);
+			isTimeoutTimerOff = true;
+		}
 	}
 	
 	/**
@@ -389,7 +410,7 @@ public class ElevatorControl {
 			public void run() {
 				if(!isTimeoutTimerOff) {
 					state = ElevatorState.TIMEOUT;
-					scheduler.hardFaultElevator(e);
+					SchedulerUtils.hardFaultElevator(scheduler, e, scheduler.numFloors);
 				}
 			}
         };
@@ -424,10 +445,11 @@ public class ElevatorControl {
 			public void run() {
 				Scheduler.LOGGER.info("Ending simulated door fault for Elevator " + elevatorID);
 				try {
-					scheduler.sendStopDoorFaultSimulateFaultMessage(elevatorID, port, address);
+					SchedulerMessages.sendStopDoorFaultSimulateFaultMessage(scheduler, elevatorID, port, address);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				startTimeoutTimer();
 			}
         };
 	}
@@ -474,7 +496,31 @@ public class ElevatorControl {
 	}
 	
 	/**
+	 * Checks if the top request can be scheduled based on the elevators state
+	 * 
+	 * @return Boolean true if schedulable, false otherwise
+	 */
+	public Boolean isTopRequestSchedulable() {
+		if(!isSchedulable()) {
+			return false;
+		}
+		
+		if(state == ElevatorState.STOPPED) {
+			return true;
+		}
+		
+		if(peekTopRequest().getFloor() > currentDestinationFloor  && currentDirection == Direction.UP) {
+			return true;
+		}else if(peekTopRequest().getFloor() < currentDestinationFloor  && currentDirection == Direction.DOWN) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Get isTimeoutTimerOff
+	 * 
 	 * @return Boolean
 	 */
 	public Boolean isTimeoutTimerOff() {

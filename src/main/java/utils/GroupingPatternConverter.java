@@ -9,6 +9,9 @@ import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
 import org.apache.logging.log4j.core.pattern.PatternFormatter;
 import org.apache.logging.log4j.core.pattern.PatternParser;
 
+/**
+ * Custom formating option for log4j to allow for consistent spacing
+ */
 @Plugin(name="GroupingPatternConverter", category="Converter")
 @ConverterKeys({"grp"})
 public class GroupingPatternConverter extends LogEventPatternConverter {

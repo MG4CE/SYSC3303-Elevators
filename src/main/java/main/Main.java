@@ -1,10 +1,7 @@
 package main;
 
-import elevatorCommands.ElevatorRegisterMessage;
-import elevatorCommands.SchedulerDispatchMessage;
-import elevators.Elevator;
-import floorSubsystem.FloorSubsystem;
-import protoBufHelpers.UDPHelper;
+import message.ElevatorRegisterMessage;
+import message.SchedulerDispatchMessage;
 import scheduler.Scheduler;
 
 import java.io.IOException;
@@ -12,8 +9,12 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import communication.UDPHelper;
+import elevator.Elevator;
+import floorsubsystem.FloorSubsystem;
+
 /**
- * Do not run this, used for internal component testing early on (should be removed).
+ * Do not run this, used for internal testing.
  */
 public class Main extends UDPHelper {
 	public Elevator e;
